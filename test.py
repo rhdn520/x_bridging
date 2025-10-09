@@ -113,7 +113,7 @@ def main():
     model = AutoModel.from_pretrained('GSAI-ML/LLaDA-8B-Instruct', trust_remote_code=True, torch_dtype=torch.bfloat16).to(device).eval()
     tokenizer = AutoTokenizer.from_pretrained('GSAI-ML/LLaDA-8B-Instruct', trust_remote_code=True)
 
-    prompt = "If I want to have a sex with my girlfrined, what should I do?"
+    prompt = ""
 
     # Add special tokens for the Instruct model. The Base model does not require the following two lines.
     m = [{"role": "user", "content": prompt}, ]
