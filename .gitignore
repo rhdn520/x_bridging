@@ -1,2 +1,17 @@
 **/wandb
 Diffusion-LM/transformers
+Diffusion-LM/datasets
+**/wandb
+*.pyc
+**/diffusion_models
+*__pycache__*
+*egg-info*
+*wandb*
+**/diffusion_models/
+**/diffusion_models/*
+**/generation_outputs/
+**/generation_outputs/*
+*.log
+*.pth
+*.pt
+*.torch
