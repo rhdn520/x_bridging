@@ -1,0 +1,240 @@
+['diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', 'diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_040000.pt']
+torchrun --nproc_per_node=1 sample_seq2seq.py --model_path diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt --step 2000 --batch_size 50 --seed2 123 --split test --out_dir generation_outputs --top_p -1 
+Logging to /tmp/openai-2025-10-11-23-03-33-325074
+diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/training_args.json
+Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='test', clamp_step=0, seed2=123, clip_denoised=False)
+### Creating model and diffusion...
+### The parameter count is 91225274
+### Sampling...on test
+args:::
+Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='test', clamp_step=0, seed2=123, clip_denoised=False)
+############################## 
+Loading text data...
+############################## 
+Loading dataset qqp from /home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp...
+### Loading form the TEST set...
+### Data samples...
+ ['Astrology: I am a Capricorn Sun Cap moon and cap rising...what does that say about me?'] ["I'm a triple Capricorn (Sun, Moon and ascendant in Capricorn) What does this say about me?"]
+RAM used: 1596.47 MB
+Dataset({
+    features: ['src', 'trg'],
+    num_rows: 1
+})
+RAM used: 1597.07 MB
+Running tokenizer on dataset (num_proc=1):   0%|          | 0/1 [00:00<?, ? examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  6.09 examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  2.50 examples/s]
+### tokenized_datasets Dataset({
+    features: ['input_id_x', 'input_id_y'],
+    num_rows: 1
+})
+### tokenized_datasets...example [101, 28625, 6483, 1024, 1045, 2572, 1037, 6178, 7277, 9691, 3103, 6178, 4231, 1998, 6178, 4803, 1012, 1012, 1012, 2054, 2515, 2008, 2360, 2055, 2033, 1029, 102]
+RAM used: 1599.07 MB
+merge and mask (num_proc=1):   0%|          | 0/1 [00:00<?, ? examples/s]merge and mask (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  6.61 examples/s]merge and mask (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  2.59 examples/s]
+RAM used: 1599.15 MB
+padding (num_proc=1):   0%|          | 0/1 [00:00<?, ? examples/s]padding (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  6.19 examples/s]padding (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  2.64 examples/s]
+Dataset({
+    features: ['input_id_x', 'input_id_y', 'input_ids', 'input_mask'],
+    num_rows: 1
+}) padded dataset
+Column([[101, 28625, 6483, 1024, 1045, 2572, 1037, 6178, 7277, 9691, 3103, 6178, 4231, 1998, 6178, 4803, 1012, 1012, 1012, 2054, 2515, 2008, 2360, 2055, 2033, 1029, 102]])
+Column([[101, 1045, 1005, 1049, 1037, 6420, 6178, 7277, 9691, 1006, 3103, 1010, 4231, 1998, 2004, 23865, 4630, 1999, 6178, 7277, 9691, 1007, 2054, 2515, 2023, 2360, 2055, 2033, 1029, 102]])
+Column([[101, 28625, 6483, 1024, 1045, 2572, 1037, 6178, 7277, 9691, 3103, 6178, 4231, 1998, 6178, 4803, 1012, 1012, 1012, 2054, 2515, 2008, 2360, 2055, 2033, 1029, 102, 102, 101, 1045, 1005, 1049, 1037, 6420, 6178, 7277, 9691, 1006, 3103, 1010, 4231, 1998, 2004, 23865, 4630, 1999, 6178, 7277, 9691, 1007, 2054, 2515, 2023, 2360, 2055, 2033, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+RAM used: 1600.61 MB
+RAM used: 1600.61 MB
+data_valid:::
+<torch.utils.data.dataloader._MultiProcessingDataLoaderIter object at 0x7f02d46d8d90>
+### End of reading iteration...
+[{'input_ids': tensor([[  101, 28625,  6483,  1024,  1045,  2572,  1037,  6178,  7277,  9691,
+          3103,  6178,  4231,  1998,  6178,  4803,  1012,  1012,  1012,  2054,
+          2515,  2008,  2360,  2055,  2033,  1029,   102,   102,   101,  1045,
+          1005,  1049,  1037,  6420,  6178,  7277,  9691,  1006,  3103,  1010,
+          4231,  1998,  2004, 23865,  4630,  1999,  6178,  7277,  9691,  1007,
+          2054,  2515,  2023,  2360,  2055,  2033,  1029,   102,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0]]), 'input_mask': tensor([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1]])}]
+  0%|          | 0/1 [00:00<?, ?it/s]여기에요! 여기!
+tensor([[  101, 28625,  6483,  1024,  1045,  2572,  1037,  6178,  7277,  9691,
+          3103,  6178,  4231,  1998,  6178,  4803,  1012,  1012,  1012,  2054,
+          2515,  2008,  2360,  2055,  2033,  1029,   102,   102,   101,  1045,
+          1005,  1049,  1037,  6420,  6178,  7277,  9691,  1006,  3103,  1010,
+          4231,  1998,  2004, 23865,  4630,  1999,  6178,  7277,  9691,  1007,
+          2054,  2515,  2023,  2360,  2055,  2033,  1029,   102,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0]],
+       device='cuda:0')
+noise.shape:::
+torch.Size([1, 128, 128])
+input_ids_mask.shape:::
+torch.Size([1, 128, 128])
+tensor([[[0, 0, 0,  ..., 0, 0, 0],
+         [0, 0, 0,  ..., 0, 0, 0],
+         [0, 0, 0,  ..., 0, 0, 0],
+         ...,
+         [1, 1, 1,  ..., 1, 1, 1],
+         [1, 1, 1,  ..., 1, 1, 1],
+         [1, 1, 1,  ..., 1, 1, 1]]], device='cuda:0')
+x_noised:::
+tensor([[[ 1.2315,  0.6241,  0.2344,  ...,  0.3393,  0.4695, -0.4551],
+         [-1.0405,  0.3718,  0.4196,  ...,  1.1407,  0.1039, -0.5275],
+         [-1.3429, -1.4271, -0.8764,  ...,  0.3702,  0.1105,  1.4511],
+         ...,
+         [-1.0421,  0.8022,  2.3864,  ..., -0.3998, -0.0609,  0.2042],
+         [-1.0421,  0.8022,  2.3864,  ..., -0.3998, -0.0609,  0.2042],
+         [-1.0421,  0.8022,  2.3864,  ..., -0.3998, -0.0609,  0.2042]]],
+       device='cuda:0')
+tensor([[[ 1.3391,  0.2052, -1.6879,  ...,  0.3003,  0.2436,  1.3300],
+         [-2.1876,  1.2062,  2.4879,  ..., -1.6132,  0.4760,  0.0025],
+         [-1.7649, -0.8678,  0.3791,  ...,  0.2001, -0.6424, -0.7259],
+         ...,
+         [ 0.3559, -1.3660,  1.8572,  ...,  1.7579,  0.6524, -1.4788],
+         [ 0.5412, -1.1653, -0.8390,  ..., -1.5669,  0.2072, -0.5186],
+         [ 0.8419,  0.7858,  0.8023,  ..., -0.9559,  2.3626, -0.4175]]],
+       device='cuda:0')
+torch.Size([1, 128, 128])
+torch.Size([1, 128, 30522])
+WWWW
+torch.Size([1, 128, 1])
+torch.Size([1, 128])
+torch.Size([128])
+tensor(100)
+/data3/seungwoochoi/.conda/envs/diffu_seq/lib/python3.11/site-packages/torch/distributed/distributed_c10d.py:4807: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+[rank0]:[W1011 23:04:01.233041970 ProcessGroupNCCL.cpp:5023] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can specify device_id in init_process_group() to force use of a particular device.
+100%|██████████| 1/1 [00:22<00:00, 22.89s/it]100%|██████████| 1/1 [00:22<00:00, 22.89s/it]
+### Total takes 23.00s .....
+### Written the decoded output to generation_outputs/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt.samples/seed123_step0.json
+[rank0]:[W1011 23:04:01.913172670 ProcessGroupNCCL.cpp:1538] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+torchrun --nproc_per_node=1 sample_seq2seq.py --model_path diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_040000.pt --step 2000 --batch_size 50 --seed2 123 --split test --out_dir generation_outputs --top_p -1 
+Logging to /tmp/openai-2025-10-11-23-04-12-979444
+diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/training_args.json
+Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_040000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='test', clamp_step=0, seed2=123, clip_denoised=False)
+### Creating model and diffusion...
+### The parameter count is 91225274
+### Sampling...on test
+args:::
+Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_040000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='test', clamp_step=0, seed2=123, clip_denoised=False)
+############################## 
+Loading text data...
+############################## 
+Loading dataset qqp from /home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp...
+### Loading form the TEST set...
+### Data samples...
+ ['Astrology: I am a Capricorn Sun Cap moon and cap rising...what does that say about me?'] ["I'm a triple Capricorn (Sun, Moon and ascendant in Capricorn) What does this say about me?"]
+RAM used: 1594.09 MB
+Dataset({
+    features: ['src', 'trg'],
+    num_rows: 1
+})
+RAM used: 1594.65 MB
+Running tokenizer on dataset (num_proc=1):   0%|          | 0/1 [00:00<?, ? examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  6.78 examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  2.78 examples/s]
+### tokenized_datasets Dataset({
+    features: ['input_id_x', 'input_id_y'],
+    num_rows: 1
+})
+### tokenized_datasets...example [101, 28625, 6483, 1024, 1045, 2572, 1037, 6178, 7277, 9691, 3103, 6178, 4231, 1998, 6178, 4803, 1012, 1012, 1012, 2054, 2515, 2008, 2360, 2055, 2033, 1029, 102]
+RAM used: 1596.55 MB
+merge and mask (num_proc=1):   0%|          | 0/1 [00:00<?, ? examples/s]merge and mask (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  6.52 examples/s]merge and mask (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  2.24 examples/s]
+RAM used: 1596.56 MB
+padding (num_proc=1):   0%|          | 0/1 [00:00<?, ? examples/s]padding (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  5.40 examples/s]padding (num_proc=1): 100%|██████████| 1/1 [00:00<00:00,  2.19 examples/s]
+Dataset({
+    features: ['input_id_x', 'input_id_y', 'input_ids', 'input_mask'],
+    num_rows: 1
+}) padded dataset
+Column([[101, 28625, 6483, 1024, 1045, 2572, 1037, 6178, 7277, 9691, 3103, 6178, 4231, 1998, 6178, 4803, 1012, 1012, 1012, 2054, 2515, 2008, 2360, 2055, 2033, 1029, 102]])
+Column([[101, 1045, 1005, 1049, 1037, 6420, 6178, 7277, 9691, 1006, 3103, 1010, 4231, 1998, 2004, 23865, 4630, 1999, 6178, 7277, 9691, 1007, 2054, 2515, 2023, 2360, 2055, 2033, 1029, 102]])
+Column([[101, 28625, 6483, 1024, 1045, 2572, 1037, 6178, 7277, 9691, 3103, 6178, 4231, 1998, 6178, 4803, 1012, 1012, 1012, 2054, 2515, 2008, 2360, 2055, 2033, 1029, 102, 102, 101, 1045, 1005, 1049, 1037, 6420, 6178, 7277, 9691, 1006, 3103, 1010, 4231, 1998, 2004, 23865, 4630, 1999, 6178, 7277, 9691, 1007, 2054, 2515, 2023, 2360, 2055, 2033, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+RAM used: 1596.61 MB
+RAM used: 1596.61 MB
+data_valid:::
+<torch.utils.data.dataloader._MultiProcessingDataLoaderIter object at 0x7f15c21b9f10>
+### End of reading iteration...
+[{'input_ids': tensor([[  101, 28625,  6483,  1024,  1045,  2572,  1037,  6178,  7277,  9691,
+          3103,  6178,  4231,  1998,  6178,  4803,  1012,  1012,  1012,  2054,
+          2515,  2008,  2360,  2055,  2033,  1029,   102,   102,   101,  1045,
+          1005,  1049,  1037,  6420,  6178,  7277,  9691,  1006,  3103,  1010,
+          4231,  1998,  2004, 23865,  4630,  1999,  6178,  7277,  9691,  1007,
+          2054,  2515,  2023,  2360,  2055,  2033,  1029,   102,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0]]), 'input_mask': tensor([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+         0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+         1, 1, 1, 1, 1, 1, 1, 1]])}]
+  0%|          | 0/1 [00:00<?, ?it/s]여기에요! 여기!
+tensor([[  101, 28625,  6483,  1024,  1045,  2572,  1037,  6178,  7277,  9691,
+          3103,  6178,  4231,  1998,  6178,  4803,  1012,  1012,  1012,  2054,
+          2515,  2008,  2360,  2055,  2033,  1029,   102,   102,   101,  1045,
+          1005,  1049,  1037,  6420,  6178,  7277,  9691,  1006,  3103,  1010,
+          4231,  1998,  2004, 23865,  4630,  1999,  6178,  7277,  9691,  1007,
+          2054,  2515,  2023,  2360,  2055,  2033,  1029,   102,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+             0,     0,     0,     0,     0,     0,     0,     0]],
+       device='cuda:0')
+noise.shape:::
+torch.Size([1, 128, 128])
+input_ids_mask.shape:::
+torch.Size([1, 128, 128])
+tensor([[[0, 0, 0,  ..., 0, 0, 0],
+         [0, 0, 0,  ..., 0, 0, 0],
+         [0, 0, 0,  ..., 0, 0, 0],
+         ...,
+         [1, 1, 1,  ..., 1, 1, 1],
+         [1, 1, 1,  ..., 1, 1, 1],
+         [1, 1, 1,  ..., 1, 1, 1]]], device='cuda:0')
+x_noised:::
+tensor([[[ 1.2356,  0.6233,  0.2310,  ...,  0.3406,  0.4681, -0.4541],
+         [-1.0476,  0.3770,  0.4236,  ...,  1.1488,  0.1045, -0.5261],
+         [-1.3563, -1.4400, -0.8866,  ...,  0.3722,  0.1166,  1.4568],
+         ...,
+         [-1.0405,  0.8014,  2.3827,  ..., -0.3985, -0.0607,  0.2041],
+         [-1.0405,  0.8014,  2.3827,  ..., -0.3985, -0.0607,  0.2041],
+         [-1.0405,  0.8014,  2.3827,  ..., -0.3985, -0.0607,  0.2041]]],
+       device='cuda:0')
+tensor([[[ 1.3391,  0.2052, -1.6879,  ...,  0.3003,  0.2436,  1.3300],
+         [-2.1876,  1.2062,  2.4879,  ..., -1.6132,  0.4760,  0.0025],
+         [-1.7649, -0.8678,  0.3791,  ...,  0.2001, -0.6424, -0.7259],
+         ...,
+         [ 0.3559, -1.3660,  1.8572,  ...,  1.7579,  0.6524, -1.4788],
+         [ 0.5412, -1.1653, -0.8390,  ..., -1.5669,  0.2072, -0.5186],
+         [ 0.8419,  0.7858,  0.8023,  ..., -0.9559,  2.3626, -0.4175]]],
+       device='cuda:0')
+torch.Size([1, 128, 128])
+torch.Size([1, 128, 30522])
+WWWW
+torch.Size([1, 128, 1])
+torch.Size([1, 128])
+torch.Size([128])
+tensor(100)
+/data3/seungwoochoi/.conda/envs/diffu_seq/lib/python3.11/site-packages/torch/distributed/distributed_c10d.py:4807: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
+  warnings.warn(  # warn only once
+[rank0]:[W1011 23:04:43.694473764 ProcessGroupNCCL.cpp:5023] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can specify device_id in init_process_group() to force use of a particular device.
+100%|██████████| 1/1 [00:25<00:00, 25.56s/it]100%|██████████| 1/1 [00:25<00:00, 25.57s/it]
+### Total takes 25.70s .....
+### Written the decoded output to generation_outputs/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_040000.pt.samples/seed123_step0.json
+[rank0]:[W1011 23:04:44.385669340 ProcessGroupNCCL.cpp:1538] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())
+############################## decoding finished...

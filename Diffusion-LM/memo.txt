@@ -1,0 +1,8 @@
+conda install mpi4py
+pip install pytorch torchvision torchaudio
+pip install -e improved-diffusion/ 
+pip install -e transformers/
+pip install spacy
+pip install datasets
+pip install huggingface_hub
+pip install wandb
