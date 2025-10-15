@@ -43,12 +43,14 @@ class myTokenizer():
         self.vocab_size = len(self.tokenizer)
         args.vocab_size = self.vocab_size # update vocab size in args
     
-    def encode_token(self, sentences):
+    def encode_token(self, sentences, is_bridging=False):
         if isinstance(self.tokenizer, dict):
             input_ids = [[0] + [self.tokenizer.get(x, self.tokenizer['[UNK]']) for x in seq.split()] + [1] for seq in sentences]
         elif isinstance(self.tokenizer, PreTrainedTokenizerFast):
-            input_ids = self.tokenizer(sentences, add_special_tokens=True, padding="longest", return_tensors="pt")['input_ids']
-            # input_ids = self.tokenizer(sentences, add_special_tokens=True)['input_ids']
+            if(is_bridging):
+                input_ids = self.tokenizer(sentences, add_special_tokens=True, padding="longest", return_tensors="pt")['input_ids']
+            else: 
+                input_ids = self.tokenizer(sentences, add_special_tokens=True)['input_ids']
         else:
             assert False, "invalid type of vocab_dict"
         return input_ids

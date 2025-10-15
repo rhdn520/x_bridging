@@ -3,6 +3,7 @@ import argparse
 import torch
 sys.path.append('.')
 sys.path.append('..')
+import subprocess
 
 if __name__ == '__main__':
 
@@ -44,11 +45,16 @@ if __name__ == '__main__':
             # f'--batch_size {args.bsz} --seed2 {args.seed} --split {args.split} ' \
             # f'--out_dir {out_dir} --top_p {args.top_p} '
 
-            COMMAND = f'torchrun --nproc_per_node={device_count} sample_seq2seq.py ' \
+            COMMAND = f'torchrun --nproc_per_node={device_count} --master_port={12233 + int(args.seed)} sample_seq2seq.py ' \
             f'--model_path {checkpoint_one} --step {args.step} ' \
             f'--batch_size {args.bsz} --seed2 {args.seed} --split {args.split} ' \
             f'--out_dir {out_dir} --top_p {args.top_p} '
-            print(COMMAND)
+
+            # COMMAND = f'srun python sample_seq2seq.py ' \
+            # f'--model_path {checkpoint_one} --step {args.step} ' \
+            # f'--batch_size {args.bsz} --seed2 {args.seed} --split {args.split} ' \
+            # f'--out_dir {out_dir} --top_p {args.top_p} '
+            # print(COMMAND)
             os.system(COMMAND)
     
     print('#'*30, 'decoding finished...')

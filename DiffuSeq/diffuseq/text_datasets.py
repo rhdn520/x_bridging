@@ -3,7 +3,7 @@ import numpy as np
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.utils.rnn import pad_sequence
-
+from tqdm import tqdm
 import torch
 import json
 import psutil
@@ -221,9 +221,12 @@ class TextDataset(Dataset):
             return arr, out_kwargs
 
 def _collate_batch_helper(examples, pad_token_id, max_length, return_mask=False):
-    result = torch.full([len(examples), max_length], pad_token_id, dtype=torch.int64).tolist()
-    mask_ = torch.full([len(examples), max_length], pad_token_id, dtype=torch.int64).tolist()
-    for i, example in enumerate(examples):
+    # print("_collate_batch_helper", flush=True)
+    result = torch.full([len(examples), max_length], pad_token_id, dtype=torch.int16).tolist()
+    mask_ = torch.full([len(examples), max_length], pad_token_id, dtype=torch.int16).tolist()
+    # print(result, flush=True)
+    # print(mask_, flush=True)
+    for i, example in tqdm(enumerate(examples)):
         curr_len = min(len(example), max_length)
         result[i][:curr_len] = example[:curr_len]
         mask_[i][:curr_len] = [1] * curr_len
@@ -263,3 +266,26 @@ def _collate_batch_helper(examples, pad_token_id, max_length, return_mask=False)
 #     )
 
 #     return padded.tolist(), mask.tolist()  # ✅ 둘 다 list로 반환
+
+# def _collate_batch_helper(examples, pad_token_id, max_length, return_mask=False):
+#     # 1. 모든 계산은 텐서 상태에서 빠르게 수행합니다.
+#     result = torch.full([len(examples), max_length], pad_token_id, dtype=torch.int64)
+    
+#     if return_mask:
+#         # 패딩은 0, 실제 데이터는 1을 갖는 마스크 텐서 생성
+#         mask = torch.zeros([len(examples), max_length], dtype=torch.int64)
+
+#     # 2. 파이썬 for문이 아닌, 텐서에 직접 값을 채워넣습니다.
+#     # 이 과정은 리스트를 다룰 때보다 훨씬 빠릅니다.
+#     for i, example in enumerate(examples):
+#         curr_len = min(len(example), max_length)
+#         result[i, :curr_len] = torch.tensor(example[:curr_len], dtype=torch.int64)
+#         if return_mask:
+#             mask[i, :curr_len] = 1
+            
+#     # 3. 최종적으로 반환하기 직전에만 .tolist()를 호출하여
+#     # 원래 함수와 동일한 형식(파이썬 리스트)으로 맞춰줍니다.
+#     if return_mask:
+#         return result.tolist(), mask.tolist()
+        
+#     return result.tolist()

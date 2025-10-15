@@ -136,7 +136,7 @@ def main():
     if idx % world_size and rank >= idx % world_size:
         all_test_data.append({})  # Dummy data for Remainder : for dist.barrier()
 
-    print(all_test_data)
+    # print(all_test_data)
     if rank == 0:
         from tqdm import tqdm
         iterator = tqdm(all_test_data)
@@ -150,25 +150,25 @@ def main():
                 dist.barrier()
             continue
         
-        print("여기에요! 여기!")
+        # print("여기에요! 여기!")
         input_ids_x = cond.pop('input_ids').to(dist_util.dev())
-        print(input_ids_x)
+        # print(input_ids_x)
         x_start = model.get_embeds(input_ids_x)
         # print(x_start)
         input_ids_mask = cond.pop('input_mask')
         input_ids_mask_ori = input_ids_mask 
 
         noise = th.randn_like(x_start) #x_start엔 src, tgt가 한번에 concat 되어있음
-        print("noise.shape:::")
-        print(noise.shape)
+        # print("noise.shape:::")
+        # print(noise.shape)
         input_ids_mask = th.broadcast_to(input_ids_mask.unsqueeze(dim=-1), x_start.shape).to(dist_util.dev())
-        print("input_ids_mask.shape:::")
-        print(input_ids_mask.shape)
-        print(input_ids_mask)
+        # print("input_ids_mask.shape:::")
+        # print(input_ids_mask.shape)
+        # print(input_ids_mask)
         x_noised = th.where(input_ids_mask == 0, x_start, noise) 
-        print("x_noised:::")
-        print(x_start)
-        print(noise)
+        # print("x_noised:::")
+        # print(x_noised)
+        # print(noise)
 
         model_kwargs = {}
 
@@ -203,10 +203,10 @@ def main():
         sample = samples[-1]
 
         # print('decoding for seq2seq', )
-        print(sample.shape)
+        # print(sample.shape)
 
         logits = model.get_logits(sample)  # bsz, seqlen, vocab
-        print(logits.shape)
+        # print(logits.shape)
         cands = th.topk(logits, k=1, dim=-1)
 
 
@@ -216,12 +216,12 @@ def main():
 
         # tokenizer = load_tokenizer(args)
         
-        print("WWWW")
-        print(cands.indices.shape)
-        print(input_ids_mask_ori.shape)
+        # print("WWWW")
+        # print(cands.indices.shape)
+        # print(input_ids_mask_ori.shape)
         for seq, input_mask in zip(cands.indices, input_ids_mask_ori):
-            print(input_mask.shape)
-            print(sum(input_mask))
+            # print(input_mask.shape)
+            # print(sum(input_mask))
             len_x = args.seq_len - sum(input_mask).tolist()
             tokens = tokenizer.decode_token(seq[len_x:])
             word_lst_recover.append(tokens)

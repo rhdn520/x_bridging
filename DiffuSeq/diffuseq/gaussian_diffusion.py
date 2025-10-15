@@ -370,6 +370,11 @@ class GaussianDiffusion:
                  - 'sample': a random sample from the model.
                  - 'pred_xstart': a prediction of x_0.
         """
+        # print("t:::")
+        # print(t)
+        # print("x.size(0):::")
+        # print(x.size(0))
+        
         out = self.p_mean_variance(
             model,
             x,
@@ -405,6 +410,49 @@ class GaussianDiffusion:
             "greedy_mean": out["mean"], 
             "out": out
         }
+    
+    def p_sample_loop_from_to(
+        self,
+        model,
+        shape,
+        noise=None,
+        clip_denoised=True,
+        denoised_fn=None,
+        model_kwargs=None,
+        device=None,
+        progress=False,
+        top_p=None,
+        clamp_step=None,
+        clamp_first=None,
+        mask=None,
+        x_start=None,
+        from_time=None,
+        to_time=None,
+        gap=1,
+    ):
+        final = []
+        for sample in self.p_sample_loop_progressive(
+            model,
+            shape,
+            noise=noise,
+            clip_denoised=clip_denoised,
+            denoised_fn=denoised_fn,
+            model_kwargs=model_kwargs,
+            device=device,
+            progress=progress,
+            top_p=top_p,
+            clamp_step=clamp_step,
+            clamp_first=clamp_first,
+            mask=mask,
+            x_start=x_start,
+            from_time=from_time,
+            to_time=to_time,
+        ):
+            final.append(sample['sample'])
+        
+        # print("final:::")
+        # print(final)
+        return final
 
     
     def p_sample_loop(
@@ -481,6 +529,8 @@ class GaussianDiffusion:
         clamp_first=None,
         mask=None,
         x_start=None,
+        from_time = None,
+        to_time = None,
     ):
         """
         Generate samples from the model and yield intermediate samples from
@@ -498,6 +548,10 @@ class GaussianDiffusion:
         else:
             sample_x = th.randn(*shape, device=device)
         indices = list(range(self.num_timesteps))[::-1]
+        if from_time is not None:
+            indices = [i for i in indices if i <= from_time]
+        if to_time is not None:
+            indices = [i for i in indices if i >= to_time]
 
         if progress:
             # Lazy import so that we don't depend on tqdm.

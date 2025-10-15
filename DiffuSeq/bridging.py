@@ -2,11 +2,9 @@
 Generate a large batch of image samples from a model and save them as a large
 numpy array. This can be used to produce samples for FID evaluation.
 """
-
 import argparse
 import os, json
 from tracemalloc import start
-
 import numpy as np
 import torch as th
 th.set_printoptions(threshold=float('inf'))
@@ -81,7 +79,7 @@ def linear_interpolate(p1, p2, t):
     
     return interpolated_point
 
-def interpolate_points(p1, p2, num_points):
+def interpolate_points(p1, p2, num_mid_points):
     """
     Generates a list of evenly spaced intermediate points between two points.
 
@@ -93,14 +91,14 @@ def interpolate_points(p1, p2, num_points):
     Returns:
         list[torch.Tensor]: A list of PyTorch tensors, where each tensor is an
                             interpolated point. Returns an empty list if
-                            num_points is less than 1.
+                            num_mid_points is less than 1.
     """
-    if num_points < 1:
-        return []
+    if num_mid_points < 1:
+        return [p1, p2]
 
     interpolated_points = []
-    # There will be num_points + 1 total segments along the line
-    total_segments = num_points + 1
+    # There will be num_mid_points + 1 total segments along the line
+    total_segments = num_mid_points + 1
 
     for i in range(1, total_segments):
         t = i / total_segments
@@ -142,7 +140,7 @@ def main():
     # pytorch_total_params = sum(p.numel() for p in model.parameters())
     # logger.log(f'### The parameter count is {pytorch_total_params}')
 
-    model.eval().requires_grad_(False).to(dist_util.dev())
+    model = model.eval().requires_grad_(False).to(dist_util.dev())
 
     tokenizer = load_tokenizer(args)
 
@@ -156,12 +154,14 @@ def main():
         _weight=model.word_embedding.weight.clone().cpu()
     ).eval().requires_grad_(False)
 
+    model_emb = model_emb.to(dist_util.dev())
+
     set_seed(args.seed2)
 
 
-    text1 = "How can I be a good geologist?"
-    text2 = "I want you to die."
-    text_token = tokenizer.encode_token([text1, text2]).to(dist_util.dev())
+    text1 = "what are some examples of products that can be make from crude oil?"
+    text2 = "why are police lights red and blue?"
+    text_token = tokenizer.encode_token([text1, text2]).to(dist_util.dev(), is_bridging=True)
     # print(text_token.shape)
     sep_tokens = th.full((text_token.shape[0],1), tokenizer.sep_token_id).to(dist_util.dev())
     text_token = th.cat([text_token, sep_tokens], dim=1)
@@ -174,15 +174,16 @@ def main():
     # print(x_start.shape)
     x_start[:,:x_src.shape[1],:] = x_src
 
-    input_ids_mask = th.zeros_like(x_start, dtype=th.int32, device=dist_util.dev())
+    input_ids_mask = th.zeros_like(x_start, dtype=th.int16, device=dist_util.dev())
     input_ids_mask[:,mask_idx:,:] = 1
-    print(input_ids_mask)
-    print(input_ids_mask[0,:,0])
+    # print(input_ids_mask)
+    # print(input_ids_mask[0,:,0])
     # input_ids_mask[:,:x_src.shape[1],:] = 0
 
-    print("hmm")
-    print(x_start.shape)
+    # print("hmm")
+    # print(x_start.shape)
     intp_points = interpolate_points(x_start[0], x_start[1], 3)
+    # intp_points = [x.to(dist_util.dev()) for x in intp_points]
 
     
 
@@ -195,19 +196,21 @@ def main():
         args.use_ddim = True
         step_gap = args.diffusion_steps//args.step
 
-    sample_fn = (
-        diffusion.p_sample_loop if not args.use_ddim else diffusion.ddim_sample_loop
-    )
+    sample_fn = diffusion.p_sample_loop_from_to
+    schedule = [(1999,1998),(1997,1996),(1995,1994),(1993,1992),(1999,0)]
+    assert len(schedule) == len(intp_points)
+
 
     # sample_shape = (x_start.shape[0], args.seq_len, args.hidden_dim)
     sample_shape = (1, args.seq_len, args.hidden_dim)
 
-    for i in range(len(intp_points)):
+    input_noise = intp_points[0].unsqueeze(0)
 
+    for i in range(len(intp_points)):   
         samples = sample_fn(
             model,
             sample_shape,
-            noise=intp_points[i].unsqueeze(0),
+            noise=input_noise,
             clip_denoised=args.clip_denoised,
             denoised_fn=partial(denoised_fn_round, args, model_emb),
             model_kwargs=model_kwargs,
@@ -216,7 +219,10 @@ def main():
             clamp_first=True,
             mask=input_ids_mask[0].unsqueeze(0),
             x_start=intp_points[i],
-            gap=step_gap
+            gap=step_gap,
+            from_time=schedule[i][0],
+            to_time=schedule[i][1],
+            progress=True
         )
 
         #     print("samples[0].shape:::")
@@ -224,15 +230,16 @@ def main():
             
         sample = samples[-1]
 
-        #     # print('decoding for seq2seq', )
-        print(sample.shape)
+        print(input_noise.shape)
+
+
+        if(i+1)<len(intp_points): 
+            input_noise = sample
+            input_noise[:,:mask_idx,:] = intp_points[i+1].unsqueeze(0)[:,:mask_idx,:]
+        
 
         logits = model.get_logits(sample)  # bsz, seqlen, vocab
-        print(logits.shape)
         cands = th.topk(logits, k=1, dim=-1)
-        print("cands.shape:::")
-        print(cands.indices.shape)
-
 
         word_lst_recover = []
 
@@ -245,6 +252,39 @@ def main():
         
         print(word_lst_recover)
 
+    # baseline: without interpolation
+    print("### Baseline without interpolation")
+    samples = sample_fn(
+        model,
+        sample_shape,
+        noise=intp_points[-1].unsqueeze(0),
+        clip_denoised=args.clip_denoised,
+        denoised_fn=partial(denoised_fn_round, args, model_emb),
+        model_kwargs=model_kwargs,
+        top_p=args.top_p,
+        clamp_step=args.clamp_step,
+        clamp_first=True,
+        mask=input_ids_mask[0].unsqueeze(0),
+        x_start=intp_points[-1],
+        gap=step_gap,
+        from_time=1999,
+        to_time=0,
+        progress=True
+    )
+    sample = samples[-1]
+    logits = model.get_logits(sample)  # bsz, seqlen, vocab
+    cands = th.topk(logits, k=1, dim=-1)
+
+    word_lst_recover = []
+
+    input_ids_mask_ori = input_ids_mask[0,:,0]
+    for seq in cands.indices:
+        
+        len_x = args.seq_len - sum(input_ids_mask_ori).tolist()
+        tokens = tokenizer.decode_token(seq[len_x:])
+        word_lst_recover.append(tokens)
+    
+    print(word_lst_recover)
 
 if __name__ == "__main__":
     main()
