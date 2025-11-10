@@ -1,0 +1,5 @@
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-n01: error: *** STEP 84361.0 ON n01 CANCELLED AT 2025-10-15T18:15:59 ***
+srun: got SIGCONT
+slurmstepd-n01: error: *** JOB 84361 ON n01 CANCELLED AT 2025-10-15T18:15:59 ***
+srun: forcing job termination

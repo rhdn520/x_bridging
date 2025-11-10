@@ -1,129 +1,0 @@
-['diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', 'diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_040000.pt']
-W1015 10:46:51.198000 256868 site-packages/torch/distributed/run.py:774] 
-W1015 10:46:51.198000 256868 site-packages/torch/distributed/run.py:774] *****************************************
-W1015 10:46:51.198000 256868 site-packages/torch/distributed/run.py:774] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
-W1015 10:46:51.198000 256868 site-packages/torch/distributed/run.py:774] *****************************************
-Logging to /tmp/openai-2025-10-15-10-47-14-999169Logging to /tmp/openai-2025-10-15-10-47-14-999241
-
-diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/training_args.jsondiffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/training_args.json
-
-Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='valid', clamp_step=0, seed2=123, clip_denoised=False)
-### Creating model and diffusion...
-Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='valid', clamp_step=0, seed2=123, clip_denoised=False)
-### Creating model and diffusion...
-### The parameter count is 91225274
-### The parameter count is 91225274
-### Sampling...on valid
-args:::
-Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='valid', clamp_step=0, seed2=123, clip_denoised=False)
-############################## 
-Loading text data...
-############################## 
-Loading dataset qqp from /home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp...
-### Loading form the VALID set...
-### Data samples...
- ['Why does he want to have sex with me not her?', 'When/how did you realize were not straight?'] ['Why did he chose me to have sex with?', 'When/how did you realize you were gay/bisexual? Were you in denial?']
-RAM used: 1593.34 MB
-Dataset({
-    features: ['src', 'trg'],
-    num_rows: 2048
-})
-RAM used: 1595.84 MB
-### Sampling...on valid
-args:::
-Namespace(model_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08/ema_0.9999_050000.pt', step=2000, out_dir='generation_outputs', top_p=-1, lr=0.0001, batch_size=50, microbatch=64, learning_steps=50000, log_interval=20, save_interval=10000, eval_interval=1000, ema_rate='0.9999', resume_checkpoint='/home/seungwoochoi/data/x_bridging/DiffuSeq/diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251007-22:09:08/ema_0.9999_030000.pt', schedule_sampler='lossaware', diffusion_steps=2000, noise_schedule='sqrt', timestep_respacing='', vocab='bert', use_plm_init='no', vocab_size=30522, config_name='bert-base-uncased', notes='test-qqp20251008-22:34:08', data_dir='/home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp', dataset='qqp', checkpoint_path='diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251008-22:34:08', seq_len=128, hidden_t_dim=128, hidden_dim=128, dropout=0.1, use_fp16=False, fp16_scale_growth=0.001, seed=102, gradient_clipping=-1.0, weight_decay=0.0, learn_sigma=False, use_kl=False, predict_xstart=True, rescale_timesteps=True, rescale_learned_sigmas=False, sigma_small=False, emb_scale_factor=1.0, split='valid', clamp_step=0, seed2=123, clip_denoised=False)
-############################## 
-Loading text data...
-############################## 
-Loading dataset qqp from /home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp...
-### Loading form the VALID set...
-### Data samples...
- ['Why does he want to have sex with me not her?', 'When/how did you realize were not straight?'] ['Why did he chose me to have sex with?', 'When/how did you realize you were gay/bisexual? Were you in denial?']
-RAM used: 1594.26 MB
-Dataset({
-    features: ['src', 'trg'],
-    num_rows: 2048
-})
-RAM used: 1596.82 MB
-Running tokenizer on dataset (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]Running tokenizer on dataset (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]Running tokenizer on dataset (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 2912.51 examples/s]Running tokenizer on dataset (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 2908.74 examples/s]Running tokenizer on dataset (num_proc=1):  98%|█████████▊| 2000/2048 [00:00<00:00, 4017.01 examples/s]Running tokenizer on dataset (num_proc=1):  98%|█████████▊| 2000/2048 [00:00<00:00, 3991.05 examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 2800.08 examples/s]
-### tokenized_datasets Dataset({
-    features: ['input_id_x', 'input_id_y'],
-    num_rows: 2048
-})
-### tokenized_datasets...example [101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-RAM used: 1599.62 MB
-merge and mask (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 2766.11 examples/s]
-### tokenized_datasets Dataset({
-    features: ['input_id_x', 'input_id_y'],
-    num_rows: 2048
-})
-### tokenized_datasets...example [101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-RAM used: 1600.81 MB
-merge and mask (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]merge and mask (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 4793.30 examples/s]merge and mask (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 4821.37 examples/s]merge and mask (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 3901.79 examples/s]
-RAM used: 1604.57 MB
-padding (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]merge and mask (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 3937.42 examples/s]
-RAM used: 1609.12 MB
-padding (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]
-0it [00:00, ?it/s][A1000it [00:00, 487596.37it/s]
-
-0it [00:00, ?it/s][A1000it [00:00, 805667.31it/s]
-
-0it [00:00, ?it/s][A1000it [00:00, 487369.74it/s]
-
-0it [00:00, ?it/s][A1000it [00:00, 790930.42it/s]
-padding (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 4084.20 examples/s]padding (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 4094.64 examples/s]
-0it [00:00, ?it/s][A1000it [00:00, 525602.01it/s]
-
-0it [00:00, ?it/s][A1000it [00:00, 788403.01it/s]
-
-0it [00:00, ?it/s][A1000it [00:00, 506925.79it/s]
-
-0it [00:00, ?it/s][A
-0it [00:00, ?it/s][A1000it [00:00, 760388.69it/s]
-48it [00:00, 499569.71it/s]
-
-0it [00:00, ?it/s][A48it [00:00, 671088.64it/s]
-
-0it [00:00, ?it/s][A48it [00:00, 482797.58it/s]
-
-0it [00:00, ?it/s][A48it [00:00, 641167.49it/s]
-padding (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 3372.43 examples/s]
-Dataset({
-    features: ['input_id_x', 'input_id_y', 'input_ids', 'input_mask'],
-    num_rows: 2048
-}) padded dataset
-Column([[101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2020, 2025, 3442, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2073, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 3899, 8902, 2140, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2079, 2017, 2228, 1996, 3013, 7245, 1997, 24888, 7685, 2355, 7842, 2052, 2022, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2339, 2003, 5522, 2061, 2502, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-Column([[101, 2339, 2106, 2002, 4900, 2033, 2000, 2031, 3348, 2007, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2017, 2020, 5637, 1013, 22437, 1029, 2020, 2017, 1999, 14920, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 9127, 2005, 2115, 3899, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2079, 2017, 2228, 2055, 1996, 24888, 7685, 2355, 3259, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2339, 2038, 5522, 4961, 2000, 2022, 1037, 2107, 2312, 2103, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-Column([[101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2339, 2106, 2002, 4900, 2033, 2000, 2031, 3348, 2007, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2020, 2025, 3442, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2043, 1013, 2129, 2106, 2017, 5382, 2017, 2020, 5637, 1013, 22437, 1029, 2020, 2017, 1999, 14920, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2073, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 3899, 8902, 2140, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 9127, 2005, 2115, 3899, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2079, 2017, 2228, 1996, 3013, 7245, 1997, 24888, 7685, 2355, 7842, 2052, 2022, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2054, 2079, 2017, 2228, 2055, 1996, 24888, 7685, 2355, 3259, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2339, 2003, 5522, 2061, 2502, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2339, 2038, 5522, 4961, 2000, 2022, 1037, 2107, 2312, 2103, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-RAM used: 1619.68 MB
-RAM used: 1618.50 MB
-padding (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 3326.32 examples/s]
-Dataset({
-    features: ['input_id_x', 'input_id_y', 'input_ids', 'input_mask'],
-    num_rows: 2048
-}) padded dataset
-Column([[101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2020, 2025, 3442, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2073, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 3899, 8902, 2140, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2079, 2017, 2228, 1996, 3013, 7245, 1997, 24888, 7685, 2355, 7842, 2052, 2022, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2339, 2003, 5522, 2061, 2502, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-Column([[101, 2339, 2106, 2002, 4900, 2033, 2000, 2031, 3348, 2007, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2017, 2020, 5637, 1013, 22437, 1029, 2020, 2017, 1999, 14920, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 9127, 2005, 2115, 3899, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2079, 2017, 2228, 2055, 1996, 24888, 7685, 2355, 3259, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2339, 2038, 5522, 4961, 2000, 2022, 1037, 2107, 2312, 2103, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-Column([[101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2339, 2106, 2002, 4900, 2033, 2000, 2031, 3348, 2007, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2020, 2025, 3442, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2043, 1013, 2129, 2106, 2017, 5382, 2017, 2020, 5637, 1013, 22437, 1029, 2020, 2017, 1999, 14920, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2073, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 3899, 8902, 2140, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 9127, 2005, 2115, 3899, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2079, 2017, 2228, 1996, 3013, 7245, 1997, 24888, 7685, 2355, 7842, 2052, 2022, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2054, 2079, 2017, 2228, 2055, 1996, 24888, 7685, 2355, 3259, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2339, 2003, 5522, 2061, 2502, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 102, 101, 2339, 2038, 5522, 4961, 2000, 2022, 1037, 2107, 2312, 2103, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
-RAM used: 1624.26 MB
-RAM used: 1623.07 MB
-data_valid:::
-<torch.utils.data.dataloader._MultiProcessingDataLoaderIter object at 0x7fc782ff3b50>
-data_valid:::
-<torch.utils.data.dataloader._MultiProcessingDataLoaderIter object at 0x7f2fc2a07810>
-### End of reading iteration...
-### End of reading iteration...
-  0%|          | 0/11 [00:00<?, ?it/s]/data3/seungwoochoi/.conda/envs/diffu_seq/lib/python3.11/site-packages/torch/distributed/distributed_c10d.py:4807: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
-  warnings.warn(  # warn only once
-[rank0]:[W1015 10:49:05.357407691 ProcessGroupNCCL.cpp:5023] [PG ID 0 PG GUID 0 Rank 0]  using GPU 0 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can specify device_id in init_process_group() to force use of a particular device.
-/data3/seungwoochoi/.conda/envs/diffu_seq/lib/python3.11/site-packages/torch/distributed/distributed_c10d.py:4807: UserWarning: No device id is provided via `init_process_group` or `barrier `. Using the current device set by the user. 
-  warnings.warn(  # warn only once
-[rank1]:[W1015 10:49:06.562927012 ProcessGroupNCCL.cpp:5023] [PG ID 0 PG GUID 0 Rank 1]  using GPU 1 as device used by this process is currently unknown. This can potentially cause a hang if this rank to GPU mapping is incorrect. You can specify device_id in init_process_group() to force use of a particular device.
-srun: got SIGCONT
-slurmstepd-n03: error: *** JOB 84288 ON n03 CANCELLED AT 2025-10-15T10:56:15 ***
-srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
-  9%|▉         | 1/11 [01:45<17:32, 105.28s/it] 18%|█▊        | 2/11 [03:31<15:50, 105.57s/it] 27%|██▋       | 3/11 [05:16<14:05, 105.72s/it] 36%|███▋      | 4/11 [07:02<12:20, 105.79s/it] 45%|████▌     | 5/11 [08:48<10:34, 105.83s/it]slurmstepd-n03: error: *** STEP 84288.0 ON n03 CANCELLED AT 2025-10-15T10:56:15 ***
-srun: forcing job termination
-W1015 10:56:15.458000 256868 site-packages/torch/distributed/elastic/agent/server/api.py:723] Received 15 death signal, shutting down workers
-W1015 10:56:15.463000 256868 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 256933 closing signal SIGTERM
-W1015 10:56:15.463000 256868 site-packages/torch/distributed/elastic/multiprocessing/api.py:900] Sending process 256934 closing signal SIGTERM
