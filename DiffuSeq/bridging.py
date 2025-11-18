@@ -231,6 +231,10 @@ def main():
         sample_shape = (1, args.seq_len, args.hidden_dim)
 
         input_noise = intp_points[0].unsqueeze(0)
+        print("input_noise.shape::::")
+        print(input_noise.shape)
+        print("input_ids_mask[0].unsqueeze(0)::::")
+        print(input_ids_mask[0].unsqueeze(0).shape)
 
         for i in range(len(intp_points)):   
             samples = sample_fn(

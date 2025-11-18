@@ -175,6 +175,7 @@ class TrainLoop:
             or self.step + self.resume_step < self.learning_steps
         ):
             batch, cond = next(self.data)
+
             self.run_step(batch, cond)
             if self.step % self.log_interval == 0:
                 logger.dumpkvs()
@@ -249,7 +250,7 @@ class TrainLoop:
                 self.ddp_model,
                 micro,
                 t,
-                model_kwargs=micro_cond,
+                model_kwargs=micro_cond, #여기로 input ids 랑 mask를 넘김 
             )
 
             if last_batch or not self.use_ddp:

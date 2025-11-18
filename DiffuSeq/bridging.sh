@@ -7,9 +7,9 @@
 #SBATCH --mem=32000MB
 #SBATCH --cpus-per-task=1
 
-source /data3/seungwoochoi/.bashrc
-source /data3/seungwoochoi/miniconda3/etc/profile.d/conda.sh
-conda activate diffu_seq
+# source /data3/seungwoochoi/.bashrc
+# source /data3/seungwoochoi/miniconda3/etc/profile.d/conda.sh
+# conda activate x_bridging
 
 MASTER_PORT=$((12000 + RANDOM % 1000))
 

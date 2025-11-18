@@ -402,6 +402,11 @@ class GaussianDiffusion:
         if mask == None:
             pass
         else:
+            # print("gaussina_diffusion.py")
+            # print("x_start.shape::::")
+            # print(x_start.shape)
+            # print("sample.shape::::")
+            # print(sample.shape)
             sample = th.where(mask==0, x_start, sample) #x_start에서 Condition 부분은 그대로 남겨두고, 뒤쪽에 노이즈만 없애게끔 하는듯...
 
         return {
@@ -659,18 +664,26 @@ class GaussianDiffusion:
         assert 'input_ids' in model_kwargs
         input_ids_x = model_kwargs.pop('input_ids').to(t.device)
         input_ids_mask = model_kwargs.pop('input_mask').to(t.device)
-        x_start_mean = model.model.module.get_embeds(input_ids_x)
+
+        print("input_ids_mask.shape::::")
+        print(input_ids_mask.shape)
+
+        x_start_mean = model.model.module.get_cls_conditioned_embeds(input_ids_x)
+
         
         std = _extract_into_tensor(self.sqrt_one_minus_alphas_cumprod,
                                    th.tensor([0]).to(x_start_mean.device),
                                    x_start_mean.shape)
         # print(std.shape, )
         # x_start_log_var = 2 * th.log(std)
-        x_start = self._get_x_start(x_start_mean, std)
+        print("x_start_mean::::")
+        print(x_start_mean.shape, flush=True)
+        x_start = self._get_x_start(x_start_mean, std)  #Noise 없는 임베딩 구하기
         # print(x_start_mean.shape, x_start.shape)
         if noise is None:
             noise = th.randn_like(x_start)
 
+        #Noise 구하기
         x_t = self.q_sample(x_start, t, noise=noise, mask=input_ids_mask) # reparametrization trick.
 
         get_logits = model.model.module.get_logits
@@ -693,6 +706,8 @@ class GaussianDiffusion:
 
         decoder_nll = self._token_discrete_loss(x_start, get_logits, input_ids_x) # embedding regularization
         terms["nll"] = self._token_discrete_loss(model_out_x_start, get_logits, input_ids_x, mask=input_ids_mask, truncate=True, t=t) # x_0->model_out_x_start
+        #Negative log likelihood 인듯
+
         # assert (model.lm_head.weight == model.word_embedding.weight).all()
 
         terms["loss"] = terms["mse"] + decoder_nll + tT_loss

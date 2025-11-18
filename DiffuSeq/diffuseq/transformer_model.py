@@ -88,6 +88,8 @@ class TransformerNetModel(nn.Module):
             del temp_bert.pooler
 
         elif init_pretrained == 'no':
+            print("config:::")
+            print(config)
             self.input_transformers = BertEncoder(config)
 
             self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
@@ -105,6 +107,15 @@ class TransformerNetModel(nn.Module):
 
     def get_embeds(self, input_ids):
         return self.word_embedding(input_ids)
+    
+    def get_cls_conditioned_embeds(self, input_ids):
+        # print("get_cls_coditioned_embeds")
+
+        word_embedding = self.word_embedding(input_ids)
+        last_hidden_state = self.input_transformers(word_embedding).last_hidden_state[:,0,:]
+        word_embedding[:,0,:] = last_hidden_state
+
+        return word_embedding
 
     def get_logits(self, hidden_repr):
         if self.logits_mode == 1:

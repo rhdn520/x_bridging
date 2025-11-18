@@ -1,0 +1,779 @@
+ OPENAI_LOGDIR=diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251118-22:41:12  TOKENIZERS_PARALLELISM=false python train.py   --checkpoint_path diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251118-22:41:12 --dataset qqp --data_dir /home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp --vocab bert --use_plm_init no --lr 0.0001 --batch_size 1024 --microbatch 64 --diffusion_steps 2000 --noise_schedule sqrt --schedule_sampler lossaware --resume_checkpoint none --seq_len 128 --hidden_t_dim 128 --seed 102 --hidden_dim 128 --learning_steps 50000 --save_interval 10000 --config_name bert-base-uncased --notes test-qqp20251118-22:41:12 
+Logging to diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251118-22:41:12
+### Creating data loader...
+initializing the random embeddings Embedding(30522, 128)
+############################## 
+Loading text data...
+############################## 
+Loading dataset qqp from /home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp...
+### Loading form the TRAIN set...
+### Data samples...
+ ['Academic and Educational Advice: What can I do after completing bcom?', 'What are some good songs to make a texting lyric prank?'] ['What should I do after bcom?', 'What is a good prank lyric text to text to a friend?']
+RAM used: 946.69 MB
+Dataset({
+    features: ['src', 'trg'],
+    num_rows: 144715
+})
+RAM used: 993.96 MB
+Running tokenizer on dataset (num_proc=1):   0%|          | 0/144715 [00:00<?, ? examples/s]Running tokenizer on dataset (num_proc=1):   1%|          | 1000/144715 [00:00<01:11, 2003.39 examples/s]Running tokenizer on dataset (num_proc=1):   2%|▏         | 3000/144715 [00:00<00:25, 5575.52 examples/s]Running tokenizer on dataset (num_proc=1):   3%|▎         | 5000/144715 [00:00<00:17, 8197.09 examples/s]Running tokenizer on dataset (num_proc=1):   5%|▍         | 7000/144715 [00:00<00:13, 10074.79 examples/s]Running tokenizer on dataset (num_proc=1):   6%|▌         | 9000/144715 [00:01<00:11, 11473.16 examples/s]Running tokenizer on dataset (num_proc=1):   8%|▊         | 11000/144715 [00:01<00:14, 9492.23 examples/s]Running tokenizer on dataset (num_proc=1):   9%|▉         | 13000/144715 [00:01<00:12, 10732.81 examples/s]Running tokenizer on dataset (num_proc=1):  10%|█         | 15000/144715 [00:01<00:11, 11608.58 examples/s]Running tokenizer on dataset (num_proc=1):  12%|█▏        | 17000/144715 [00:01<00:10, 12338.93 examples/s]Running tokenizer on dataset (num_proc=1):  13%|█▎        | 19000/144715 [00:01<00:09, 12888.35 examples/s]Running tokenizer on dataset (num_proc=1):  15%|█▍        | 21000/144715 [00:02<00:12, 10266.30 examples/s]Running tokenizer on dataset (num_proc=1):  16%|█▌        | 23000/144715 [00:02<00:10, 11253.38 examples/s]Running tokenizer on dataset (num_proc=1):  17%|█▋        | 25000/144715 [00:02<00:09, 12123.27 examples/s]Running tokenizer on dataset (num_proc=1):  19%|█▊        | 27000/144715 [00:02<00:09, 12689.42 examples/s]Running tokenizer on dataset (num_proc=1):  20%|██        | 29000/144715 [00:02<00:08, 13204.51 examples/s]Running tokenizer on dataset (num_proc=1):  21%|██▏       | 31000/144715 [00:02<00:08, 13434.97 examples/s]Running tokenizer on dataset (num_proc=1):  23%|██▎       | 33000/144715 [00:03<00:10, 10529.92 examples/s]Running tokenizer on dataset (num_proc=1):  24%|██▍       | 35000/144715 [00:03<00:09, 11440.09 examples/s]Running tokenizer on dataset (num_proc=1):  26%|██▌       | 37000/144715 [00:03<00:08, 12092.53 examples/s]Running tokenizer on dataset (num_proc=1):  27%|██▋       | 39000/144715 [00:03<00:08, 12772.02 examples/s]Running tokenizer on dataset (num_proc=1):  28%|██▊       | 41000/144715 [00:03<00:07, 13273.55 examples/s]Running tokenizer on dataset (num_proc=1):  30%|██▉       | 43000/144715 [00:03<00:09, 10536.77 examples/s]Running tokenizer on dataset (num_proc=1):  31%|███       | 45000/144715 [00:04<00:08, 11387.21 examples/s]Running tokenizer on dataset (num_proc=1):  32%|███▏      | 47000/144715 [00:04<00:07, 12238.43 examples/s]Running tokenizer on dataset (num_proc=1):  34%|███▍      | 49000/144715 [00:04<00:07, 12830.20 examples/s]Running tokenizer on dataset (num_proc=1):  35%|███▌      | 51000/144715 [00:04<00:07, 13296.65 examples/s]Running tokenizer on dataset (num_proc=1):  37%|███▋      | 53000/144715 [00:04<00:06, 13690.40 examples/s]Running tokenizer on dataset (num_proc=1):  38%|███▊      | 55000/144715 [00:04<00:08, 10535.95 examples/s]Running tokenizer on dataset (num_proc=1):  39%|███▉      | 57000/144715 [00:05<00:07, 11366.29 examples/s]Running tokenizer on dataset (num_proc=1):  41%|████      | 59000/144715 [00:05<00:07, 12064.27 examples/s]Running tokenizer on dataset (num_proc=1):  42%|████▏     | 61000/144715 [00:05<00:06, 12631.98 examples/s]Running tokenizer on dataset (num_proc=1):  44%|████▎     | 63000/144715 [00:05<00:06, 13044.74 examples/s]Running tokenizer on dataset (num_proc=1):  45%|████▍     | 65000/144715 [00:05<00:07, 10387.46 examples/s]Running tokenizer on dataset (num_proc=1):  46%|████▋     | 67000/144715 [00:05<00:06, 11289.24 examples/s]Running tokenizer on dataset (num_proc=1):  48%|████▊     | 69000/144715 [00:06<00:06, 12371.10 examples/s]Running tokenizer on dataset (num_proc=1):  49%|████▉     | 71000/144715 [00:06<00:05, 13223.60 examples/s]Running tokenizer on dataset (num_proc=1):  50%|█████     | 73000/144715 [00:06<00:05, 13675.76 examples/s]Running tokenizer on dataset (num_proc=1):  52%|█████▏    | 75000/144715 [00:06<00:06, 11209.13 examples/s]Running tokenizer on dataset (num_proc=1):  53%|█████▎    | 77000/144715 [00:06<00:05, 12342.78 examples/s]Running tokenizer on dataset (num_proc=1):  55%|█████▍    | 79000/144715 [00:06<00:04, 13193.80 examples/s]Running tokenizer on dataset (num_proc=1):  56%|█████▌    | 81000/144715 [00:06<00:04, 13877.20 examples/s]Running tokenizer on dataset (num_proc=1):  57%|█████▋    | 83000/144715 [00:07<00:04, 14426.90 examples/s]Running tokenizer on dataset (num_proc=1):  59%|█████▊    | 85000/144715 [00:07<00:05, 11814.09 examples/s]Running tokenizer on dataset (num_proc=1):  60%|██████    | 87000/144715 [00:07<00:04, 12736.75 examples/s]Running tokenizer on dataset (num_proc=1):  62%|██████▏   | 89000/144715 [00:07<00:04, 13506.97 examples/s]Running tokenizer on dataset (num_proc=1):  63%|██████▎   | 91000/144715 [00:07<00:03, 14105.82 examples/s]Running tokenizer on dataset (num_proc=1):  64%|██████▍   | 93000/144715 [00:07<00:03, 14607.18 examples/s]Running tokenizer on dataset (num_proc=1):  66%|██████▌   | 95000/144715 [00:07<00:03, 14933.72 examples/s]Running tokenizer on dataset (num_proc=1):  67%|██████▋   | 97000/144715 [00:08<00:03, 11980.95 examples/s]Running tokenizer on dataset (num_proc=1):  68%|██████▊   | 99000/144715 [00:08<00:03, 12961.68 examples/s]Running tokenizer on dataset (num_proc=1):  70%|██████▉   | 101000/144715 [00:08<00:03, 13623.78 examples/s]Running tokenizer on dataset (num_proc=1):  71%|███████   | 103000/144715 [00:08<00:02, 14247.26 examples/s]Running tokenizer on dataset (num_proc=1):  73%|███████▎  | 105000/144715 [00:08<00:02, 14778.34 examples/s]Running tokenizer on dataset (num_proc=1):  74%|███████▍  | 107000/144715 [00:09<00:03, 11161.20 examples/s]Running tokenizer on dataset (num_proc=1):  75%|███████▌  | 109000/144715 [00:09<00:03, 11892.09 examples/s]Running tokenizer on dataset (num_proc=1):  77%|███████▋  | 111000/144715 [00:09<00:02, 12543.31 examples/s]Running tokenizer on dataset (num_proc=1):  78%|███████▊  | 113000/144715 [00:09<00:02, 13021.29 examples/s]Running tokenizer on dataset (num_proc=1):  79%|███████▉  | 115000/144715 [00:09<00:02, 13342.64 examples/s]Running tokenizer on dataset (num_proc=1):  81%|████████  | 117000/144715 [00:09<00:02, 13626.87 examples/s]Running tokenizer on dataset (num_proc=1):  82%|████████▏ | 119000/144715 [00:09<00:02, 10583.79 examples/s]Running tokenizer on dataset (num_proc=1):  84%|████████▎ | 121000/144715 [00:10<00:02, 11512.35 examples/s]Running tokenizer on dataset (num_proc=1):  85%|████████▍ | 123000/144715 [00:10<00:01, 12258.49 examples/s]Running tokenizer on dataset (num_proc=1):  86%|████████▋ | 125000/144715 [00:10<00:01, 12847.88 examples/s]Running tokenizer on dataset (num_proc=1):  88%|████████▊ | 127000/144715 [00:10<00:01, 13167.92 examples/s]Running tokenizer on dataset (num_proc=1):  89%|████████▉ | 129000/144715 [00:10<00:01, 10464.12 examples/s]Running tokenizer on dataset (num_proc=1):  91%|█████████ | 131000/144715 [00:10<00:01, 11376.18 examples/s]Running tokenizer on dataset (num_proc=1):  92%|█████████▏| 133000/144715 [00:11<00:00, 12139.95 examples/s]Running tokenizer on dataset (num_proc=1):  93%|█████████▎| 135000/144715 [00:11<00:00, 12744.99 examples/s]Running tokenizer on dataset (num_proc=1):  95%|█████████▍| 137000/144715 [00:11<00:00, 13157.08 examples/s]Running tokenizer on dataset (num_proc=1):  96%|█████████▌| 139000/144715 [00:11<00:00, 10412.03 examples/s]Running tokenizer on dataset (num_proc=1):  97%|█████████▋| 141000/144715 [00:11<00:00, 11340.66 examples/s]Running tokenizer on dataset (num_proc=1):  99%|█████████▉| 143000/144715 [00:11<00:00, 12049.72 examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 144715/144715 [00:12<00:00, 12490.90 examples/s]Running tokenizer on dataset (num_proc=1): 100%|██████████| 144715/144715 [00:13<00:00, 10794.67 examples/s]
+### tokenized_datasets Dataset({
+    features: ['input_id_x', 'input_id_y'],
+    num_rows: 144715
+})
+### tokenized_datasets...example [101, 3834, 1998, 4547, 6040, 1024, 2054, 2064, 1045, 2079, 2044, 7678, 4647, 5358, 1029, 102]
+RAM used: 1110.88 MB
+merge and mask (num_proc=1):   0%|          | 0/144715 [00:00<?, ? examples/s]merge and mask (num_proc=1):   2%|▏         | 3000/144715 [00:00<00:24, 5851.76 examples/s]merge and mask (num_proc=1):   6%|▌         | 9000/144715 [00:00<00:07, 17244.28 examples/s]merge and mask (num_proc=1):  10%|█         | 15000/144715 [00:00<00:04, 26681.64 examples/s]merge and mask (num_proc=1):  15%|█▍        | 21000/144715 [00:00<00:03, 33948.65 examples/s]merge and mask (num_proc=1):  19%|█▊        | 27000/144715 [00:00<00:02, 39745.35 examples/s]merge and mask (num_proc=1):  23%|██▎       | 33000/144715 [00:01<00:02, 43975.64 examples/s]merge and mask (num_proc=1):  28%|██▊       | 40000/144715 [00:01<00:03, 30689.50 examples/s]merge and mask (num_proc=1):  32%|███▏      | 46000/144715 [00:01<00:02, 35401.23 examples/s]merge and mask (num_proc=1):  36%|███▌      | 52000/144715 [00:01<00:02, 40059.75 examples/s]merge and mask (num_proc=1):  40%|████      | 58000/144715 [00:01<00:01, 44185.77 examples/s]merge and mask (num_proc=1):  44%|████▍     | 64000/144715 [00:01<00:01, 47577.29 examples/s]merge and mask (num_proc=1):  48%|████▊     | 70000/144715 [00:01<00:01, 50347.55 examples/s]merge and mask (num_proc=1):  54%|█████▍    | 78000/144715 [00:02<00:01, 39137.76 examples/s]merge and mask (num_proc=1):  58%|█████▊    | 84000/144715 [00:02<00:01, 42975.24 examples/s]merge and mask (num_proc=1):  62%|██████▏   | 90000/144715 [00:02<00:01, 46361.76 examples/s]merge and mask (num_proc=1):  66%|██████▋   | 96000/144715 [00:02<00:00, 49349.18 examples/s]merge and mask (num_proc=1):  70%|███████   | 102000/144715 [00:02<00:00, 51060.43 examples/s]merge and mask (num_proc=1):  75%|███████▍  | 108000/144715 [00:02<00:00, 53102.66 examples/s]merge and mask (num_proc=1):  79%|███████▉  | 114000/144715 [00:02<00:00, 54539.26 examples/s]merge and mask (num_proc=1):  84%|████████▍ | 122000/144715 [00:03<00:00, 43273.37 examples/s]merge and mask (num_proc=1):  88%|████████▊ | 128000/144715 [00:03<00:00, 46659.22 examples/s]merge and mask (num_proc=1):  93%|█████████▎| 134000/144715 [00:03<00:00, 48998.32 examples/s]merge and mask (num_proc=1):  97%|█████████▋| 140000/144715 [00:03<00:00, 51398.38 examples/s]merge and mask (num_proc=1): 100%|██████████| 144715/144715 [00:05<00:00, 28416.09 examples/s]
+RAM used: 1190.43 MB
+padding (num_proc=1):   0%|          | 0/144715 [00:00<?, ? examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1091130.07it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1482086.22it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1224614.31it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1537501.47it/s]
+padding (num_proc=1):   1%|▏         | 2000/144715 [00:00<00:54, 2606.53 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1253902.54it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1498500.89it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1321873.31it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1519675.36it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1183494.36it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1522986.20it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1186843.24it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1473236.39it/s]
+padding (num_proc=1):   4%|▍         | 6000/144715 [00:00<00:18, 7604.23 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1271771.98it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1535250.37it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1275639.90it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1504953.00it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1185836.58it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1536938.07it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1289761.38it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1527979.60it/s]
+padding (num_proc=1):   7%|▋         | 10000/144715 [00:01<00:11, 11606.36 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1202495.41it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1452321.33it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1280703.51it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1467052.82it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1250537.87it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1538065.27it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1286201.78it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1539194.13it/s]
+padding (num_proc=1):  10%|▉         | 14000/144715 [00:01<00:08, 14819.82 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1244231.39it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1496362.47it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1278751.22it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1546572.27it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1228920.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1493698.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1293340.73it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1539759.18it/s]
+padding (num_proc=1):  12%|█▏        | 18000/144715 [00:01<00:07, 17309.20 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1261065.54it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1537501.47it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1277971.97it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1531886.05it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1254277.51it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1031809.10it/s]
+padding (num_proc=1):  15%|█▍        | 21000/144715 [00:01<00:09, 13257.17 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1263344.58it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1544294.55it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1240184.51it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1472202.18it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1107845.75it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1555750.74it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1271771.98it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1521328.98it/s]
+padding (num_proc=1):  17%|█▋        | 25000/144715 [00:01<00:07, 15686.19 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1242020.73it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1502796.13it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1240184.51it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1529651.35it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1226404.68it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1473236.39it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1183160.51it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1478950.63it/s]
+padding (num_proc=1):  20%|██        | 29000/144715 [00:02<00:06, 17639.52 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1233981.76it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1548284.98it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1262204.03it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1496362.47it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1221049.20it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1474790.44it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1219274.42it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1484184.01it/s]
+padding (num_proc=1):  23%|██▎       | 33000/144715 [00:02<00:05, 19230.96 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1304604.67it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1578586.38it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1273316.33it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1471169.41it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1224256.86it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1496362.47it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1282269.64it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1539759.18it/s]
+padding (num_proc=1):  26%|██▌       | 37000/144715 [00:02<00:05, 20577.35 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1207689.03it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1337896.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1269078.37it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1523539.41it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1252031.04it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1203185.31it/s]
+padding (num_proc=1):  28%|██▊       | 40000/144715 [00:02<00:05, 19551.64 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1288968.65it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1524647.04it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1241285.59it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1492634.88it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1288572.66it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1500108.73it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1253527.79it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1470653.58it/s]
+padding (num_proc=1):  30%|███       | 44000/144715 [00:02<00:04, 20625.76 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1248304.76it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1471685.61it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1275252.05it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1567378.18it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1284626.03it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1546572.27it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1230001.17it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1491573.26it/s]
+padding (num_proc=1):  33%|███▎      | 48000/144715 [00:02<00:04, 21548.41 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1245339.67it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1522433.39it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1276804.87it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1527979.60it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 504790.47it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1323124.29it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1166056.16it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1459395.96it/s]
+padding (num_proc=1):  36%|███▌      | 52000/144715 [00:03<00:04, 22082.37 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1208384.90it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1462449.09it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1210477.34it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1461939.35it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1174217.25it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1517476.12it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1227122.29it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1478950.63it/s]
+padding (num_proc=1):  39%|███▊      | 56000/144715 [00:03<00:03, 22399.44 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1287781.39it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 906092.89it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1194618.06it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1466027.26it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1238353.71it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1464491.62it/s]
+padding (num_proc=1):  41%|████      | 59000/144715 [00:03<00:05, 16969.50 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1230361.98it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1321040.63it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1215388.00it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1442332.87it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1192241.05it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1454840.10it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1203185.31it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1540890.52it/s]
+padding (num_proc=1):  44%|████▎     | 63000/144715 [00:03<00:04, 18510.14 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1195639.68it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1463469.64it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1240918.34it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1457874.17it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1203185.31it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1463980.45it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1190211.12it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1506574.71it/s]
+padding (num_proc=1):  46%|████▋     | 67000/144715 [00:03<00:03, 19796.94 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1272929.89it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1536375.09it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1301770.33it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1483659.00it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1231084.24it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1451316.26it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1270616.18it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1540324.64it/s]
+padding (num_proc=1):  49%|████▉     | 71000/144715 [00:04<00:03, 20732.02 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1219274.42it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1540890.52it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1157688.10it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1469108.23it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1258794.72it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1535812.52it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1086607.25it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1481562.70it/s]
+padding (num_proc=1):  52%|█████▏    | 75000/144715 [00:04<00:03, 21455.61 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1242020.73it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1492634.88it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1242020.73it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1473236.39it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1210477.34it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1539759.18it/s]
+padding (num_proc=1):  54%|█████▍    | 78000/144715 [00:04<00:03, 18357.66 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1272929.89it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1486814.60it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1289761.38it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1531886.05it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1250165.13it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1514736.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1290555.08it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1538065.27it/s]
+padding (num_proc=1):  57%|█████▋    | 82000/144715 [00:04<00:03, 19768.40 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1286201.78it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1535812.52it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1269462.47it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1298948.28it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1251657.42it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1488397.44it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1279531.42it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1494230.14it/s]
+padding (num_proc=1):  59%|█████▉    | 86000/144715 [00:04<00:02, 20708.77 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1256532.06it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1435422.31it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1105218.45it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1483659.00it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1211876.34it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1236163.87it/s]
+padding (num_proc=1):  62%|██████▏   | 89000/144715 [00:05<00:03, 16377.20 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1227122.29it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1541456.82it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1210826.79it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1540324.64it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1279141.20it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1473754.04it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 809867.54it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1514736.01it/s]
+padding (num_proc=1):  64%|██████▍   | 93000/144715 [00:05<00:02, 18086.22 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1209779.06it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1258794.72it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1261824.31it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1468079.80it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1182160.09it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1429551.47it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1240184.51it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1533566.36it/s]
+padding (num_proc=1):  67%|██████▋   | 97000/144715 [00:05<00:02, 19462.35 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1271771.98it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1474272.06it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1276416.31it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1468079.80it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1204567.49it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1485761.25it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1252404.90it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1462449.09it/s]
+padding (num_proc=1):  70%|██████▉   | 101000/144715 [00:05<00:02, 20551.97 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1258417.04it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1550001.48it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1314005.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1439857.19it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1255403.77it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1574438.44it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1309492.35it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1365777.92it/s]
+padding (num_proc=1):  73%|███████▎  | 105000/144715 [00:05<00:01, 21556.23 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1323124.29it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1546572.27it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1316892.94it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1508199.93it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1277193.67it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1501720.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1262964.17it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1452321.33it/s]
+padding (num_proc=1):  75%|███████▌  | 109000/144715 [00:06<00:01, 22435.30 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1255779.64it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1492103.88it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1243862.40it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1494762.65it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1307451.37it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1571488.95it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1292942.05it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1547713.65it/s]
+padding (num_proc=1):  78%|███████▊  | 113000/144715 [00:06<00:01, 23060.76 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1230001.17it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1484184.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1173560.16it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1487341.84it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1254652.71it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1483134.37it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1277193.67it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1541456.82it/s]
+padding (num_proc=1):  81%|████████  | 117000/144715 [00:06<00:01, 23422.32 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1235071.85it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1499036.45it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1265250.08it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1556328.01it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1311539.71it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1526867.13it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1069157.28it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1563871.74it/s]
+padding (num_proc=1):  84%|████████▎ | 121000/144715 [00:06<00:00, 23886.09 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1316479.60it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1496896.50it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1305416.74it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1518574.95it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1241653.05it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1522433.39it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1310720.00it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1572077.96it/s]
+padding (num_proc=1):  86%|████████▋ | 125000/144715 [00:06<00:00, 24068.04 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1330680.20it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1557483.85it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1043878.55it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1447309.87it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1255779.64it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1569724.55it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1326891.49it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1510372.34it/s]
+padding (num_proc=1):  89%|████████▉ | 129000/144715 [00:06<00:00, 24387.06 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1341318.84it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1575029.67it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1320209.00it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1551147.93it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1333641.97it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1508199.93it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1259172.62it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1514736.01it/s]
+padding (num_proc=1):  92%|█████████▏| 133000/144715 [00:07<00:00, 24598.17 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1272157.72it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1565038.81it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1265250.08it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1509285.35it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1055436.34it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1522433.39it/s]
+padding (num_proc=1):  94%|█████████▍| 136000/144715 [00:07<00:00, 18984.83 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1260686.50it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1486814.60it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1261065.54it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1518025.33it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1316066.52it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1541456.82it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1042581.16it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1467566.13it/s]
+padding (num_proc=1):  97%|█████████▋| 140000/144715 [00:07<00:00, 20518.56 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1331525.08it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1540890.52it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1054640.18it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1545432.57it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1306229.83it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1459395.96it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1300559.38it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1563871.74it/s]
+padding (num_proc=1): 100%|█████████▉| 144000/144715 [00:07<00:00, 21783.31 examples/s]
+0it [00:00, ?it/s][A715it [00:00, 1283238.07it/s]
+
+0it [00:00, ?it/s][A715it [00:00, 1515375.12it/s]
+padding (num_proc=1): 100%|██████████| 144715/144715 [00:11<00:00, 12292.45 examples/s]
+/data6/seungwoochoi/.conda/envs/x_bridging/lib/python3.11/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 1, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+Dataset({
+    features: ['input_id_x', 'input_id_y', 'input_ids', 'input_mask'],
+    num_rows: 144715
+}) padded dataset
+Column([[101, 3834, 1998, 4547, 6040, 1024, 2054, 2064, 1045, 2079, 2044, 7678, 4647, 5358, 1029, 102], [101, 2054, 2024, 2070, 2204, 2774, 2000, 2191, 1037, 3793, 2075, 13677, 26418, 1029, 102], [101, 2129, 2079, 1045, 3102, 11432, 1029, 102], [101, 1037, 3608, 2003, 6908, 20018, 10745, 3257, 2007, 2019, 3988, 10146, 2753, 2463, 1013, 1055, 1012, 2054, 1005, 1055, 1996, 4555, 4578, 1029, 102], [101, 2129, 2106, 6221, 8398, 2663, 1996, 3864, 1029, 102]])
+Column([[101, 2054, 2323, 1045, 2079, 2044, 4647, 5358, 1029, 102], [101, 2054, 2003, 1037, 2204, 26418, 13677, 3793, 2000, 3793, 2000, 1037, 2767, 1029, 102], [101, 2129, 2064, 1045, 3102, 1037, 5308, 9350, 1029, 102], [101, 1037, 3608, 2003, 6908, 1999, 1037, 20018, 10745, 3257, 2007, 1037, 10146, 1997, 2753, 2463, 1013, 1055, 1012, 2054, 1005, 1055, 1996, 4555, 4578, 1029, 102], [101, 2129, 2106, 6221, 8398, 2663, 1996, 2355, 4883, 2602, 1029, 102]])
+Column([[101, 3834, 1998, 4547, 6040, 1024, 2054, 2064, 1045, 2079, 2044, 7678, 4647, 5358, 1029, 102, 102, 101, 2054, 2323, 1045, 2079, 2044, 4647, 5358, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2024, 2070, 2204, 2774, 2000, 2191, 1037, 3793, 2075, 13677, 26418, 1029, 102, 102, 101, 2054, 2003, 1037, 2204, 26418, 13677, 3793, 2000, 3793, 2000, 1037, 2767, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2129, 2079, 1045, 3102, 11432, 1029, 102, 102, 101, 2129, 2064, 1045, 3102, 1037, 5308, 9350, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 1037, 3608, 2003, 6908, 20018, 10745, 3257, 2007, 2019, 3988, 10146, 2753, 2463, 1013, 1055, 1012, 2054, 1005, 1055, 1996, 4555, 4578, 1029, 102, 102, 101, 1037, 3608, 2003, 6908, 1999, 1037, 20018, 10745, 3257, 2007, 1037, 10146, 1997, 2753, 2463, 1013, 1055, 1012, 2054, 1005, 1055, 1996, 4555, 4578, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2129, 2106, 6221, 8398, 2663, 1996, 3864, 1029, 102, 102, 101, 2129, 2106, 6221, 8398, 2663, 1996, 2355, 4883, 2602, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+RAM used: 1684.73 MB
+RAM used: 1684.73 MB
+############################## 
+Loading text data...
+############################## 
+Loading dataset qqp from /home/seungwoochoi/data/x_bridging/DiffuSeq/datasets/qqp...
+### Loading form the VALID set...
+### Data samples...
+ ['Why does he want to have sex with me not her?', 'When/how did you realize were not straight?'] ['Why did he chose me to have sex with?', 'When/how did you realize you were gay/bisexual? Were you in denial?']
+RAM used: 1601.89 MB
+Dataset({
+    features: ['src', 'trg'],
+    num_rows: 2048
+})
+RAM used: 1558.85 MB
+Running tokenizer on dataset (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]Running tokenizer on dataset (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 1268.33 examples/s]Running tokenizer on dataset (num_proc=1):  98%|█████████▊| 2000/2048 [00:02<00:00, 928.28 examples/s] Running tokenizer on dataset (num_proc=1): 100%|██████████| 2048/2048 [00:02<00:00, 816.91 examples/s]
+### tokenized_datasets Dataset({
+    features: ['input_id_x', 'input_id_y'],
+    num_rows: 2048
+})
+### tokenized_datasets...example [101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102]
+RAM used: 1562.21 MB
+merge and mask (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]merge and mask (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 4335.52 examples/s]merge and mask (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 4100.51 examples/s]
+RAM used: 1564.32 MB
+padding (num_proc=1):   0%|          | 0/2048 [00:00<?, ? examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 1171593.30it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1564455.05it/s]
+padding (num_proc=1):  49%|████▉     | 1000/2048 [00:00<00:00, 3619.87 examples/s]
+0it [00:00, ?it/s][A1000it [00:00, 797851.25it/s]
+
+0it [00:00, ?it/s][A1000it [00:00, 1390223.40it/s]
+
+0it [00:00, ?it/s][A48it [00:00, 524288.00it/s]
+
+0it [00:00, ?it/s][A48it [00:00, 871543.69it/s]
+padding (num_proc=1): 100%|██████████| 2048/2048 [00:00<00:00, 3343.88 examples/s]
+/data6/seungwoochoi/.conda/envs/x_bridging/lib/python3.11/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 1, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+Dataset({
+    features: ['input_id_x', 'input_id_y', 'input_ids', 'input_mask'],
+    num_rows: 2048
+}) padded dataset
+Column([[101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2020, 2025, 3442, 1029, 102], [101, 2073, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 3899, 8902, 2140, 1029, 102], [101, 2054, 2079, 2017, 2228, 1996, 3013, 7245, 1997, 24888, 7685, 2355, 7842, 2052, 2022, 1029, 102], [101, 2339, 2003, 5522, 2061, 2502, 1029, 102]])
+Column([[101, 2339, 2106, 2002, 4900, 2033, 2000, 2031, 3348, 2007, 1029, 102], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2017, 2020, 5637, 1013, 22437, 1029, 2020, 2017, 1999, 14920, 1029, 102], [101, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 9127, 2005, 2115, 3899, 1029, 102], [101, 2054, 2079, 2017, 2228, 2055, 1996, 24888, 7685, 2355, 3259, 1029, 102], [101, 2339, 2038, 5522, 4961, 2000, 2022, 1037, 2107, 2312, 2103, 1029, 102]])
+Column([[101, 2339, 2515, 2002, 2215, 2000, 2031, 3348, 2007, 2033, 2025, 2014, 1029, 102, 102, 101, 2339, 2106, 2002, 4900, 2033, 2000, 2031, 3348, 2007, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2043, 1013, 2129, 2106, 2017, 5382, 2020, 2025, 3442, 1029, 102, 102, 101, 2043, 1013, 2129, 2106, 2017, 5382, 2017, 2020, 5637, 1013, 22437, 1029, 2020, 2017, 1999, 14920, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2073, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 3899, 8902, 2140, 1029, 102, 102, 101, 2064, 2017, 2131, 1037, 8040, 9541, 3762, 20160, 9127, 2005, 2115, 3899, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2054, 2079, 2017, 2228, 1996, 3013, 7245, 1997, 24888, 7685, 2355, 7842, 2052, 2022, 1029, 102, 102, 101, 2054, 2079, 2017, 2228, 2055, 1996, 24888, 7685, 2355, 3259, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [101, 2339, 2003, 5522, 2061, 2502, 1029, 102, 102, 101, 2339, 2038, 5522, 4961, 2000, 2022, 1037, 2107, 2312, 2103, 1029, 102, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+RAM used: 1567.20 MB
+RAM used: 1567.20 MB
+############################## size of vocab 30522
+### Creating model and diffusion...
+dict_keys(['lr', 'batch_size', 'microbatch', 'learning_steps', 'log_interval', 'save_interval', 'eval_interval', 'ema_rate', 'resume_checkpoint', 'schedule_sampler', 'diffusion_steps', 'noise_schedule', 'timestep_respacing', 'vocab', 'use_plm_init', 'vocab_size', 'config_name', 'notes', 'data_dir', 'dataset', 'checkpoint_path', 'seq_len', 'hidden_t_dim', 'hidden_dim', 'dropout', 'use_fp16', 'fp16_scale_growth', 'seed', 'gradient_clipping', 'weight_decay', 'learn_sigma', 'use_kl', 'predict_xstart', 'rescale_timesteps', 'rescale_learned_sigmas', 'sigma_small', 'emb_scale_factor'])
+### The parameter count is 91225274
+### Saving the hyperparameters to diffusion_models/diffuseq_qqp_h128_lr0.0001_t2000_sqrt_lossaware_seed102_test-qqp20251118-22:41:12/training_args.json
+wandb: Tracking run with wandb version 0.23.0
+wandb: W&B syncing is set to `offline` in this directory. Run `wandb online` or set WANDB_MODE=online to enable cloud syncing.
+wandb: Run data is saved locally in /data6/seungwoochoi/x_bridging/DiffuSeq/wandb/offline-run-20251118_224158-ee8uk808
+### Training...
+cuda:0
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+------------------------
+| grad_norm | 26.7     |
+| loss      | 0.88     |
+| loss_q0   | 0.876    |
+| loss_q1   | 0.879    |
+| loss_q2   | 0.883    |
+| loss_q3   | 0.882    |
+| mse       | 0.88     |
+| mse_q0    | 0.876    |
+| mse_q1    | 0.879    |
+| mse_q2    | 0.883    |
+| mse_q3    | 0.882    |
+| nll       | 13.3     |
+| nll_q0    | 13       |
+| nll_q1    | 13.3     |
+| nll_q2    | 13.6     |
+| nll_q3    | 13.6     |
+| samples   | 1.02e+03 |
+| step      | 0        |
+------------------------
+/data6/seungwoochoi/.conda/envs/x_bridging/lib/python3.11/site-packages/torch/utils/data/dataloader.py:627: UserWarning: This DataLoader will create 4 worker processes in total. Our suggested max number of worker in current system is 1, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+input_ids_mask.shape::::
+torch.Size([64, 128])
+eval on validation set
+---------------------------
+| eval_loss    | 0.552    |
+| eval_loss_q0 | 0.547    |
+| eval_loss_q1 | 0.549    |
+| eval_loss_q2 | 0.552    |
+| eval_loss_q3 | 0.56     |
+| eval_mse     | 0.552    |
+| eval_mse_q0  | 0.547    |
+| eval_mse_q1  | 0.549    |
+| eval_mse_q2  | 0.552    |
+| eval_mse_q3  | 0.56     |
+| eval_nll     | 4.91     |
+| eval_nll_q0  | 4.91     |
+| eval_nll_q1  | 4.92     |
+| eval_nll_q2  | 4.84     |
+| eval_nll_q3  | 4.97     |
+---------------------------
+slurmstepd-n02: error: *** JOB 88789 ON n02 CANCELLED AT 2025-11-18T22:42:48 ***
