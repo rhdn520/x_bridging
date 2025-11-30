@@ -662,13 +662,15 @@ class GaussianDiffusion:
         """
         x_start_fix = x_start # save the orignal x_0
         assert 'input_ids' in model_kwargs
-        input_ids_x = model_kwargs.pop('input_ids').to(t.device)
-        input_ids_mask = model_kwargs.pop('input_mask').to(t.device)
+        model_kwargs.pop('input_ids')
+        model_kwargs.pop('input_mask')
+        input_id_x = model_kwargs.pop('input_id_x').to(t.device)
+        input_mask_x = model_kwargs.pop('input_mask_x').to(t.device)
 
-        print("input_ids_mask.shape::::")
-        print(input_ids_mask.shape)
+        # print("input_ids_mask.shape::::")
+        # print(input_ids_mask.shape)
 
-        x_start_mean = model.model.module.get_cls_conditioned_embeds(input_ids_x)
+        x_start_mean = model.model.module.get_cls_conditioned_embeds(input_id_x)
 
         
         std = _extract_into_tensor(self.sqrt_one_minus_alphas_cumprod,
@@ -676,15 +678,15 @@ class GaussianDiffusion:
                                    x_start_mean.shape)
         # print(std.shape, )
         # x_start_log_var = 2 * th.log(std)
-        print("x_start_mean::::")
-        print(x_start_mean.shape, flush=True)
+        # print("x_start_mean::::")
+        # print(x_start_mean.shape, flush=True)
         x_start = self._get_x_start(x_start_mean, std)  #Noise 없는 임베딩 구하기
         # print(x_start_mean.shape, x_start.shape)
         if noise is None:
             noise = th.randn_like(x_start)
 
         #Noise 구하기
-        x_t = self.q_sample(x_start, t, noise=noise, mask=input_ids_mask) # reparametrization trick.
+        x_t = self.q_sample(x_start, t, noise=noise, mask=input_mask_x) # reparametrization trick.
 
         get_logits = model.model.module.get_logits
 
@@ -704,8 +706,8 @@ class GaussianDiffusion:
         out_mean, _, _ = self.q_mean_variance(x_start, th.LongTensor([self.num_timesteps - 1]).to(x_start.device))
         tT_loss =  mean_flat(out_mean ** 2)
 
-        decoder_nll = self._token_discrete_loss(x_start, get_logits, input_ids_x) # embedding regularization
-        terms["nll"] = self._token_discrete_loss(model_out_x_start, get_logits, input_ids_x, mask=input_ids_mask, truncate=True, t=t) # x_0->model_out_x_start
+        decoder_nll = self._token_discrete_loss(x_start, get_logits, input_id_x) # embedding regularization
+        terms["nll"] = self._token_discrete_loss(model_out_x_start, get_logits, input_id_x, mask=input_mask_x, truncate=True, t=t) # x_0->model_out_x_start
         #Negative log likelihood 인듯
 
         # assert (model.lm_head.weight == model.word_embedding.weight).all()

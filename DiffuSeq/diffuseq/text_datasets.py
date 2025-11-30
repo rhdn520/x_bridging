@@ -106,6 +106,7 @@ def helper_tokenize(sentence_lst, vocab_dict, seq_len):
     def merge_and_mask(group_lst): #여기서는 mask를 넣기는 하는데 일단 다 0으로 채움 뒤에 pad_function에서 제대로 하는듯
         lst = []
         mask = []
+        mask_x = []
         for i in range(len(group_lst['input_id_x'])):
             end_token = group_lst['input_id_x'][i][-1]
             src = group_lst['input_id_x'][i][:-1]
@@ -123,8 +124,10 @@ def helper_tokenize(sentence_lst, vocab_dict, seq_len):
 
             lst.append(src + [vocab_dict.sep_token_id] + trg) #SRC랑 TGT이 하나로 합쳐지는 순간!!!!!!
             mask.append([0]*(len(src)+1))
+            mask_x.append([0])
         group_lst['input_ids'] = lst
         group_lst['input_mask'] = mask
+        group_lst['input_mask_x'] = mask_x
         return group_lst
     
     tokenized_datasets = tokenized_datasets.map(
@@ -138,6 +141,8 @@ def helper_tokenize(sentence_lst, vocab_dict, seq_len):
         max_length = seq_len
         group_lst['input_ids'] = _collate_batch_helper(group_lst['input_ids'], vocab_dict.pad_token_id, max_length)
         group_lst['input_mask'] = _collate_batch_helper(group_lst['input_mask'], 1, max_length)
+        group_lst['input_id_x'] = _collate_batch_helper(group_lst['input_ids'], vocab_dict.pad_token_id, max_length)
+        group_lst['input_mask_x'] = _collate_batch_helper(group_lst['input_mask'], 1, max_length)
         return group_lst
 
     print(f"RAM used: {psutil.Process().memory_info().rss / (1024 * 1024):.2f} MB")
@@ -157,6 +162,7 @@ def helper_tokenize(sentence_lst, vocab_dict, seq_len):
 
     raw_datasets = datasets.DatasetDict()
     raw_datasets['train'] = lm_datasets
+    print(raw_datasets)
     print(f"RAM used: {psutil.Process().memory_info().rss / (1024 * 1024):.2f} MB")
     return raw_datasets
 
@@ -217,6 +223,8 @@ class TextDataset(Dataset):
             out_kwargs = {}
             out_kwargs['input_ids'] = np.array(self.text_datasets['train'][idx]['input_ids'])
             out_kwargs['input_mask'] = np.array(self.text_datasets['train'][idx]['input_mask'])
+            out_kwargs['input_id_x'] = np.array(self.text_datasets['train'][idx]['input_id_x'])
+            out_kwargs['input_mask_x'] = np.array(self.text_datasets['train'][idx]['input_mask_x'])
 
             return arr, out_kwargs
 

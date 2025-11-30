@@ -1,0 +1,327 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import math
+import os
+from torch.utils.data import Dataset, DataLoader
+from transformers import BertForMaskedLM, BertConfig, BertTokenizer
+from datasets import load_dataset
+
+class SinusoidalPositionEmbeddings(nn.Module):
+    """
+    Standard sinusoidal time embeddings.
+    """
+    def __init__(self, dim):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, time):
+        device = time.device
+        half_dim = self.dim // 2
+        embeddings = math.log(10000) / (half_dim - 1)
+        embeddings = torch.exp(torch.arange(half_dim, device=device) * -embeddings)
+        embeddings = time[:, None] * embeddings[None, :]
+        embeddings = torch.cat((embeddings.sin(), embeddings.cos()), dim=-1)
+        return embeddings
+
+class Conv1dBlock(nn.Module):
+    """
+    A Residual Convolutional Block.
+    Input: (Batch, Channels, Length)
+    """
+    def __init__(self, channels, kernel_size=3, dropout=0.1):
+        super().__init__()
+        self.conv = nn.Sequential(
+            nn.Conv1d(channels, channels, kernel_size, padding=kernel_size//2),
+            nn.GroupNorm(1, channels),
+            nn.GELU(),
+            nn.Conv1d(channels, channels, kernel_size, padding=kernel_size//2),
+            nn.Dropout(dropout)
+        )
+        self.act = nn.GELU()
+
+    def forward(self, x):
+        return self.act(x + self.conv(x))
+
+class DenoisingModelConv1d(nn.Module):
+    """
+    Denoising model using 1D Convolutions.
+    This treats the latent space like a multi-channel signal.
+    """
+    def __init__(self, channels, latent_width, time_emb_dim=256, num_layers=4):
+        super().__init__()
+        self.channels = channels
+        self.latent_width = latent_width
+        
+        # Time Embedding MLP
+        self.time_mlp = nn.Sequential(
+            SinusoidalPositionEmbeddings(time_emb_dim),
+            nn.Linear(time_emb_dim, time_emb_dim),
+            nn.GELU(),
+            nn.Linear(time_emb_dim, time_emb_dim),
+        )
+
+        # Main Backbone
+        self.input_conv = nn.Conv1d(channels, channels, kernel_size=1)
+        
+        self.layers = nn.ModuleList([
+            Conv1dBlock(channels) for _ in range(num_layers)
+        ])
+        
+        self.output_conv = nn.Conv1d(channels, channels, kernel_size=1)
+        
+        # Projection to mix time embedding into channels
+        self.time_proj = nn.Linear(time_emb_dim, channels)
+
+    def forward(self, x, t):
+        # x: (Batch, Channels, Latent_Width)
+        # t: (Batch)
+        
+        # 1. Process Time
+        t_emb = self.time_mlp(t)                # (Batch, Time_Dim)
+        t_emb = self.time_proj(t_emb)           # (Batch, Channels)
+        t_emb = t_emb.unsqueeze(-1)             # (Batch, Channels, 1) - Broadcastable
+        
+        # 2. Initial Conv
+        x = self.input_conv(x)
+        
+        # 3. Add Time Embedding to features (broadcasting across width)
+        x = x + t_emb
+        
+        # 4. Residual Conv Layers
+        for layer in self.layers:
+            x = layer(x)
+            
+        output = self.output_conv(x)
+        return output
+
+class DiffusionLM(nn.Module):
+    def __init__(self, 
+                 bert_model_name='bert-base-uncased', 
+                 max_seq_len=128,
+                 latent_channels=8,
+                 latent_width=64,
+                 timesteps=1000,
+                 num_diffu_layers=8):
+        super().__init__()
+        
+        self.max_seq_len = max_seq_len
+        self.latent_channels = latent_channels
+        self.latent_width = latent_width
+        self.timesteps = timesteps
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+        # 1. BERT Setup
+        print(f"Loading {bert_model_name}...")
+        mlm_model = BertForMaskedLM.from_pretrained(bert_model_name)
+        
+        self.bert = mlm_model.bert
+        self.cls_head = mlm_model.cls
+        
+        config = self.bert.config
+        self.hidden_size = config.hidden_size
+        
+        # Freeze BERT
+        for param in self.bert.parameters():
+            param.requires_grad = False
+        for param in self.cls_head.parameters():
+            param.requires_grad = True
+
+        # 2. Encoder / Decoder (Reshaping)
+        input_flat_dim = self.max_seq_len * self.hidden_size
+        latent_flat_dim = latent_channels * latent_width
+        
+        self.encoder_proj = nn.Sequential(
+            nn.Linear(input_flat_dim, 2048),
+            nn.GELU(),
+            nn.Linear(2048, latent_flat_dim)
+        )
+        
+        self.decoder_proj = nn.Sequential(
+            nn.Linear(latent_flat_dim, 2048),
+            nn.GELU(),
+            nn.Linear(2048, input_flat_dim)
+        )
+
+        # 3. Denoising Model
+        self.denoise_model = DenoisingModelConv1d(
+            channels=latent_channels, 
+            latent_width=latent_width,
+            num_layers=num_diffu_layers
+        )
+
+        # 4. Diffusion Parameters
+        beta = torch.linspace(0.0001, 0.02, timesteps)
+        alpha = 1.0 - beta
+        alpha_bar = torch.cumprod(alpha, dim=0)
+
+        self.register_buffer('beta', beta)
+        self.register_buffer('alpha', alpha)
+        self.register_buffer('alpha_bar', alpha_bar)
+        
+    def get_latents(self, input_ids, attention_mask):
+        with torch.no_grad():
+            outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+            last_hidden_state = outputs.last_hidden_state
+        
+        batch_size = last_hidden_state.shape[0]
+        flat_hidden = last_hidden_state.view(batch_size, -1)
+        flat_latents = self.encoder_proj(flat_hidden) 
+        latents = flat_latents.view(batch_size, self.latent_channels, self.latent_width)
+        return latents
+
+    def decode_latents(self, latents):
+        batch_size = latents.shape[0]
+        flat_latents = latents.view(batch_size, -1)
+        reconstructed_flat = self.decoder_proj(flat_latents)
+        reconstructed_hidden = reconstructed_flat.view(batch_size, self.max_seq_len, self.hidden_size)
+        logits = self.cls_head(reconstructed_hidden)
+        return logits
+
+    def q_sample(self, x_0, t, noise=None):
+        if noise is None:
+            noise = torch.randn_like(x_0)
+        sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
+        sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
+        return sqrt_alpha_bar_t * x_0 + sqrt_one_minus_alpha_bar_t * noise, noise
+
+    def predict_x0_from_noise(self, x_t, t, predicted_noise):
+        """
+        Calculates the estimated x_0 (clean data) given x_t and predicted noise.
+        Formula: x_0 = (x_t - sqrt(1 - alpha_bar_t) * eps) / sqrt(alpha_bar_t)
+        """
+        sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
+        sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
+        
+        # Add a tiny epsilon to division for stability when t is large (alpha_bar near 0)
+        x_0_pred = (x_t - sqrt_one_minus_alpha_bar_t * predicted_noise) / (sqrt_alpha_bar_t + 1e-5)
+        return x_0_pred
+
+    def forward(self, input_ids, attention_mask):
+        if input_ids.size(1) != self.max_seq_len:
+            raise ValueError(f"Input sequence length must be {self.max_seq_len}")
+
+        # 1. Get Latents (B, C, W)
+        x_0 = self.get_latents(input_ids, attention_mask)
+        batch_size = x_0.shape[0]
+
+        # 2. Timesteps
+        t = torch.randint(0, self.timesteps, (batch_size,), device=x_0.device).long()
+
+        # 3. Add Noise
+        noise = torch.randn_like(x_0)
+        x_t, _ = self.q_sample(x_0, t, noise)
+
+        # 4. Predict Noise
+        predicted_noise = self.denoise_model(x_t, t)
+
+        # # 5. Loss A: MSE Loss (Latent Space)
+        # mse_loss = F.mse_loss(predicted_noise, noise)
+        
+        # 6. Loss B: Cross-Entropy Loss (Token Space) - End-to-End
+        # First, reconstruct x_0 from the noisy input using the prediction
+        x_0_pred = self.predict_x0_from_noise(x_t, t, predicted_noise)
+        
+        # Decode to logits (B, Seq, Vocab)
+        logits = self.decode_latents(x_0_pred)
+        
+        # Flatten for CrossEntropy
+        flat_logits = logits.view(-1, logits.size(-1))
+        flat_labels = input_ids.view(-1)
+        flat_mask = attention_mask.view(-1)
+        
+        # Calculate CE only on non-padded tokens
+        ce_loss_raw = F.cross_entropy(flat_logits, flat_labels, reduction='none')
+        # Mask out padding (assuming 1 is active, 0 is pad in attention_mask)
+        ce_loss = (ce_loss_raw * flat_mask).sum() / (flat_mask.sum() + 1e-5)
+
+        # 7. Total Loss
+        total_loss = ce_loss
+        
+        return total_loss
+
+    @torch.no_grad()
+    def reconstruct_text(self, input_ids, attention_mask):
+        self.eval()
+        latents = self.get_latents(input_ids, attention_mask)
+        logits = self.decode_latents(latents)
+        predicted_ids = torch.argmax(logits, dim=-1)
+        return predicted_ids
+
+    @torch.no_grad()
+    def sample(self, batch_size, x=None):
+        self.eval()
+        device = self.beta.device
+        
+        if x is None:
+            x = torch.randn((batch_size, self.latent_channels, self.latent_width), device=device)
+        else:
+            x = x.to(device)
+        
+        print(f"Sampling started for {batch_size} sequences...")
+
+        for i in reversed(range(self.timesteps)):
+            t = torch.full((batch_size,), i, device=device, dtype=torch.long)
+            
+            predicted_noise = self.denoise_model(x, t)
+            
+            # Standard DDPM Update
+            alpha_t = self.alpha[t][:, None, None]
+            alpha_bar_t = self.alpha_bar[t][:, None, None]
+            beta_t = self.beta[t][:, None, None]
+            
+            mean = (1 / torch.sqrt(alpha_t)) * (x - (beta_t / torch.sqrt(1 - alpha_bar_t)) * predicted_noise)
+            
+            if i > 0:
+                noise = torch.randn_like(x)
+                sigma = torch.sqrt(beta_t)
+                x = mean + sigma * noise
+            else:
+                x = mean
+
+        logits = self.decode_latents(x)
+        predicted_ids = torch.argmax(logits, dim=-1)
+        return predicted_ids
+        
+    @torch.no_grad()
+    def check_prediction(self, input_ids, attention_mask, num_samples=5):
+        """
+        Visualizes the model's prediction of x_0 given x_t.
+        """
+        self.eval()
+        input_ids = input_ids[:num_samples]
+        attention_mask = attention_mask[:num_samples]
+        batch_size = input_ids.shape[0]
+
+        x_0 = self.get_latents(input_ids, attention_mask)
+        t = torch.linspace(0, self.timesteps - 1, batch_size, device=self.device).long()
+        
+        noise = torch.randn_like(x_0)
+        x_t, _ = self.q_sample(x_0, t, noise)
+
+        predicted_noise = self.denoise_model(x_t, t)
+        
+        # Use the helper to ensure consistent logic
+        x_0_pred = self.predict_x0_from_noise(x_t, t, predicted_noise)
+        
+        logits = self.decode_latents(x_0_pred)
+        predicted_ids = torch.argmax(logits, dim=-1)
+        
+        return predicted_ids, t
+
+# --- Helper for Clean Decoding ---
+def decode_token_ids(token_ids, tokenizer):
+    """
+    Decodes a sequence of token IDs, but stops strictly at the first [SEP] token.
+    This prevents printing 'garbage' that the model might generate after the sentence ends.
+    """
+    if isinstance(token_ids, torch.Tensor):
+        token_ids = token_ids.tolist()
+        
+    # Cut off at separator if it exists
+    if tokenizer.sep_token_id in token_ids:
+        sep_idx = token_ids.index(tokenizer.sep_token_id)
+        token_ids = token_ids[:sep_idx]
+        
+    # Decode and skip [CLS], [PAD] etc.
+    return tokenizer.decode(token_ids, skip_special_tokens=True)

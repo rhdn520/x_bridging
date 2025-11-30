@@ -49,7 +49,7 @@ def main():
         model_emb=model_weight # use model's weights as init
     )
     next(data)
-
+    
     data_valid = load_data_text(
         batch_size=args.batch_size,
         seq_len=args.seq_len,

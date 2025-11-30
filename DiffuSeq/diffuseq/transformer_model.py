@@ -112,7 +112,8 @@ class TransformerNetModel(nn.Module):
         # print("get_cls_coditioned_embeds")
 
         word_embedding = self.word_embedding(input_ids)
-        last_hidden_state = self.input_transformers(word_embedding).last_hidden_state[:,0,:]
+        with th.no_grad():
+            last_hidden_state = self.input_transformers(word_embedding).last_hidden_state[:,0,:]
         word_embedding[:,0,:] = last_hidden_state
 
         return word_embedding
