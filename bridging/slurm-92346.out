@@ -1,0 +1,31 @@
+Running inference with timestep: 499
+Interpolating between:
+  1: The aroma of fresh coffee filled the small kitchen.
+  2: She fell asleep while reading a book under the shade of a tree.
+Some weights of the model checkpoint at bert-base-uncased were not used when initializing BertForMaskedLM: ['bert.pooler.dense.bias', 'bert.pooler.dense.weight', 'cls.seq_relationship.bias', 'cls.seq_relationship.weight']
+- This IS expected if you are initializing BertForMaskedLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertForMaskedLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Using device: cuda
+Loading bert-base-uncased...
+Loading weights from model_outputs/diffusion_lm_512_3_128_1000.pth...
+--- Running Inference with noise_t = 499 ---
+--- Interpolating between: ---
+    1: 'The aroma of fresh coffee filled the small kitchen.'
+    2: 'She fell asleep while reading a book under the shade of a tree.'
+
+X_0 Sentence (Original): The aroma of fresh coffee filled the small kitchen.
+X_0 Sentence (Reconstructed): the smell of fresh coffee filled the small kitchen.
+
+X_1 Sentence (Original): She fell asleep while reading a book under the shade of a tree.
+X_1 Sentence (Reconstructed): she fell asleep while reading a book under the shade of a tree.
+
+--- Interpolation Results ---
+Alpha 0.1: the smell of fresh coffee filled the small kitchen.
+Alpha 0.2: the smell of fresh coffee filled the small kitchen.
+Alpha 0.3: the smell of fresh coffee drank the small kitchen.
+Alpha 0.4: the smell of fresh coffeeing the in kitchen. of a food.
+Alpha 0.5: the smell out fresh reading the juice in kitchen middle of a air.
+Alpha 0.6: she smell out fresh drinking drinking juice in the middle of a tree.
+Alpha 0.7: she spilled asleep while reading a book in the shade of a tree.
+Alpha 0.8: she fell asleep and reading a book under the corner of a tree.
+Alpha 0.9: she fell asleep while reading a book under the shade of a tree.

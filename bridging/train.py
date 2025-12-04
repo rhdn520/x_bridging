@@ -5,11 +5,69 @@ import math
 import os
 from torch.utils.data import Dataset, DataLoader, IterableDataset
 from transformers import BertForMaskedLM, BertConfig, BertTokenizer
-from model import DiffusionLM
+from model import DiffusionLM, decode_token_ids
 from tqdm import tqdm
 from datasets import load_dataset
+import nltk
 
-# --- New Dataset Class ---
+# NLTK의 문장 분리기 데이터 다운로드 (최초 1회만 실행됨)
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+    nltk.download('punkt_tab') # 최신 버전 호환용
+
+class StreamTinyStoriesDataset(IterableDataset):
+    def __init__(self, tokenizer, split="train", max_samples=None, skip_samples=0, max_seq_len=128):
+        self.tokenizer = tokenizer
+        self.max_seq_len = max_seq_len
+        self.max_samples = max_samples
+        
+        print(f"Loading streaming TinyStories dataset ({split})...")
+        # TinyStories 데이터셋 로드
+        self.dataset = load_dataset("roneneldan/TinyStories", split=split, streaming=True)
+        
+        # 셔플
+        self.dataset = self.dataset.shuffle(seed=42, buffer_size=10000)
+        
+        if skip_samples > 0:
+            self.dataset = self.dataset.skip(skip_samples)
+        
+        if max_samples is not None:
+            self.dataset = self.dataset.take(max_samples)
+
+    def __iter__(self):
+        for example in self.dataset:
+            text = example['text']
+            
+            # 1. 텍스트를 문장 단위로 분리 (List[str] 반환)
+            sentences = nltk.sent_tokenize(text)
+            
+            # 2. 분리된 각 문장에 대해 반복
+            for sentence in sentences:
+                # 너무 짧은 문장(예: 공백이나 특수문자만 있는 경우)은 건너뛰기
+                if len(sentence.strip()) < 5: 
+                    continue
+
+                # 3. 문장 토큰화
+                enc = self.tokenizer(
+                    sentence,
+                    max_length=self.max_seq_len,
+                    padding="max_length",
+                    truncation=True,
+                    add_special_tokens=True,
+                    return_tensors="pt"
+                )
+                
+                # input_ids 길이를 체크할 필요가 거의 없음 (문장 하나는 128보다 짧을 확률이 높음)
+                # 만약 문장이 128보다 길면 truncation=True에 의해 자동으로 잘립니다.
+
+                yield {
+                    'input_ids': enc['input_ids'].squeeze(0),
+                    'attention_mask': enc['attention_mask'].squeeze(0)
+                }
+
+
 class TextDataset(Dataset):
     def __init__(self, file_path, tokenizer, max_seq_len=128):
         self.tokenizer = tokenizer
@@ -48,8 +106,6 @@ class TextDataset(Dataset):
             'attention_mask': encoding['attention_mask'].squeeze(0)
         }
 
-
-# --- Streaming Dataset Class ---
 class StreamC4Dataset(IterableDataset):
     def __init__(self, tokenizer, split="train", max_samples=None, skip_samples=0, max_seq_len=128):
         self.tokenizer = tokenizer
@@ -57,61 +113,123 @@ class StreamC4Dataset(IterableDataset):
         self.max_samples = max_samples
         
         print(f"Loading streaming C4 dataset ({split})...")
-        # Load C4 in streaming mode.
         self.dataset = load_dataset("allenai/c4", "en", split=split, streaming=True)
-        
-        # Shuffle with a buffer. This ensures randomness within the buffer window.
-        # We seed it so that the order is deterministic (allowing correct skipping).
         self.dataset = self.dataset.shuffle(seed=42, buffer_size=10000)
         
-        # Skip samples if requested (Crucial for splitting streams)
         if skip_samples > 0:
             print(f"Skipping first {skip_samples} samples.")
             self.dataset = self.dataset.skip(skip_samples)
 
-        # If max_samples is set, we limit the iterator to that many items.
         if max_samples is not None:
             print(f"Taking next {max_samples} examples.")
             self.dataset = self.dataset.take(max_samples)
 
     def __iter__(self):
+        # max_samples가 적용된 데이터셋이라도 필터링으로 인해 
+        # 실제 산출되는 배치의 수는 줄어들 수 있음을 유의해야 합니다.
         for example in self.dataset:
             text = example['text']
             
-            # Tokenize
-            enc = self.tokenizer(
+            # 1. 먼저 자르지 않고(Truncation=False), 패딩 없이 토큰화만 수행하여 길이를 확인합니다.
+            input_ids = self.tokenizer(
                 text,
-                max_length=self.max_seq_len,
+                truncation=False, # 중요: 여기서 자르지 않음
+                padding=False,    # 중요: 여기서 패딩하지 않음
+                add_special_tokens=True
+            )['input_ids']
+            
+            # 2. 토큰 길이가 설정한 max_seq_len보다 길면 건너뜁니다.
+            if len(input_ids) > self.max_seq_len:
+                continue 
+            
+            # 3. 길이가 조건에 맞으면 텐서로 변환하고 패딩을 적용합니다.
+            # (이미 input_ids를 가지고 있으므로 tokenizer.pad를 사용하면 효율적입니다)
+            
+            # tokenizer.pad는 딕셔너리 형태의 입력을 기대하므로 랩핑합니다.
+            batch_encoding = self.tokenizer.pad(
+                {'input_ids': input_ids},
                 padding="max_length",
-                truncation=True,
-                add_special_tokens=True,
+                max_length=self.max_seq_len,
                 return_tensors="pt"
             )
             
             yield {
-                'input_ids': enc['input_ids'].squeeze(0),
-                'attention_mask': enc['attention_mask'].squeeze(0)
+                'input_ids': batch_encoding['input_ids'].squeeze(0),
+                'attention_mask': batch_encoding['attention_mask'].squeeze(0)
             }
+
+class LM1BDataset(IterableDataset):
+    def __init__(self, tokenizer, split="train", max_samples=None, skip_samples=0, max_seq_len=128):
+        self.tokenizer = tokenizer
+        self.max_seq_len = max_seq_len
+        self.max_samples = max_samples
+        
+        print(f"Loading streaming C4 dataset ({split})...")
+        self.dataset = load_dataset("dvruette/lm1b", split=split, streaming=True)
+        self.dataset = self.dataset.shuffle(seed=42, buffer_size=10000)
+        
+        if skip_samples > 0:
+            print(f"Skipping first {skip_samples} samples.")
+            self.dataset = self.dataset.skip(skip_samples)
+
+        if max_samples is not None:
+            print(f"Taking next {max_samples} examples.")
+            self.dataset = self.dataset.take(max_samples)
+
+    def __iter__(self):
+        # max_samples가 적용된 데이터셋이라도 필터링으로 인해 
+        # 실제 산출되는 배치의 수는 줄어들 수 있음을 유의해야 합니다.
+        for example in self.dataset:
+            text = example['text']
+            
+            # 1. 먼저 자르지 않고(Truncation=False), 패딩 없이 토큰화만 수행하여 길이를 확인합니다.
+            input_ids = self.tokenizer(
+                text,
+                truncation=False, # 중요: 여기서 자르지 않음
+                padding=False,    # 중요: 여기서 패딩하지 않음
+                add_special_tokens=True
+            )['input_ids']
+            
+            # 2. 토큰 길이가 설정한 max_seq_len보다 길면 건너뜁니다.
+            if len(input_ids) > self.max_seq_len:
+                continue 
+            
+            # 3. 길이가 조건에 맞으면 텐서로 변환하고 패딩을 적용합니다.
+            # (이미 input_ids를 가지고 있으므로 tokenizer.pad를 사용하면 효율적입니다)
+            
+            # tokenizer.pad는 딕셔너리 형태의 입력을 기대하므로 랩핑합니다.
+            batch_encoding = self.tokenizer.pad(
+                {'input_ids': input_ids},
+                padding="max_length",
+                max_length=self.max_seq_len,
+                return_tensors="pt"
+            )
+            
+            yield {
+                'input_ids': batch_encoding['input_ids'].squeeze(0),
+                'attention_mask': batch_encoding['attention_mask'].squeeze(0)
+            }
+
 
 if __name__ == "__main__":
     # --- Configuration ---
     MODEL_NAME = 'bert-base-uncased' 
-    MAX_LEN = 512
-    BATCH_SIZE = 256
-    EPOCHS = 500
+    MAX_LEN = 128
+    BATCH_SIZE = 700
+    EPOCHS = 30
     LR = 5e-5
-    LATENT_WIDTH = 1024
-    LATENT_CHANNELS = 1
-    NUM_DIFFU_LAYERS = 64
-    DIFFU_TIMESTEPS = 2000
+    LATENT_WIDTH = 512
+    LATENT_CHANNELS = 3
+    NUM_DIFFU_LAYERS = 128
+    DIFFU_TIMESTEPS = 1000
     
     # File Paths
     TRAIN_FILE = "dataset/train.txt"
     VAL_FILE = "dataset/valid.txt"
     TEST_FILE = "dataset/test.txt"
-    SAVE_PATH = f"diffusion_lm_{LATENT_WIDTH}.pth"
+    SAVE_PATH = f"model_outputs/diffusion_lm_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{DIFFU_TIMESTEPS}.pth"
 
-    # Sampling Limits (since C4 is huge)
+    # Sampling Limits
     TRAIN_SAMPLES = 200000
     VAL_SAMPLES = 10000
     TEST_SAMPLES = 10000
@@ -126,10 +244,10 @@ if __name__ == "__main__":
     # --- 3. Data Loading (Separate Datasets) ---
     print("\n--- Loading Datasets ---" ,flush=True)
     # Train is separate, just take first N
-    train_dataset = StreamC4Dataset(tokenizer, split="train", max_samples=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
+    train_dataset = StreamTinyStoriesDataset(tokenizer, split="train", max_samples=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
     
     # Val: Take first 1000 of validation split
-    val_dataset = StreamC4Dataset(
+    val_dataset = StreamTinyStoriesDataset(
         tokenizer, 
         split="validation", 
         max_samples=VAL_SAMPLES, 
@@ -137,12 +255,12 @@ if __name__ == "__main__":
         max_seq_len=MAX_LEN
     )
     
-    # Test: Skip the 1000 used for Val, then take next 500
-    test_dataset = StreamC4Dataset(
+    # Test: Skip the samples used for Val
+    test_dataset = StreamTinyStoriesDataset(
         tokenizer, 
         split="validation", 
         max_samples=TEST_SAMPLES, 
-        skip_samples=VAL_SAMPLES, # Skip what we used for Val
+        skip_samples=VAL_SAMPLES,
         max_seq_len=MAX_LEN
     )
 
@@ -169,13 +287,18 @@ if __name__ == "__main__":
     optimizer = torch.optim.AdamW(model.parameters(), lr=LR)
 
     # --- 5. Training Loop ---
+
+    min_val_loss = 100
+
     print("\n--- Starting Training ---",flush=True)
     for epoch in tqdm(range(EPOCHS)):
         # Training Phase
         model.train()
         total_train_loss = 0
+        batch_count = 0
         
         for batch_idx, batch in enumerate(train_loader):
+            batch_count += 1
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             
@@ -189,7 +312,7 @@ if __name__ == "__main__":
             if batch_idx % 10 == 0:
                 print(f"Epoch {epoch+1}/{EPOCHS} | Batch {batch_idx} | Train Loss: {loss.item():.4f}",flush=True)
         
-        avg_train_loss = total_train_loss / len(train_loader)
+        avg_train_loss = total_train_loss / batch_count
 
         # Validation Phase
         model.eval()
@@ -198,8 +321,10 @@ if __name__ == "__main__":
         # We capture one batch to do the visual check
         sample_val_batch = None
         
+        val_batch_count = 0
         with torch.no_grad():
             for batch in val_loader:
+                val_batch_count += 1
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
                 loss = model(input_ids, attention_mask)
@@ -208,9 +333,17 @@ if __name__ == "__main__":
                     sample_val_batch = (input_ids, attention_mask)
         
         # Handle case where val_loader might be empty
-        avg_val_loss = total_val_loss / len(val_loader) if len(val_loader) > 0 else 0.0
+        avg_val_loss = total_val_loss / val_batch_count if val_batch_count > 0 else 0.0
         
         print(f"Epoch {epoch+1} Complete. Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}",flush=True)
+
+        # --- SAVE MODEL ---
+        if(avg_val_loss < min_val_loss):
+            print(f"\nSaving model w/ minimum val loss to {SAVE_PATH}...")
+            torch.save(model.state_dict(), SAVE_PATH)
+            min_val_loss = avg_val_loss
+            
+            print("Model saved successfully.")
 
         # --- VISUALIZATION: Noisy Prediction Check ---
         if sample_val_batch is not None:
@@ -222,15 +355,10 @@ if __name__ == "__main__":
             
             for i in range(num_show):
                 original = tokenizer.decode(inp[i], skip_special_tokens=True)
-                predicted = tokenizer.decode(pred_ids[i], skip_special_tokens=True)
+                predicted = decode_token_ids(pred_ids[i], tokenizer, skip_special_tokens=True)
                 timestep = t_vals[i].item()
                 print(f"Sample {i+1} | t={timestep:03d} | Orig: {original[:]} -> Pred: {predicted[:]}",flush=True)
             print("-------------------------------------------------------------\n")
-
-    # --- 6. Saving Model ---
-    print(f"\nSaving model to {SAVE_PATH}...")
-    torch.save(model.state_dict(), SAVE_PATH)
-    print("Model saved successfully.")
 
     # --- 7. Final Test Set Evaluation ---
     print("\n--- Final Test Set Evaluation ---")
@@ -249,5 +377,5 @@ if __name__ == "__main__":
     # --- 8. Quick Inference Test ---
     print("\n--- Inference Check (Pure Generation) ---")
     generated_ids = model.sample(batch_size=1)
-    gen_text = tokenizer.decode(generated_ids[0], skip_special_tokens=True)
+    gen_text = decode_token_ids(generated_ids[0], tokenizer, skip_special_tokens=True)
     print(f"Generated from noise: '{gen_text}'")

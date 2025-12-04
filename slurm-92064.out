@@ -1,0 +1,8 @@
+/var/spool/slurmd/job92064/slurm_script: line 10: /data3/seungwoochoi/.bashrc: No such file or directory
+/var/spool/slurmd/job92064/slurm_script: line 11: /data3/seungwoochoi/miniconda3/etc/profile.d/conda.sh: No such file or directory
+
+CondaError: Run 'conda init' before 'conda activate'
+
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd-n01: error: *** JOB 92064 ON n01 CANCELLED AT 2025-12-03T13:46:49 ***
+slurmstepd-n01: error: *** STEP 92064.0 ON n01 CANCELLED AT 2025-12-03T13:46:49 ***

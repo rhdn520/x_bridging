@@ -1,0 +1,31 @@
+Running inference with timestep: 799
+Interpolating between:
+  1: The aroma of fresh coffee filled the small kitchen.
+  2: the brown fox jumps over the lazy dog
+Some weights of the model checkpoint at bert-base-uncased were not used when initializing BertForMaskedLM: ['bert.pooler.dense.bias', 'bert.pooler.dense.weight', 'cls.seq_relationship.bias', 'cls.seq_relationship.weight']
+- This IS expected if you are initializing BertForMaskedLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertForMaskedLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Using device: cuda
+Loading bert-base-uncased...
+Loading weights from model_outputs/diffusion_lm_512_3_128_1000.pth...
+--- Running Inference with noise_t = 799 ---
+--- Interpolating between: ---
+    1: 'The aroma of fresh coffee filled the small kitchen.'
+    2: 'the brown fox jumps over the lazy dog'
+
+X_0 Sentence (Original): The aroma of fresh coffee filled the small kitchen.
+X_0 Sentence (Reconstructed): little chips was the peppercake the ate up, and.
+
+X_1 Sentence (Original): the brown fox jumps over the lazy dog
+X_1 Sentence (Reconstructed): max big tunas after the big, but the is. always always, i can'the,s.
+
+--- Interpolation Results ---
+Alpha 0.1: the burger was, chew it got s juice it perfume.
+Alpha 0.2: so friends was for lunch it's house sugar cheese.
+Alpha 0.3: so cat, the, the the to store sour water!
+Alpha 0.4: the cat went lily, and said the big the scissors.
+Alpha 0.5: so big fish water the it that the were the water.
+Alpha 0.6: so hair day,, it said to on the teeth.
+Alpha 0.7: so, the water, the the, " his teeth.
+Alpha 0.8: so, the soap, the blocks and broke. teeth.
+Alpha 0.9: and all the it, the says.. the,.

@@ -1,0 +1,31 @@
+Running inference with timestep: 499
+Interpolating between:
+  1: The aroma of fresh coffee filled the small kitchen.
+  2: My computer is broken, so I went to the repair shop.
+Some weights of the model checkpoint at bert-base-uncased were not used when initializing BertForMaskedLM: ['bert.pooler.dense.bias', 'bert.pooler.dense.weight', 'cls.seq_relationship.bias', 'cls.seq_relationship.weight']
+- This IS expected if you are initializing BertForMaskedLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertForMaskedLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Using device: cuda
+Loading bert-base-uncased...
+Loading weights from model_outputs/diffusion_lm_512_3_128_1000.pth...
+--- Running Inference with noise_t = 499 ---
+--- Interpolating between: ---
+    1: 'The aroma of fresh coffee filled the small kitchen.'
+    2: 'My computer is broken, so I went to the repair shop.'
+
+X_0 Sentence (Original): The aroma of fresh coffee filled the small kitchen.
+X_0 Sentence (Reconstructed): the aroma of fresh coffee filling the small kitchen.
+
+X_1 Sentence (Original): My computer is broken, so I went to the repair shop.
+X_1 Sentence (Reconstructed): my computer is left, so i went to the repair office.
+
+--- Interpolation Results ---
+Alpha 0.1: the aroma of fresh coffee filled the small kitchen.
+Alpha 0.2: the smell of fresh coffee filling the small kitchen.
+Alpha 0.3: the aroma of fresh coffee coffee the small kitchen.
+Alpha 0.4: the perfume is fresh coffee so the small store.
+Alpha 0.5: the coffee is fresh coffee so the walked home the
+Alpha 0.6: the perfume is fresh, so i went home the repair shop.
+Alpha 0.7: my coffee is mostly, so i went for the repair shop.
+Alpha 0.8: my computer is broken, so i went to the repair shop.
+Alpha 0.9: my computer is fixed, so i went to the repair shop.

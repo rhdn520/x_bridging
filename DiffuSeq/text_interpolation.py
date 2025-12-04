@@ -245,31 +245,33 @@ def main():
     """
     # count = 0
 
-    word0 = ["Happy"]
-    word1 = ["Sad"]
+    text_0 = ["What is your name?"]
+    text_1 = ["What is your job?"]
     bridging_recovers = []
     vanilla_recovers = []
-    for word0, word1 in tqdm(zip(word0, word1)):
+    for t0, t1 in tqdm(zip(text_0, text_1)):
 
         # print(start_sent)
         # print(test_sent)
-        text_token = tokenizer.encode_token([word0, word1], is_bridging=True).to(dist_util.dev())
+        text_token = tokenizer.encode_token([t0, t1], is_bridging=True).to(dist_util.dev())
         # print(text_token.shape)
         # sep_tokens = torch.full((text_token.shape[0],1), tokenizer.sep_token_id).to(dist_util.dev())
         # text_token = torch.cat([text_token, sep_tokens], dim=1)
-        mask_idx = text_token.shape[1]
+        
 
-        print(text_token)
+        # print(text_token)
 
 
-        x_start = model.get_embeds(text_token)
+        x_start = model.get_cls_conditioned_embeds(text_token)
+        # x_start = model.get_embeds(text_token)
         # print(x_src)
         # x_start 
-        print(x_start.shape) # (문장 개수 x 토큰수(3) x 차원수 (128))
-        word_midpoint = slerp_vectors_torch(x_start[0,1,:], x_start[1,1,:], 0.5)
-        print(word_midpoint)
+        print(x_start.shape, flush=True) # (문장 개수 x 토큰수 x 차원수 (768))
+        word_midpoint = slerp_vectors_torch(x_start[0,0,:], x_start[1,0,:], 0.5)
+        print(word_midpoint, flush=True)
+
         x_start = torch.cat([x_start, x_start[1].unsqueeze(0)], dim=0) #word1를 뒤에 추가하고 
-        x_start[1,1,:] = word_midpoint #여기서 mid point로 갈아끼움
+        x_start[1,0,:] = word_midpoint #여기서 mid point로 갈아끼움
 
         print(x_start.shape)
         
@@ -277,10 +279,10 @@ def main():
         print(x_start.shape)
         x_noised = x_noised.repeat(3,1,1)
         print(x_noised.shape)
-        x_noised[:,:x_start.shape[1],:] = x_start
+        x_noised[:,0,:] = x_start[:,0,:]
 
-        input_ids_mask = torch.zeros((x_noised.shape[0], x_noised.shape[1]), dtype=torch.int16, device=dist_util.dev())
-        input_ids_mask[:,mask_idx:] = 1
+        input_ids_mask = torch.ones((x_noised.shape[0], x_noised.shape[1]), dtype=torch.int16, device=dist_util.dev())
+        input_ids_mask[:,0] = 0
         input_ids_mask_ori = input_ids_mask
         input_ids_mask = torch.broadcast_to(input_ids_mask.unsqueeze(dim=-1), x_noised.shape).to(dist_util.dev())
         
@@ -307,7 +309,9 @@ def main():
         )
 
         sample_shape = (x_start.shape[0], args.seq_len, args.hidden_dim) 
-        print(x_noised.shape)
+        print("x_noised[0]")
+        print(x_noised[0])
+        print("input_ids_mask.shape")
         print(input_ids_mask.shape)
 
         samples = sample_fn(

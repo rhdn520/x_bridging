@@ -1,0 +1,31 @@
+Running inference with timestep: 549
+Interpolating between:
+  1: The aroma of fresh coffee filled the small kitchen.
+  2: Machine learning is very fun!
+Some weights of the model checkpoint at bert-base-uncased were not used when initializing BertForMaskedLM: ['bert.pooler.dense.bias', 'bert.pooler.dense.weight', 'cls.seq_relationship.bias', 'cls.seq_relationship.weight']
+- This IS expected if you are initializing BertForMaskedLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertForMaskedLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Using device: cuda
+Loading bert-base-uncased...
+Loading weights from model_outputs/diffusion_lm_512_3_128_1000.pth...
+--- Running Inference with noise_t = 549 ---
+--- Interpolating between: ---
+    1: 'The aroma of fresh coffee filled the small kitchen.'
+    2: 'Machine learning is very fun!'
+
+X_0 Sentence (Original): The aroma of fresh coffee filled the small kitchen.
+X_0 Sentence (Reconstructed): the aroma of fresh coffee filled the small kitchen.
+
+X_1 Sentence (Original): Machine learning is very fun!
+X_1 Sentence (Reconstructed): sport math is much fun!
+
+--- Interpolation Results ---
+Alpha 0.1: the smell was fresh coffee filled the small cupboard.
+Alpha 0.2: the smell was fresh coffee filled the small kitchen.
+Alpha 0.3: the aroma was fresh coffee filling the small kitchen.
+Alpha 0.4: the aroma was fresh juice filling
+Alpha 0.5: ta aroma is super juice!
+Alpha 0.6: tasty is much fun!
+Alpha 0.7: lot trading is much fun!
+Alpha 0.8: lot practice is much fun!
+Alpha 0.9: counting counting is much fun!

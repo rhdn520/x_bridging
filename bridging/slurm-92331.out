@@ -1,0 +1,31 @@
+Running inference with timestep: 699
+Interpolating between:
+  1: The aroma of fresh coffee filled the small kitchen.
+  2: the brown fox jumps over the lazy dog
+Some weights of the model checkpoint at bert-base-uncased were not used when initializing BertForMaskedLM: ['bert.pooler.dense.bias', 'bert.pooler.dense.weight', 'cls.seq_relationship.bias', 'cls.seq_relationship.weight']
+- This IS expected if you are initializing BertForMaskedLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertForMaskedLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Using device: cuda
+Loading bert-base-uncased...
+Loading weights from model_outputs/diffusion_lm_512_3_128_1000.pth...
+--- Running Inference with noise_t = 699 ---
+--- Interpolating between: ---
+    1: 'The aroma of fresh coffee filled the small kitchen.'
+    2: 'the brown fox jumps over the lazy dog'
+
+X_0 Sentence (Original): The aroma of fresh coffee filled the small kitchen.
+X_0 Sentence (Reconstructed): the smells like use coffee taps the size windows.
+
+X_1 Sentence (Original): the brown fox jumps over the lazy dog
+X_1 Sentence (Reconstructed): the teddy ball out off for a night.
+
+--- Interpolation Results ---
+Alpha 0.1: a perfume is clean it nose the small kitchen.
+Alpha 0.2: a sparkman chargeer into the big truck.
+Alpha 0.3: the smells smoke sprayed coffee into the white house.
+Alpha 0.4: the fox is hissing it to the small block. me around, this can..
+Alpha 0.5: the fox is out to the the small. making
+Alpha 0.6: the grill is hot coffee of a dark black.
+Alpha 0.7: the foxman out out the ground.
+Alpha 0.8: the dogman breaks on a owner.
+Alpha 0.9: the cat squirrel jumps off a fire.

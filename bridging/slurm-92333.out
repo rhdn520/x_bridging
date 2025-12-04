@@ -1,0 +1,22 @@
+Running inference with timestep: 599
+Interpolating between:
+  1: The aroma of fresh coffee filled the small kitchen.
+  2: the brown fox jumps over the lazy dog
+Some weights of the model checkpoint at bert-base-uncased were not used when initializing BertForMaskedLM: ['bert.pooler.dense.bias', 'bert.pooler.dense.weight', 'cls.seq_relationship.bias', 'cls.seq_relationship.weight']
+- This IS expected if you are initializing BertForMaskedLM from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing BertForMaskedLM from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+Using device: cuda
+Loading bert-base-uncased...
+Loading weights from model_outputs/diffusion_lm_512_3_128_1000.pth...
+--- Running Inference with noise_t = 599 ---
+--- Interpolating between: ---
+    1: 'The aroma of fresh coffee filled the small kitchen.'
+    2: 'the brown fox jumps over the lazy dog'
+
+X_0 Sentence (Original): 
+X_0 Sentence (Reconstructed):
+
+X_1 Sentence (Original): the brown fox jumps over the lazy dog
+X_1 Sentence (Reconstructed):
+
+--- Interpolation Results ---
