@@ -15,32 +15,56 @@ class DiffusionTracer:
         self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {self.device}")
         
-        # Use args passed to __init__ instead of global constants
-        self.model = DiffusionLM(
-            bert_model_name=args.model_name,
-            max_seq_len=args.max_len,
-            latent_channels=args.latent_channels,
-            latent_width=args.latent_width,
-            timesteps=args.diffu_timesteps,
-            num_diffu_layers=args.num_diffu_layers,
-            kernel_size=3,
-        )
-        
-        # 2. Load Weights
-        if os.path.exists(model_path):
-            print(f"Loading weights from {model_path}...")
-            state_dict = torch.load(model_path, map_location=self.device)
-            # Handle case where state_dict might be nested in 'state_dict' key
-            if 'state_dict' in state_dict:
-                state_dict = state_dict['state_dict']
-            self.model.load_state_dict(state_dict)
-        else:
+        if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file {model_path} not found.")
+            
+        print(f"Loading checkpoint from {model_path}...")
+        checkpoint = torch.load(model_path, map_location=self.device)
+        
+        # Logic to handle both New (Config+Weights) and Old (Weights Only) checkpoints
+        if isinstance(checkpoint, dict) and 'config' in checkpoint:
+            print(">> Found configuration in checkpoint. Using saved architecture parameters.")
+            config = checkpoint['config']
+            
+            # Initialize model using the SAVED config
+            self.model = DiffusionLM(
+                bert_model_name=config.get('bert_model_name', args.model_name),
+                max_seq_len=config.get('max_seq_len', args.max_len),
+                latent_channels=config.get('latent_channels', args.latent_channels),
+                latent_width=config.get('latent_width', args.latent_width),
+                timesteps=config.get('timesteps', args.diffu_timesteps),
+                num_diffu_layers=config.get('num_diffu_layers', args.num_diffu_layers),
+                kernel_size=config.get('kernel_size', 3), # Default to 3 if missing
+            )
+            # Load weights
+            self.model.load_state_dict(checkpoint['state_dict'])
+            
+            # Use the tokenizer from the config
+            self.tokenizer = BertTokenizer.from_pretrained(config.get('bert_model_name', args.model_name))
+            
+        else:
+            print(">> No config found in checkpoint. Using command-line arguments for architecture.")
+            # Fallback: Initialize using CLI args
+            self.model = DiffusionLM(
+                bert_model_name=args.model_name,
+                max_seq_len=args.max_len,
+                latent_channels=args.latent_channels,
+                latent_width=args.latent_width,
+                timesteps=args.diffu_timesteps,
+                num_diffu_layers=args.num_diffu_layers,
+                kernel_size=3,
+            )
+            
+            # Handle standard state_dict or nested state_dict
+            if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
+                self.model.load_state_dict(checkpoint['state_dict'])
+            else:
+                self.model.load_state_dict(checkpoint)
+                
+            self.tokenizer = BertTokenizer.from_pretrained(args.model_name)
             
         self.model.to(self.device)
         self.model.eval()
-        
-        self.tokenizer = BertTokenizer.from_pretrained(args.model_name)
 
     def decode_token_ids(self, token_ids):
         """Helper to decode IDs to text, stripping special tokens."""
@@ -261,9 +285,10 @@ if __name__ == "__main__":
 
         print("\n--- Interpolation Results ---")
         # 3. Interpolation Loop
-        for i in range(1, 10):
+        alphas = [0.25, 0.5, 0.75]
+        for alpha in alphas:
             # Interpolate between the NOISY vectors (Channel-wise SLERP)
-            intp_noised_latent = slerp_channel_wise(noisy_input_1, noisy_input_2, i / 10)
+            intp_noised_latent = slerp_channel_wise(noisy_input_1, noisy_input_2, alpha)
 
             history_repair = tracer.trace_generation(
                 starting_noise=intp_noised_latent, 
@@ -271,4 +296,4 @@ if __name__ == "__main__":
                 callback=progress_callback
             )
 
-            print(f"Alpha {i/10:.1f}: {history_repair[-1]['text_estimate']}")
+            print(f"Alpha {alpha:.2f}: {history_repair[-1]['text_estimate']}")

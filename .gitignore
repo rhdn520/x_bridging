@@ -15,3 +15,4 @@ Diffusion-LM/datasets
 *.pth
 *.pt
 *.torch
+*.out

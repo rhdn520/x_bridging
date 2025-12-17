@@ -1,3 +1,5 @@
+print("train.py", flush=True)
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -7,8 +9,10 @@ from torch.utils.data import Dataset, DataLoader, IterableDataset
 from transformers import BertForMaskedLM, BertConfig, BertTokenizer
 from model import DiffusionLM, decode_token_ids
 from tqdm import tqdm
+
 from datasets import load_dataset
 import nltk
+
 
 # NLTK의 문장 분리기 데이터 다운로드 (최초 1회만 실행됨)
 try:
@@ -215,19 +219,25 @@ if __name__ == "__main__":
     # --- Configuration ---
     MODEL_NAME = 'bert-base-uncased' 
     MAX_LEN = 128
-    BATCH_SIZE = 700
-    EPOCHS = 30
+    BATCH_SIZE = 512
+    EPOCHS = 10
     LR = 5e-5
+
+    # --- Hyperparameters as Variables ---
+    LATENT_CHANNELS = 1
     LATENT_WIDTH = 512
-    LATENT_CHANNELS = 3
-    NUM_DIFFU_LAYERS = 128
-    DIFFU_TIMESTEPS = 1000
+    TIMESTEPS = 1000
+    KERNEL_SIZE = 3
+    NUM_DIFFU_LAYERS = 8
+    REG_WEIGHT = 1e-4 # Weight for regularization
+
+    
     
     # File Paths
     TRAIN_FILE = "dataset/train.txt"
     VAL_FILE = "dataset/valid.txt"
     TEST_FILE = "dataset/test.txt"
-    SAVE_PATH = f"model_outputs/diffusion_lm_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{DIFFU_TIMESTEPS}.pth"
+    SAVE_PATH = f"model_outputs/diffusion_lm_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}.pth"
 
     # Sampling Limits
     TRAIN_SAMPLES = 200000
@@ -279,8 +289,9 @@ if __name__ == "__main__":
         max_seq_len=MAX_LEN, 
         latent_channels=LATENT_CHANNELS, 
         latent_width=LATENT_WIDTH, 
-        timesteps=DIFFU_TIMESTEPS,
-        num_diffu_layers=NUM_DIFFU_LAYERS
+        timesteps=TIMESTEPS,
+        num_diffu_layers=NUM_DIFFU_LAYERS,
+        kernel_size=KERNEL_SIZE,
     )
     model.to(device)
     
@@ -290,7 +301,7 @@ if __name__ == "__main__":
 
     min_val_loss = 100
 
-    print("\n--- Starting Training ---",flush=True)
+    print("\n--- Starting Training ---", flush=True)
     for epoch in tqdm(range(EPOCHS)):
         # Training Phase
         model.train()
@@ -303,7 +314,7 @@ if __name__ == "__main__":
             attention_mask = batch['attention_mask'].to(device)
             
             optimizer.zero_grad()
-            loss = model(input_ids, attention_mask)
+            loss, _ = model(input_ids, attention_mask)
             loss.backward()
             optimizer.step()
             
@@ -327,7 +338,7 @@ if __name__ == "__main__":
                 val_batch_count += 1
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
-                loss = model(input_ids, attention_mask)
+                loss, _ = model(input_ids, attention_mask)
                 total_val_loss += loss.item()
                 if sample_val_batch is None:
                     sample_val_batch = (input_ids, attention_mask)
@@ -340,8 +351,21 @@ if __name__ == "__main__":
         # --- SAVE MODEL ---
         if(avg_val_loss < min_val_loss):
             print(f"\nSaving model w/ minimum val loss to {SAVE_PATH}...")
-            torch.save(model.state_dict(), SAVE_PATH)
-            min_val_loss = avg_val_loss
+            checkpoint = {
+                'config': {
+                    'bert_model_name': MODEL_NAME,
+                    'max_seq_len': MAX_LEN,
+                    'latent_channels': LATENT_CHANNELS,
+                    'latent_width': LATENT_WIDTH,
+                    'timesteps': TIMESTEPS,
+                    'num_diffu_layers': NUM_DIFFU_LAYERS,
+                    'kernel_size': KERNEL_SIZE,
+                    # 'diversity_weight': DIVERSITY_WEIGHT
+                },
+                'state_dict': model.state_dict()
+            }
+            
+            torch.save(checkpoint, SAVE_PATH)
             
             print("Model saved successfully.")
 
@@ -355,7 +379,7 @@ if __name__ == "__main__":
             
             for i in range(num_show):
                 original = tokenizer.decode(inp[i], skip_special_tokens=True)
-                predicted = decode_token_ids(pred_ids[i], tokenizer, skip_special_tokens=True)
+                predicted = decode_token_ids(pred_ids[i], tokenizer)
                 timestep = t_vals[i].item()
                 print(f"Sample {i+1} | t={timestep:03d} | Orig: {original[:]} -> Pred: {predicted[:]}",flush=True)
             print("-------------------------------------------------------------\n")
@@ -364,18 +388,20 @@ if __name__ == "__main__":
     print("\n--- Final Test Set Evaluation ---")
     model.eval()
     total_test_loss = 0
+    test_batch_count = 0
     with torch.no_grad():
         for batch in test_loader:
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
-            loss = model(input_ids, attention_mask)
+            loss, _ = model(input_ids, attention_mask)
             total_test_loss += loss.item()
+            test_batch_count += 1
             
-    avg_test_loss = total_test_loss / len(test_loader) if len(test_loader) > 0 else 0.0
+    avg_test_loss = total_test_loss / test_batch_count if test_batch_count > 0 else 0.0
     print(f"Final Test Loss: {avg_test_loss:.4f}")
 
     # --- 8. Quick Inference Test ---
     print("\n--- Inference Check (Pure Generation) ---")
     generated_ids = model.sample(batch_size=1)
-    gen_text = decode_token_ids(generated_ids[0], tokenizer, skip_special_tokens=True)
+    gen_text = decode_token_ids(generated_ids[0], tokenizer)
     print(f"Generated from noise: '{gen_text}'")

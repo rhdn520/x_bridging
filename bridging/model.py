@@ -55,6 +55,10 @@ class DenoisingModelConv1d(nn.Module):
         self.channels = channels
         self.latent_width = latent_width
         
+        # Learnable Positional Embedding
+        # Shape: (1, Channels, Latent_Width) so it broadcasts over batch dimension
+        self.pos_emb = nn.Parameter(torch.randn(1, channels, latent_width) * 0.02)
+        
         # Time Embedding MLP
         self.time_mlp = nn.Sequential(
             SinusoidalPositionEmbeddings(time_emb_dim),
@@ -78,6 +82,9 @@ class DenoisingModelConv1d(nn.Module):
     def forward(self, x, t):
         # x: (Batch, Channels, Latent_Width)
         # t: (Batch)
+        
+        # Add Positional Embedding (Broadcasting)
+        x = x + self.pos_emb
         
         # 1. Process Time
         t_emb = self.time_mlp(t)                # (Batch, Time_Dim)
@@ -106,14 +113,14 @@ class DiffusionLM(nn.Module):
                  timesteps=1000,
                  num_diffu_layers=8,
                  kernel_size=3,
-                 diversity_weight=0.1): # New parameter
+                 reg_weight=1e-4): # New parameter for latent regularization
         super().__init__()
         
         self.max_seq_len = max_seq_len
         self.latent_channels = latent_channels
         self.latent_width = latent_width
         self.timesteps = timesteps
-        self.diversity_weight = diversity_weight
+        self.reg_weight = reg_weight
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
         # 1. BERT Setup
@@ -130,7 +137,7 @@ class DiffusionLM(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = False
         for param in self.cls_head.parameters():
-            param.requires_grad = True
+            param.requires_grad = False
 
         # 2. Encoder / Decoder (Reshaping)
         input_flat_dim = self.max_seq_len * self.hidden_size
@@ -157,14 +164,26 @@ class DiffusionLM(nn.Module):
             kernel_size=kernel_size
         )
 
-        # 4. Diffusion Parameters
-        beta = torch.linspace(0.0001, 0.02, timesteps)
+        # 4. Diffusion Parameters (UPDATED to Cosine Schedule)
+        beta = self.get_cosine_schedule(timesteps)
         alpha = 1.0 - beta
         alpha_bar = torch.cumprod(alpha, dim=0)
 
         self.register_buffer('beta', beta)
         self.register_buffer('alpha', alpha)
         self.register_buffer('alpha_bar', alpha_bar)
+
+    def get_cosine_schedule(self, timesteps, s=0.008):
+        """
+        Cosine schedule as proposed in https://arxiv.org/abs/2102.09672
+        Better for high-noise steps than linear.
+        """
+        steps = timesteps + 1
+        x = torch.linspace(0, timesteps, steps)
+        alphas_cumprod = torch.cos(((x / timesteps) + s) / (1 + s) * math.pi * 0.5) ** 2
+        alphas_cumprod = alphas_cumprod / alphas_cumprod[0]
+        betas = 1 - (alphas_cumprod[1:] / alphas_cumprod[:-1])
+        return torch.clip(betas, 0.0001, 0.9999)
         
     def get_latents(self, input_ids, attention_mask):
         with torch.no_grad():
@@ -188,7 +207,6 @@ class DiffusionLM(nn.Module):
     def q_sample(self, x_0, t, noise=None):
         if noise is None:
             noise = torch.randn_like(x_0)
-
         sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
         sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
         return sqrt_alpha_bar_t * x_0 + sqrt_one_minus_alpha_bar_t * noise, noise
@@ -200,6 +218,7 @@ class DiffusionLM(nn.Module):
         sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
         sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
         
+        # Add epsilon and clamping for stability at high noise
         x_0_pred = (x_t - sqrt_one_minus_alpha_bar_t * predicted_noise) / (sqrt_alpha_bar_t + 1e-5)
         return x_0_pred
 
@@ -235,29 +254,19 @@ class DiffusionLM(nn.Module):
         ce_loss_raw = F.cross_entropy(flat_logits, flat_labels, reduction='none')
         ce_loss = (ce_loss_raw * flat_mask).sum() / (flat_mask.sum() + 1e-5)
 
-        # 7. Loss C: Diversity Loss (NEW)
-        # We calculate the entropy of the "average token distribution" across the sequence.
-        # Ideally, a sentence should use many different words (high entropy).
-        # Repeating "the the the" has very low entropy.
-        
-        # logits: (B, Seq, Vocab)
-        # probs = F.softmax(logits, dim=-1) 
-        
-        # Average prob distribution per sentence: (B, Vocab)
-        # avg_probs = probs.mean(dim=1) 
-        
-        # Calculate Entropy: -sum(p * log(p))
-        # Add epsilon to prevent log(0)
-        # entropy = -torch.sum(avg_probs * torch.log(avg_probs + 1e-6), dim=-1)
-        
-        # We want to MAXIMIZE entropy, so we MINIMIZE negative entropy
-        # diversity_loss = -entropy.mean()
+        # 7. Loss C: Latent Regularization (NEW)
+        # Forces latent space to be close to Normal(0, 1) so sampling from noise works
+        reg_loss = x_0.pow(2).mean()
 
         # 8. Total Loss
-        # total_loss = mse_loss + ce_loss + (self.diversity_weight * diversity_loss)
-        total_loss = mse_loss + ce_loss
+        total_loss = mse_loss + ce_loss + (self.reg_weight * reg_loss)
         
-        return total_loss
+        # Return breakdown
+        return total_loss, {
+            "mse": mse_loss.item(),
+            "ce": ce_loss.item(),
+            "reg": reg_loss.item()
+        }
 
     @torch.no_grad()
     def reconstruct_text(self, input_ids, attention_mask):
@@ -323,15 +332,10 @@ class DiffusionLM(nn.Module):
         
         return predicted_ids, t
 
-def decode_token_ids(token_ids, tokenizer, skip_special_tokens=True):
+def decode_token_ids(token_ids, tokenizer):
     if isinstance(token_ids, torch.Tensor):
         token_ids = token_ids.tolist()
     if tokenizer.sep_token_id in token_ids:
         sep_idx = token_ids.index(tokenizer.sep_token_id)
         token_ids = token_ids[:sep_idx]
-    if tokenizer.pad_token_id in token_ids:
-        pad_idx = token_ids.index(tokenizer.pad_token_id)
-        token_ids = token_ids[:pad_idx]
-
-    return tokenizer.decode(token_ids, skip_special_tokens=skip_special_tokens)
-
+    return tokenizer.decode(token_ids, skip_special_tokens=True)

@@ -2,13 +2,13 @@
 #SBATCH --job-name=x_bridging
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --nodelist=n03
+#SBATCH --nodelist=n01
 #SBATCH --time=1-23:59:59
 #SBATCH --mem=16000MB
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=499
+TIMESTEP=790
 
 # Usage: sbatch run_inference.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -16,13 +16,13 @@ if [ ! -z "$1" ]; then
 fi
 
 # Input Sentences
-TEXT1="The aroma of fresh coffee filled the small kitchen."
-TEXT2="My computer is broken, so I went to the repair shop."
+TEXT1="It has many pieces, so you can help each other."
+TEXT2="he had a meeting coming up and he wanted to buy something special."
 
 # Model Hyperparameters (Must match the saved model filename)
 LATENT_WIDTH=512
-LATENT_CHANNELS=3
-NUM_DIFFU_LAYERS=128
+LATENT_CHANNELS=1
+NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 
 echo "Running inference with timestep: $TIMESTEP"
