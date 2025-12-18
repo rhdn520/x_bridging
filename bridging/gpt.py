@@ -95,8 +95,9 @@ def get_gpt_responses(products, client):
     for sent1, sent2 in tqdm(products): 
         prompt = (
             f"I will give you two sentences. Can you gradually change the first sentence "
-            f"to make it exactly the same as the second sentence? Just give me five sentences "
-            f"and don’t provide additional comments. Don't add numbering in front of sentences.\n"
+            f"to make it exactly the same as the second sentence? Just give me three sentences "
+            f"and don’t provide additional comments. Don't add numbering in front of sentences. "
+            f"The degree of change should be same for each sentence, and at least one word should be changed."
             f"Sentence1: {sent1}\nSentence2: {sent2}"
         )
 
@@ -109,7 +110,10 @@ def get_gpt_responses(products, client):
             # Parse response
             res = [sent1]
             generated_text = response.output[0].content[0].text
-            res.extend(generated_text.split('\n'))
+            generated_text = generated_text.split('\n')
+            generated_text = [line.strip() for line in generated_text]
+            generated_text = [line.lower() for line in generated_text]
+            res.extend(generated_text)
             res.append(sent2)
             responses.append(res)
             

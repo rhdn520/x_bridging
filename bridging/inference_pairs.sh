@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=x_bridging
+#SBATCH --job-name=x_bridging_pairs
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
 #SBATCH --nodelist=n01
@@ -8,16 +8,12 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=850
+TIMESTEP=70
 
-# Usage: sbatch run_inference.sh [TIMESTEP]
+# Usage: sbatch inference_pairs.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
   TIMESTEP=$1
 fi
-
-# Input Sentences
-TEXT1="I am so sad."
-TEXT2="I am so happy."
 
 # Model Hyperparameters (Must match the saved model filename)
 LATENT_WIDTH=512
@@ -25,18 +21,18 @@ LATENT_CHANNELS=1
 NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 
-echo "Running inference with timestep: $TIMESTEP"
-echo "Interpolating between:"
-echo "  1: $TEXT1"
-echo "  2: $TEXT2"
+OUTPUT_FILE="diffusion_intps.json"
 
-# Pass all arguments to the python script
-srun python inference.py \
+echo "Running batch inference pairs with timestep: $TIMESTEP"
+echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_DIFFU_LAYERS"
+
+# Pass relevant arguments to the python script
+# Note: text1/text2 are not needed as the script generates pairs internally
+srun python inference_pairs.py \
     --noise_t $TIMESTEP \
-    --text1 "$TEXT1" \
-    --text2 "$TEXT2" \
     --latent_width $LATENT_WIDTH \
     --latent_channels $LATENT_CHANNELS \
     --num_diffu_layers $NUM_DIFFU_LAYERS \
     --diffu_timesteps $DIFFU_TIMESTEPS \
-    --interpolation_type "lerp" 
+    --interpolation_type "lerp" \
+    --output_file "$OUTPUT_FILE"
