@@ -1,5 +1,3 @@
-print("train.py", flush=True)
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -224,12 +222,24 @@ if __name__ == "__main__":
     LR = 5e-5
 
     # --- Hyperparameters as Variables ---
-    LATENT_CHANNELS = 1
+    
+    LATENT_CHANNELS = 64
     LATENT_WIDTH = 512
     TIMESTEPS = 1000
     KERNEL_SIZE = 3
     NUM_DIFFU_LAYERS = 8
-    REG_WEIGHT = 1e-4 # Weight for regularization
+    REG_WEIGHT = 0.0 # Disabled to prevent collapse
+    TIME_BIAS = 0.5 # < 1.0 favors larger t (more noise), > 1.0 favors smaller t
+    
+    # --- Transformer Config ---
+    MODEL_TYPE = 'transformer' # 'conv' or 'transformer'
+    TRANSFORMER_CONFIG = {
+        'd_model': 512,
+        'nhead': 8,
+        'num_layers': 6,
+        'dim_feedforward': 2048,
+        'dropout': 0.1
+    }
 
     
     
@@ -237,10 +247,10 @@ if __name__ == "__main__":
     TRAIN_FILE = "dataset/train.txt"
     VAL_FILE = "dataset/valid.txt"
     TEST_FILE = "dataset/test.txt"
-    SAVE_PATH = f"model_outputs/diffusion_lm_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}.pth"
+    SAVE_PATH = f"model_outputs/diffusion_lm_{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}.pth"
 
     # Sampling Limits
-    TRAIN_SAMPLES = 200000
+    TRAIN_SAMPLES = 300000
     VAL_SAMPLES = 10000
     TEST_SAMPLES = 10000
 
@@ -290,8 +300,11 @@ if __name__ == "__main__":
         latent_channels=LATENT_CHANNELS, 
         latent_width=LATENT_WIDTH, 
         timesteps=TIMESTEPS,
+        model_type=MODEL_TYPE,
+        transformer_config=TRANSFORMER_CONFIG,
         num_diffu_layers=NUM_DIFFU_LAYERS,
         kernel_size=KERNEL_SIZE,
+        time_bias=TIME_BIAS
     )
     model.to(device)
     
@@ -314,14 +327,14 @@ if __name__ == "__main__":
             attention_mask = batch['attention_mask'].to(device)
             
             optimizer.zero_grad()
-            loss, _ = model(input_ids, attention_mask)
+            loss, info = model(input_ids, attention_mask)
             loss.backward()
             optimizer.step()
             
             total_train_loss += loss.item()
             
             if batch_idx % 10 == 0:
-                print(f"Epoch {epoch+1}/{EPOCHS} | Batch {batch_idx} | Train Loss: {loss.item():.4f}",flush=True)
+                print(f"Epoch {epoch+1}/{EPOCHS} | Batch {batch_idx} | Train Loss: {loss.item():.4f} | Latent Std: {info['latent_std']:.4f}",flush=True)
         
         avg_train_loss = total_train_loss / batch_count
 
@@ -358,6 +371,8 @@ if __name__ == "__main__":
                     'latent_channels': LATENT_CHANNELS,
                     'latent_width': LATENT_WIDTH,
                     'timesteps': TIMESTEPS,
+                    'model_type': MODEL_TYPE,
+                    'transformer_config': TRANSFORMER_CONFIG,
                     'num_diffu_layers': NUM_DIFFU_LAYERS,
                     'kernel_size': KERNEL_SIZE,
                     # 'diversity_weight': DIVERSITY_WEIGHT

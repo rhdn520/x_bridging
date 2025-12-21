@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=850
+TIMESTEP=400
 
 # Usage: sbatch run_inference.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -39,4 +39,5 @@ srun python inference.py \
     --latent_channels $LATENT_CHANNELS \
     --num_diffu_layers $NUM_DIFFU_LAYERS \
     --diffu_timesteps $DIFFU_TIMESTEPS \
-    --interpolation_type "lerp" 
+    --interpolation_type "lerp" \
+    --model_type "transformer"

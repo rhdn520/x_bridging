@@ -7,6 +7,8 @@ import argparse  # Added for command line arguments
 
 # Import the model class from your training script
 # Ensure diffusion_lm.py is in the same directory
+import sys
+sys.path.append("../")
 from model import DiffusionLM
 from interpolation import linear_interpolate, slerp_channel_wise
 
@@ -35,6 +37,8 @@ class DiffusionTracer:
                 timesteps=config.get('timesteps', args.diffu_timesteps),
                 num_diffu_layers=config.get('num_diffu_layers', args.num_diffu_layers),
                 kernel_size=config.get('kernel_size', 3), # Default to 3 if missing
+                model_type=config.get('model_type', 'conv'),
+                transformer_config=config.get('transformer_config', None),
             )
             # Load weights
             self.model.load_state_dict(checkpoint['state_dict'])
@@ -53,6 +57,7 @@ class DiffusionTracer:
                 timesteps=args.diffu_timesteps,
                 num_diffu_layers=args.num_diffu_layers,
                 kernel_size=3,
+                model_type=args.model_type, # Use CLI arg if no config
             )
             
             # Handle standard state_dict or nested state_dict
@@ -196,6 +201,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_channels", type=int, default=3, help="Number of latent channels")
     parser.add_argument("--num_diffu_layers", type=int, default=128, help="Number of diffusion layers")
     parser.add_argument("--diffu_timesteps", type=int, default=1000, help="Total diffusion timesteps")
+    parser.add_argument("--model_type", type=str, default="conv", help="Model type: conv or transformer")
     
     # Inference specific args
     parser.add_argument("--noise_t", type=int, default=800, help="Timestep to start denoising/interpolation from. Set to -1 for direct Autoencoder reconstruction.")
@@ -204,7 +210,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Construct Model Path based on args
-    MODEL_PATH = f"model_outputs/diffusion_lm_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}.pth"
+    MODEL_PATH = f"../model_outputs/diffusion_lm_{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}.pth"
     
     # Initialize Tracer with args
     tracer = DiffusionTracer(MODEL_PATH, args)
