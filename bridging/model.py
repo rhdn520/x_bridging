@@ -104,6 +104,73 @@ class DenoisingModelConv1d(nn.Module):
         output = self.output_conv(x)
         return output
 
+class DenoisingModelTransformer(nn.Module):
+    """
+    Denoising model using a Transformer Backbone.
+    Treats the latent space as a sequence of length `latent_width`.
+    """
+    def __init__(self, channels, latent_width, time_emb_dim=256, 
+                 d_model=512, nhead=8, num_layers=6, dim_feedforward=2048, dropout=0.1):
+        super().__init__()
+        self.channels = channels
+        self.latent_width = latent_width
+        self.d_model = d_model
+        
+        # 1. Positional Embedding (Learnable)
+        self.pos_emb = nn.Parameter(torch.randn(1, latent_width, d_model) * 0.02)
+        
+        # 2. Time Embedding
+        self.time_mlp = nn.Sequential(
+            SinusoidalPositionEmbeddings(time_emb_dim),
+            nn.Linear(time_emb_dim, time_emb_dim),
+            nn.GELU(),
+            nn.Linear(time_emb_dim, d_model),
+        )
+
+        # 3. Input Projection (Channels -> d_model)
+        self.input_proj = nn.Linear(channels, d_model)
+        
+        # 4. Transformer Encoder
+        encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, 
+                                                   dim_feedforward=dim_feedforward, 
+                                                   dropout=dropout, batch_first=True)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        
+        # 5. Output Projection (d_model -> Channels)
+        self.output_proj = nn.Linear(d_model, channels)
+
+    def forward(self, x, t):
+        # x: (Batch, Channels, Latent_Width)
+        # t: (Batch)
+        
+        batch_size = x.shape[0]
+        
+        # Permute for Transformer: (Batch, Length, Channels)
+        x = x.permute(0, 2, 1) 
+        
+        # Project to d_model: (Batch, Length, d_model)
+        x = self.input_proj(x)
+        
+        # Add Positional Embedding
+        x = x + self.pos_emb
+        
+        # Add Time Embedding (Broadcast over Length)
+        t_emb = self.time_mlp(t)                # (Batch, d_model)
+        t_emb = t_emb.unsqueeze(1)              # (Batch, 1, d_model)
+        
+        x = x + t_emb
+        
+        # Transformer Layers
+        x = self.transformer(x)
+        
+        # Output Projection: (Batch, Length, Channels)
+        x = self.output_proj(x)
+        
+        # Permute back to (Batch, Channels, Length)
+        x = x.permute(0, 2, 1)
+        
+        return x
+
 class DiffusionLM(nn.Module):
     def __init__(self, 
                  bert_model_name='bert-base-uncased', 
@@ -111,9 +178,12 @@ class DiffusionLM(nn.Module):
                  latent_channels=8,
                  latent_width=64,
                  timesteps=1000,
+                 model_type='conv', # 'conv' or 'transformer'
+                 transformer_config=None, # dict of config for transformer
                  num_diffu_layers=8,
                  kernel_size=3,
-                 reg_weight=1e-4): # New parameter for latent regularization
+                 reg_weight=0.0,
+                 time_bias=1.0): # Bias parameter for timestep sampling
         super().__init__()
         
         self.max_seq_len = max_seq_len
@@ -121,6 +191,7 @@ class DiffusionLM(nn.Module):
         self.latent_width = latent_width
         self.timesteps = timesteps
         self.reg_weight = reg_weight
+        self.time_bias = time_bias
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
         # 1. BERT Setup
@@ -137,7 +208,7 @@ class DiffusionLM(nn.Module):
         for param in self.bert.parameters():
             param.requires_grad = False
         for param in self.cls_head.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
 
         # 2. Encoder / Decoder (Reshaping)
         input_flat_dim = self.max_seq_len * self.hidden_size
@@ -157,12 +228,32 @@ class DiffusionLM(nn.Module):
         )
 
         # 3. Denoising Model
-        self.denoise_model = DenoisingModelConv1d(
-            channels=latent_channels, 
-            latent_width=latent_width,
-            num_layers=num_diffu_layers,
-            kernel_size=kernel_size
-        )
+        if model_type == 'conv':
+            self.denoise_model = DenoisingModelConv1d(
+                channels=latent_channels, 
+                latent_width=latent_width,
+                num_layers=num_diffu_layers,
+                kernel_size=kernel_size
+            )
+        elif model_type == 'transformer':
+            if transformer_config is None:
+                # Default config if none provided
+                transformer_config = {
+                    'd_model': 512,
+                    'nhead': 8,
+                    'num_layers': 6,
+                    'dim_feedforward': 2048,
+                    'dropout': 0.1
+                }
+            
+            print(f"Initializing Transformer Denoising Model with config: {transformer_config}")
+            self.denoise_model = DenoisingModelTransformer(
+                channels=latent_channels,
+                latent_width=latent_width,
+                **transformer_config
+            )
+        else:
+            raise ValueError(f"Unknown model_type: {model_type}")
 
         # 4. Diffusion Parameters (UPDATED to Cosine Schedule)
         beta = self.get_cosine_schedule(timesteps)
@@ -219,7 +310,7 @@ class DiffusionLM(nn.Module):
         sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
         
         # Add epsilon and clamping for stability at high noise
-        x_0_pred = (x_t - sqrt_one_minus_alpha_bar_t * predicted_noise) / (sqrt_alpha_bar_t + 1e-5)
+        x_0_pred = (x_t - sqrt_one_minus_alpha_bar_t * predicted_noise) / (sqrt_alpha_bar_t + 1e-7)
         return x_0_pred
 
     def forward(self, input_ids, attention_mask):
@@ -230,8 +321,12 @@ class DiffusionLM(nn.Module):
         x_0 = self.get_latents(input_ids, attention_mask)
         batch_size = x_0.shape[0]
 
-        # 2. Timesteps
-        t = torch.randint(0, self.timesteps, (batch_size,), device=x_0.device).long()
+        # 2. Timesteps (Biased Sampling)
+        # Uniform rand in [0, 1]
+        r = torch.rand((batch_size,), device=x_0.device)
+        # Apply power: if bias < 1, favors larger values (near 1.0)
+        r_biased = r ** self.time_bias 
+        t = (r_biased * self.timesteps).long().clamp(0, self.timesteps - 1)
 
         # 3. Add Noise
         noise = torch.randn_like(x_0)
@@ -252,7 +347,7 @@ class DiffusionLM(nn.Module):
         flat_mask = attention_mask.view(-1)
         
         ce_loss_raw = F.cross_entropy(flat_logits, flat_labels, reduction='none')
-        ce_loss = (ce_loss_raw * flat_mask).sum() / (flat_mask.sum() + 1e-5)
+        ce_loss = (ce_loss_raw * flat_mask).sum() / (flat_mask.sum() + 1e-7)
 
         # 7. Loss C: Latent Regularization (NEW)
         # Forces latent space to be close to Normal(0, 1) so sampling from noise works
@@ -265,7 +360,9 @@ class DiffusionLM(nn.Module):
         return total_loss, {
             "mse": mse_loss.item(),
             "ce": ce_loss.item(),
-            "reg": reg_loss.item()
+            "reg": reg_loss.item(),
+            "latent_mean": x_0.mean().item(),
+            "latent_std": x_0.std().item()
         }
 
     @torch.no_grad()

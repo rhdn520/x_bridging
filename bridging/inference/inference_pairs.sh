@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=70
+TIMESTEP=500
 
 # Usage: sbatch inference_pairs.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -17,11 +17,11 @@ fi
 
 # Model Hyperparameters (Must match the saved model filename)
 LATENT_WIDTH=512
-LATENT_CHANNELS=1
+LATENT_CHANNELS=64
 NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 
-OUTPUT_FILE="diffusion_intps.json"
+OUTPUT_FILE="inference_result/diffusion_intps.json"
 
 echo "Running batch inference pairs with timestep: $TIMESTEP"
 echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_DIFFU_LAYERS"
@@ -35,4 +35,5 @@ srun python inference_pairs.py \
     --num_diffu_layers $NUM_DIFFU_LAYERS \
     --diffu_timesteps $DIFFU_TIMESTEPS \
     --interpolation_type "lerp" \
-    --output_file "$OUTPUT_FILE"
+    --output_file "$OUTPUT_FILE" \
+    --model_type "transformer"
