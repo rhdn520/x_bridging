@@ -21,7 +21,7 @@ LATENT_CHANNELS=64
 NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 
-OUTPUT_FILE="inference_result/diffusion_intps.json"
+OUTPUT_FILE="inference_result/diffusion_intps_$TIMESTEP.json"
 
 echo "Running batch inference pairs with timestep: $TIMESTEP"
 echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_DIFFU_LAYERS"
