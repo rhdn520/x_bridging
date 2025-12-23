@@ -1,5 +1,7 @@
 
 import os
+import sys
+sys.path.append("../")
 import json
 import random
 from dotenv import load_dotenv

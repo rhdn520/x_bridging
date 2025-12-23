@@ -109,7 +109,7 @@ def plot_progress_lines(x0_to_x1:List[float], x1_to_x0:List[float], title:str, s
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Visualize CHRF and delta score distributions."
+        description="Visualize Progress-related metrics"
     )
     parser.add_argument(
         "--analysis-file",
