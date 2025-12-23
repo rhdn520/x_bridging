@@ -105,53 +105,68 @@ def plot_progress_lines(x0_to_x1:List[float], x1_to_x0:List[float], title:str, s
     plt.title(title)
 
     plt.tight_layout()
-    plt.savefig(f"analysis_result/output_{title}_{suffix}.png")
+    plt.savefig(f"plots/progress_{title.replace(' ', '_')}_{suffix}.png")
+
+def plot_error_count(error_count:List[int], title:str, suffix:str=""):
+    plt.figure(figsize=(12, 6))
+    plt.bar(range(len(error_count)), error_count)
+    plt.xlabel("Intp Index")    
+    plt.ylabel("Error Count")
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(f"plots/grammar_error_count_{suffix}.png") 
 
 def main() -> None:
+
     parser = argparse.ArgumentParser(
-        description="Visualize Progress-related metrics"
+        description="Visualize Interpolation Analysis Results"
     )
     parser.add_argument(
-        "--analysis-file",
+        "--progress-analysis-file",
         type=Path,
-        default=Path("analysis_result.json"),
-        help="Path to analysis_result.json (default: %(default)s)",
+        help="Path to progress analysis result (default: %(default)s)",
+    )
+
+    parser.add_argument(
+        "--grammar-analysis-file",
+        type=Path,
+        help="Path to grammar analysis result (default: %(default)s)",
     )
     args = parser.parse_args()
 
-    data = load_analysis(args.analysis_file)
-
-    print(args.analysis_file.stem)
-    suffix = args.analysis_file.stem[-3:]
-
-    chrf_avg_from_x0 = np.mean(np.array(data['chrf_from_x0']), axis=0)
-    chrf_avg_from_x1 = np.mean(np.array(data['chrf_from_x1']), axis=0)
-    plot_progress_lines(chrf_avg_from_x0, chrf_avg_from_x1, title="ChrF", suffix=suffix)
-    sbert_avg_from_x0 = np.mean(np.array(data['sbert_from_x0']), axis=0)
-    sbert_avg_from_x1 = np.mean(np.array(data['sbert_from_x1']), axis=0)
-    plot_progress_lines(sbert_avg_from_x0, sbert_avg_from_x1, title="SBERT Similarity", suffix=suffix)
-
-    lev_avg_from_x0 = np.mean(np.array(data['lev_from_x0']), axis=0)
-    lev_avg_from_x1 = np.mean(np.array(data['lev_from_x1']), axis=0)
-    plot_progress_lines(lev_avg_from_x0, lev_avg_from_x1, title="Levenshtein Distance", suffix=suffix)
+    #LOAD ANALYSIS FILES
+    progress_data = load_analysis(args.progress_analysis_file) if args.progress_analysis_file else None
+    grammar_data = load_analysis(args.grammar_analysis_file) if args.grammar_analysis_file else None
 
 
 
-    # chrf_scores = data.get("chrf_scores", [])
-    # delta_scores_diff = data.get("delta_scores_diff", [])
-    # delta_scores_gpt = data.get("delta_scores_gpt", [])
+    #PROGRESS ANALYSIS VISUALIZATION
 
-    # if not chrf_scores:
-    #     raise ValueError("analysis_result.json does not contain 'chrf_scores'.")
-    # if not delta_scores_diff:
-    #     raise ValueError("analysis_result.json does not contain 'delta_scores_diff'.")
-    # if not delta_scores_gpt:
-    #     raise ValueError("analysis_result.json does not contain 'delta_scores_gpt'.")
+    if(progress_data): 
+        print(args.progress_analysis_file.stem)
+        suffix = args.progress_analysis_file.stem[-3:]
 
-    # plot_chrf_hist(chrf_scores)
-    # plot_delta_lines(delta_scores_diff, file_suffix="diff")
-    # plot_delta_lines(delta_scores_gpt, file_suffix="gpt")
-    # plt.show()
+        chrf_avg_from_x0 = np.mean(np.array(progress_data['chrf_from_x0']), axis=0)
+        chrf_avg_from_x1 = np.mean(np.array(progress_data['chrf_from_x1']), axis=0)
+        plot_progress_lines(chrf_avg_from_x0, chrf_avg_from_x1, title="ChrF", suffix=suffix)
+        sbert_avg_from_x0 = np.mean(np.array(progress_data['sbert_from_x0']), axis=0)
+        sbert_avg_from_x1 = np.mean(np.array(progress_data['sbert_from_x1']), axis=0)
+        plot_progress_lines(sbert_avg_from_x0, sbert_avg_from_x1, title="SBERT Similarity", suffix=suffix)
+
+        lev_avg_from_x0 = np.mean(np.array(progress_data['lev_from_x0']), axis=0)
+        lev_avg_from_x1 = np.mean(np.array(progress_data['lev_from_x1']), axis=0)
+        plot_progress_lines(lev_avg_from_x0, lev_avg_from_x1, title="Levenshtein Distance", suffix=suffix)
+
+
+    #GRAMMAR ANALYSIS VISUALIZATION
+    if(grammar_data):
+        print(grammar_data)
+        suffix = args.grammar_analysis_file.stem[-3:]
+
+        error_count = np.sum(np.array(grammar_data), axis=0)
+        print(error_count)
+        plot_error_count(error_count, title="Grammar Error Count", suffix=suffix)
+
 
 
 if __name__ == "__main__":

@@ -35,7 +35,7 @@ class SentenceSimilarity:
 
 
 if __name__=="__main__":
-    file_name = "diffusion_intps_299.json"
+    file_name = "diffusion_intps_99.json"
     result_dir = "../inference/inference_result"
     
     chrf = CHRF()
