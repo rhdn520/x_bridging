@@ -10,6 +10,7 @@ import argparse
 import json
 from pathlib import Path
 from typing import Dict, Iterable, List
+import numpy as np
 
 import matplotlib.pyplot as plt
 
@@ -19,9 +20,9 @@ def load_analysis(path: Path) -> Dict:
         return json.load(fh)
 
 
-def plot_chrf_hist(chrf_scores: Iterable[Dict[str, float]]) -> None:
+def plot_chrf_hist(chrf_scores: Iterable[float]) -> None:
     """Plot histogram of each CHRF score variant on the same axes."""
-    score_names = ["score_1", "score_2", "score_3"]
+    # score_names = ["score_1", "score_2", "score_3"]
     # score_names = ["First Intp","Second Intp", "Third Intp"]
     # score_names = ['corpus_score']
     series: Dict[str, List[float]] = {name: [] for name in score_names}
@@ -83,6 +84,29 @@ def plot_delta_lines(delta_scores: Iterable[Iterable[float]], file_suffix: str) 
     plt.savefig(f'delta_{file_suffix}.png')
 
 
+def plot_progress_lines(x0_to_x1:List[float], x1_to_x0:List[float], title:str, suffix:str=""):
+    
+    plt.figure(figsize=(12, 6))
+    
+    x = np.linspace(0, 1, len(x0_to_x1))
+    # 1. 첫 번째 그래프 (Line + Fill)
+    
+    plt.plot(x, x0_to_x1, color="skyblue", label="chrf(x0)", linewidth=2)
+    plt.fill_between(x, x0_to_x1, color="skyblue", alpha=0.4) # alpha로 투명도 조절
+
+    # 2. 두 번째 그래프 (Line + Fill)
+    plt.plot(x, x1_to_x0, color="salmon", label="chrf(x1)", linewidth=2)
+    plt.fill_between(x, x1_to_x0, color="salmon", alpha=0.4)
+
+    plt.xlabel("Intp Points")
+    plt.ylabel("Similarity Score")
+    plt.legend(loc='upper right')
+    plt.grid(True)
+    plt.title(title)
+
+    plt.tight_layout()
+    plt.savefig(f"analysis_result/output_{title}_{suffix}.png")
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Visualize CHRF and delta score distributions."
@@ -96,20 +120,37 @@ def main() -> None:
     args = parser.parse_args()
 
     data = load_analysis(args.analysis_file)
-    chrf_scores = data.get("chrf_scores", [])
-    delta_scores_diff = data.get("delta_scores_diff", [])
-    delta_scores_gpt = data.get("delta_scores_gpt", [])
 
-    if not chrf_scores:
-        raise ValueError("analysis_result.json does not contain 'chrf_scores'.")
-    if not delta_scores_diff:
-        raise ValueError("analysis_result.json does not contain 'delta_scores_diff'.")
-    if not delta_scores_gpt:
-        raise ValueError("analysis_result.json does not contain 'delta_scores_gpt'.")
+    print(args.analysis_file.stem)
+    suffix = args.analysis_file.stem[-3:]
 
-    plot_chrf_hist(chrf_scores)
-    plot_delta_lines(delta_scores_diff, file_suffix="diff")
-    plot_delta_lines(delta_scores_gpt, file_suffix="gpt")
+    chrf_avg_from_x0 = np.mean(np.array(data['chrf_from_x0']), axis=0)
+    chrf_avg_from_x1 = np.mean(np.array(data['chrf_from_x1']), axis=0)
+    plot_progress_lines(chrf_avg_from_x0, chrf_avg_from_x1, title="ChrF", suffix=suffix)
+    sbert_avg_from_x0 = np.mean(np.array(data['sbert_from_x0']), axis=0)
+    sbert_avg_from_x1 = np.mean(np.array(data['sbert_from_x1']), axis=0)
+    plot_progress_lines(sbert_avg_from_x0, sbert_avg_from_x1, title="SBERT Similarity", suffix=suffix)
+
+    lev_avg_from_x0 = np.mean(np.array(data['lev_from_x0']), axis=0)
+    lev_avg_from_x1 = np.mean(np.array(data['lev_from_x1']), axis=0)
+    plot_progress_lines(lev_avg_from_x0, lev_avg_from_x1, title="Levenshtein Distance", suffix=suffix)
+
+
+
+    # chrf_scores = data.get("chrf_scores", [])
+    # delta_scores_diff = data.get("delta_scores_diff", [])
+    # delta_scores_gpt = data.get("delta_scores_gpt", [])
+
+    # if not chrf_scores:
+    #     raise ValueError("analysis_result.json does not contain 'chrf_scores'.")
+    # if not delta_scores_diff:
+    #     raise ValueError("analysis_result.json does not contain 'delta_scores_diff'.")
+    # if not delta_scores_gpt:
+    #     raise ValueError("analysis_result.json does not contain 'delta_scores_gpt'.")
+
+    # plot_chrf_hist(chrf_scores)
+    # plot_delta_lines(delta_scores_diff, file_suffix="diff")
+    # plot_delta_lines(delta_scores_gpt, file_suffix="gpt")
     # plt.show()
 
 

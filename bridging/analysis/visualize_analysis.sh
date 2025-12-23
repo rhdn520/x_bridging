@@ -9,4 +9,5 @@
 
 
 # Pass all arguments to the python script
-srun python visualize_analysis.py 
+srun python visualize_analysis.py \
+    --analysis-file "analysis_result/progress_analysis_699.json"

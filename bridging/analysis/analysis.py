@@ -35,7 +35,7 @@ class SentenceSimilarity:
 
 
 if __name__=="__main__":
-    file_name = "diffusion_intps_699.json"
+    file_name = "diffusion_intps_899.json"
     result_dir = "../inference/inference_result"
     
     chrf = CHRF()
@@ -54,6 +54,7 @@ if __name__=="__main__":
     }
 
     for intp_path in data:
+
         chrf_from_x0 = []
         chrf_from_x1 = []
         sbert_from_x0 = []

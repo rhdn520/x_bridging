@@ -21,7 +21,7 @@ SKIP_SAMPLES = 10000
 BATCH_SIZE = 1
 
 NUM_SENTENCES_TO_PROCESS = 20
-OUTPUT_FILE = "/home/seungwoochoi/data/x_bridging/bridging/gpt_intps.json"
+OUTPUT_FILE = "/home/seungwoochoi/data/x_bridging/bridging/gpt_intps_new.json"
 
 
 def load_data(tokenizer):
@@ -95,7 +95,7 @@ def get_gpt_responses(products, client):
     for sent1, sent2 in tqdm(products): 
         prompt = (
             f"I will give you two sentences. Can you gradually change the first sentence "
-            f"to make it exactly the same as the second sentence? Just give me three sentences "
+            f"to make it exactly the same as the second sentence? Just give me ten sentences "
             f"and don’t provide additional comments. Don't add numbering in front of sentences. "
             f"The degree of change should be same for each sentence, and at least one word should be changed."
             f"Sentence1: {sent1}\nSentence2: {sent2}"
@@ -115,6 +115,8 @@ def get_gpt_responses(products, client):
             generated_text = [line.lower() for line in generated_text]
             res.extend(generated_text)
             res.append(sent2)
+            if(len(res) != 12):
+                print(f"Warning: Expected 12 sentences but got {len(res)}. Pair: ({sent1[:20]}..., {sent2[:20]}...)")
             responses.append(res)
             
         except Exception as e:
