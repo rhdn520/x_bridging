@@ -16,3 +16,5 @@ Diffusion-LM/datasets
 *.pt
 *.torch
 *.out
+*.env
+.env

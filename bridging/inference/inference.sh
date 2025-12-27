@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=400
+TIMESTEP=499
 
 # Usage: sbatch run_inference.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -16,12 +16,12 @@ if [ ! -z "$1" ]; then
 fi
 
 # Input Sentences
-TEXT1="I am so sad."
-TEXT2="I am so happy."
+TEXT1="You can mark the passing of time yourself by observing the repetition of a cyclical event."
+TEXT2="British newspaper The Guardian suggested Deutsche Bank controlled roughly a third of the 1200 shell companies used to accomplish this."
 
 # Model Hyperparameters (Must match the saved model filename)
 LATENT_WIDTH=512
-LATENT_CHANNELS=1
+LATENT_CHANNELS=64
 NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 

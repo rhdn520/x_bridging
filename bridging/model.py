@@ -284,6 +284,7 @@ class DiffusionLM(nn.Module):
         batch_size = last_hidden_state.shape[0]
         flat_hidden = last_hidden_state.view(batch_size, -1)
         flat_latents = self.encoder_proj(flat_hidden) 
+        # print(f"flat_latents.shape: {flat_latents.shape}", flush=True)
         latents = flat_latents.view(batch_size, self.latent_channels, self.latent_width)
         return latents
 

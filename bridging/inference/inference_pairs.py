@@ -82,7 +82,7 @@ def interpolate_pair(tracer, sent1, sent2, args):
     latent_2 = proj_2['latent_x0']
     
     # Define interpolation steps (alphas)
-    alphas = [0.3, 0.5, 0.7]
+    alphas = [x/100 for x in list(range(5,100,5))]
     
     result_sequence = [sent1]
     

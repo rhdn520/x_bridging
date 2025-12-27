@@ -217,24 +217,24 @@ if __name__ == "__main__":
     # --- Configuration ---
     MODEL_NAME = 'bert-base-uncased' 
     MAX_LEN = 128
-    BATCH_SIZE = 512
+    BATCH_SIZE = 1024
     EPOCHS = 10
     LR = 5e-5
 
     # --- Hyperparameters as Variables ---
     
-    LATENT_CHANNELS = 64
-    LATENT_WIDTH = 512
+    LATENT_CHANNELS = 1
+    LATENT_WIDTH = 1024
     TIMESTEPS = 1000
-    KERNEL_SIZE = 3
+    KERNEL_SIZE = 5
     NUM_DIFFU_LAYERS = 8
     REG_WEIGHT = 0.0 # Disabled to prevent collapse
-    TIME_BIAS = 0.5 # < 1.0 favors larger t (more noise), > 1.0 favors smaller t
+    TIME_BIAS = 0.4 # < 1.0 favors larger t (more noise), > 1.0 favors smaller t
     
     # --- Transformer Config ---
-    MODEL_TYPE = 'transformer' # 'conv' or 'transformer'
+    MODEL_TYPE = 'conv' # 'conv' or 'transformer'
     TRANSFORMER_CONFIG = {
-        'd_model': 512,
+        'd_model': 1024,
         'nhead': 8,
         'num_layers': 6,
         'dim_feedforward': 2048,
@@ -247,7 +247,8 @@ if __name__ == "__main__":
     TRAIN_FILE = "dataset/train.txt"
     VAL_FILE = "dataset/valid.txt"
     TEST_FILE = "dataset/test.txt"
-    SAVE_PATH = f"model_outputs/diffusion_lm_{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}.pth"
+    SAVE_PATH = f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_k{KERNEL_SIZE}.pth" if \
+        MODEL_TYPE == 'conv' else f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_{TRANSFORMER_CONFIG['d_model']}.pth"
 
     # Sampling Limits
     TRAIN_SAMPLES = 300000
