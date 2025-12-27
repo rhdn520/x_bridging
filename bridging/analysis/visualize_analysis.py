@@ -11,6 +11,7 @@ import json
 from pathlib import Path
 from typing import Dict, Iterable, List
 import numpy as np
+from collections import Counter
 
 import matplotlib.pyplot as plt
 
@@ -102,7 +103,7 @@ def plot_progress_lines(x0_to_x1:List[float], x1_to_x0:List[float], title:str, s
     plt.ylabel("Similarity Score")
     plt.legend(loc='upper right')
     plt.grid(True)
-    plt.title(title)
+    plt.title(title+" t:"+suffix)
 
     plt.tight_layout()
     plt.savefig(f"plots/progress_{title.replace(' ', '_')}_{suffix}.png")
@@ -112,7 +113,7 @@ def plot_error_count(error_count:List[int], title:str, suffix:str=""):
     plt.bar(range(len(error_count)), error_count)
     plt.xlabel("Intp Index")    
     plt.ylabel("Error Count")
-    plt.title(title)
+    plt.title(title+" t:"+suffix)
     plt.tight_layout()
     plt.savefig(f"plots/grammar_error_count_{suffix}.png") 
 
@@ -162,6 +163,15 @@ def main() -> None:
     if(grammar_data):
         print(grammar_data)
         suffix = args.grammar_analysis_file.stem[-3:]
+
+        # Filter out rows with inconsistent lengths
+        lengths = [len(row) for row in grammar_data]
+        if lengths:
+            most_common_length = Counter(lengths).most_common(1)[0][0]
+            original_count = len(grammar_data)
+            grammar_data = [row for row in grammar_data if len(row) == most_common_length]
+            if len(grammar_data) < original_count:
+                print(f"Warning: Dropped {original_count - len(grammar_data)} rows with inconsistent lengths. Keeping rows with length {most_common_length}.")
 
         error_count = np.sum(np.array(grammar_data), axis=0)
         print(error_count)
