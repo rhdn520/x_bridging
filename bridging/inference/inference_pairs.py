@@ -134,6 +134,8 @@ def main():
     parser.add_argument("--num_diffu_layers", type=int, default=8, help="Number of diffusion layers")
     parser.add_argument("--diffu_timesteps", type=int, default=1000, help="Total diffusion timesteps")
     parser.add_argument("--model_type", type=str, default="conv", help="Model type: conv or transformer")
+    parser.add_argument("--kernel_size", type=int, default=3, help="Kernel size for conv model")
+    parser.add_argument("--transformer_d_model", type=int, default=512, help="D model size for transformer model")
     
     # Inference Args
     parser.add_argument("--noise_t", type=int, default=790, help="Timestep to start denoising from (-1 for autoencoder mode)")
@@ -147,7 +149,10 @@ def main():
     # 1. Initialize Model
     # Construct default model path if not provided (following inference.py convention)
     # Assumes running from root of repo where model_outputs/ exists
-    model_filename = f"diffusion_lm_{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}.pth"
+    if args.model_type == "conv":
+        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_k{args.kernel_size}.pth"
+    elif args.model_type == "transformer":
+        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_{args.transformer_d_model}.pth"
     model_path = os.path.join("../model_outputs", model_filename)
     
     print(f"Loading model from: {model_path}")

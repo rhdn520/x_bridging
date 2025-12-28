@@ -198,10 +198,12 @@ if __name__ == "__main__":
     parser.add_argument("--model_name", type=str, default="bert-base-uncased", help="HuggingFace model name")
     parser.add_argument("--max_len", type=int, default=128, help="Maximum sequence length")
     parser.add_argument("--latent_width", type=int, default=512, help="Width of latent space")
-    parser.add_argument("--latent_channels", type=int, default=3, help="Number of latent channels")
-    parser.add_argument("--num_diffu_layers", type=int, default=128, help="Number of diffusion layers")
+    parser.add_argument("--latent_channels", type=int, default=1, help="Number of latent channels")
+    parser.add_argument("--num_diffu_layers", type=int, default=8, help="Number of diffusion layers")
     parser.add_argument("--diffu_timesteps", type=int, default=1000, help="Total diffusion timesteps")
     parser.add_argument("--model_type", type=str, default="conv", help="Model type: conv or transformer")
+    parser.add_argument("--kernel_size", type=int, default=3, help="Kernel size for conv model")
+    parser.add_argument("--transformer_d_model", type=int, default=512, help="D model size for transformer model")
     
     # Inference specific args
     parser.add_argument("--noise_t", type=int, default=800, help="Timestep to start denoising/interpolation from. Set to -1 for direct Autoencoder reconstruction.")
@@ -210,8 +212,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     # Construct Model Path based on args
-    MODEL_PATH = f"../model_outputs/diffusion_lm_{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}.pth"
-    
+    if args.model_type == "conv":
+        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_k{args.kernel_size}.pth"
+    elif args.model_type == "transformer":
+        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_{args.transformer_d_model}.pth"
+    model_path = os.path.join("../model_outputs", model_filename)
+    MODEL_PATH = model_path
+    print(f"Loading model from: {MODEL_PATH}")
+
     # Initialize Tracer with args
     tracer = DiffusionTracer(MODEL_PATH, args)
 

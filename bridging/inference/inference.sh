@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=499
+TIMESTEP=799
 
 # Usage: sbatch run_inference.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -16,14 +16,17 @@ if [ ! -z "$1" ]; then
 fi
 
 # Input Sentences
-TEXT1="You can mark the passing of time yourself by observing the repetition of a cyclical event."
-TEXT2="British newspaper The Guardian suggested Deutsche Bank controlled roughly a third of the 1200 shell companies used to accomplish this."
+TEXT1="she reached for the flower, but the creature realized something else."
+TEXT2="she extended her hand to take it, but the creature realized something else."
 
 # Model Hyperparameters (Must match the saved model filename)
 LATENT_WIDTH=512
 LATENT_CHANNELS=64
-NUM_DIFFU_LAYERS=8
+NUM_DIFFU_LAYERS=10
 DIFFU_TIMESTEPS=1000
+KERNEL_SIZE=5
+TRANSFORMER_D_MODEL=512
+MODEL_TYPE="transformer" 
 
 echo "Running inference with timestep: $TIMESTEP"
 echo "Interpolating between:"
@@ -39,5 +42,7 @@ srun python inference.py \
     --latent_channels $LATENT_CHANNELS \
     --num_diffu_layers $NUM_DIFFU_LAYERS \
     --diffu_timesteps $DIFFU_TIMESTEPS \
+    --kernel_size $KERNEL_SIZE \
+    --transformer_d_model $TRANSFORMER_D_MODEL\
     --interpolation_type "lerp" \
-    --model_type "transformer"
+    --model_type $MODEL_TYPE

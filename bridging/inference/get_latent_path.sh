@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=499
+TIMESTEP=799
 
 # Usage: sbatch inference_pairs.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -30,7 +30,7 @@ echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_
 
 # Pass relevant arguments to the python script
 # Note: text1/text2 are not needed as the script generates pairs internally
-srun python inference_pairs.py \
+srun python get_latent_path.py \
     --noise_t $TIMESTEP \
     --latent_width $LATENT_WIDTH \
     --latent_channels $LATENT_CHANNELS \
@@ -38,6 +38,5 @@ srun python inference_pairs.py \
     --diffu_timesteps $DIFFU_TIMESTEPS \
     --kernel_size $KERNEL_SIZE \
     --transformer_d_model $TRANSFORMER_D_MODEL\
-    --interpolation_type "lerp" \
-    --output_file "$OUTPUT_FILE" \
-    --model_type "conv"
+    --model_type "conv" \
+    --interpolation_type "lerp"
