@@ -18,3 +18,4 @@ Diffusion-LM/datasets
 *.out
 *.env
 .env
+**/inference/plots
