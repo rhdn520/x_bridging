@@ -329,6 +329,9 @@ class DiffusionLM(nn.Module):
         r_biased = r ** self.time_bias 
         t = (r_biased * self.timesteps).long().clamp(0, self.timesteps - 1)
 
+        # t = torch.full((batch_size,), self.timesteps-1, device=x_0.device, dtype=torch.long)
+        # print(f"t : {t}", flush=True)
+
         # 3. Add Noise
         noise = torch.randn_like(x_0)
         x_t, _ = self.q_sample(x_0, t, noise)
@@ -346,7 +349,9 @@ class DiffusionLM(nn.Module):
         flat_logits = logits.view(-1, logits.size(-1))
         flat_labels = input_ids.view(-1)
         flat_mask = attention_mask.view(-1)
-        
+        print(f"flat_logits.shape: {flat_logits.shape}, flat_labels.shape: {flat_labels.shape}, flat_mask.shape: {flat_mask.shape}", flush=True)
+        print(flat_logits, flush=True)
+        print(flat_labels, flush=True)
         ce_loss_raw = F.cross_entropy(flat_logits, flat_labels, reduction='none')
         ce_loss = (ce_loss_raw * flat_mask).sum() / (flat_mask.sum() + 1e-7)
 

@@ -217,7 +217,7 @@ if __name__ == "__main__":
     # --- Configuration ---
     MODEL_NAME = 'bert-base-uncased' 
     MAX_LEN = 128
-    BATCH_SIZE = 1024
+    BATCH_SIZE = 256
     EPOCHS = 10
     LR = 5e-5
 
@@ -229,26 +229,26 @@ if __name__ == "__main__":
     KERNEL_SIZE = 5
     NUM_DIFFU_LAYERS = 8
     REG_WEIGHT = 0.0 # Disabled to prevent collapse
-    TIME_BIAS = 0.4 # < 1.0 favors larger t (more noise), > 1.0 favors smaller t
+    TIME_BIAS = 0.3 # < 1.0 favors larger t (more noise), > 1.0 favors smaller t
     
     # --- Transformer Config ---
-    MODEL_TYPE = 'conv' # 'conv' or 'transformer'
+    MODEL_TYPE = 'transformer' # 'conv' or 'transformer'
     TRANSFORMER_CONFIG = {
         'd_model': 1024,
         'nhead': 8,
         'num_layers': 6,
-        'dim_feedforward': 2048,
+        'dim_feedforward': 4096,
         'dropout': 0.1
     }
 
-    
-    
     # File Paths
     TRAIN_FILE = "dataset/train.txt"
     VAL_FILE = "dataset/valid.txt"
     TEST_FILE = "dataset/test.txt"
     SAVE_PATH = f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_k{KERNEL_SIZE}.pth" if \
-        MODEL_TYPE == 'conv' else f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_{TRANSFORMER_CONFIG['d_model']}.pth"
+        MODEL_TYPE == 'conv' else f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_d{TRANSFORMER_CONFIG['d_model']}.pth"
+    
+    RESUME_TRAINING = False  # If True, load from SAVE_PATH if exists
 
     # Sampling Limits
     TRAIN_SAMPLES = 300000
@@ -311,12 +311,23 @@ if __name__ == "__main__":
     
     optimizer = torch.optim.AdamW(model.parameters(), lr=LR)
 
+    # Resume training if specified
+    if RESUME_TRAINING and os.path.exists(SAVE_PATH):
+        print(f"Resuming training from {SAVE_PATH}...", flush=True)
+        checkpoint = torch.load(SAVE_PATH, map_location=device)
+        model.load_state_dict(checkpoint['state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state'])
+        start_epoch = checkpoint['epoch'] + 1
+        print(f"Resumed from epoch {start_epoch}", flush=True)
+    else:
+        start_epoch = 0
+
     # --- 5. Training Loop ---
 
     min_val_loss = 100
 
     print("\n--- Starting Training ---", flush=True)
-    for epoch in tqdm(range(EPOCHS)):
+    for epoch in tqdm(range(start_epoch, EPOCHS)):
         # Training Phase
         model.train()
         total_train_loss = 0
@@ -378,7 +389,10 @@ if __name__ == "__main__":
                     'kernel_size': KERNEL_SIZE,
                     # 'diversity_weight': DIVERSITY_WEIGHT
                 },
-                'state_dict': model.state_dict()
+                'state_dict': model.state_dict(),
+                'optimizer_state': optimizer.state_dict(),
+                'epoch': epoch,
+                'val_loss': avg_val_loss
             }
             
             torch.save(checkpoint, SAVE_PATH)
