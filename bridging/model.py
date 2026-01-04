@@ -171,6 +171,22 @@ class DenoisingModelTransformer(nn.Module):
         
         return x
 
+class DecoderTransformer(nn.Module):
+    """
+    Transformer-based Decoder to map predicted last hidden states to token logits.
+    """
+    def __init__(self, hidden_size, vocab_size, d_model=512, nhead=8, num_layers=6, dim_feedforward=2048, dropout=0.1):
+        super().__init__()
+        encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, 
+                                                   dim_feedforward=dim_feedforward, 
+                                                   dropout=dropout, batch_first=True)
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+
+    def forward(self, hidden_states):
+        # hidden_states: (Batch, Seq_Len, Hidden_Size)
+        x = self.transformer(hidden_states)
+        return x
+
 class DiffusionLM(nn.Module):
     def __init__(self, 
                  bert_model_name='bert-base-uncased', 
@@ -226,6 +242,10 @@ class DiffusionLM(nn.Module):
             nn.GELU(),
             nn.Linear(2048, input_flat_dim)
         )
+
+        # self.decoder_transformer = DecoderTransformer(
+        #     hidden_size=self.hidden_size,
+        #     vocab_size=config.vocab_size,
 
         # 3. Denoising Model
         if model_type == 'conv':
