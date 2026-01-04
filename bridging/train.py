@@ -3,236 +3,153 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 import os
-from torch.utils.data import Dataset, DataLoader, IterableDataset
-from transformers import BertForMaskedLM, BertConfig, BertTokenizer
-from model import DiffusionLM, decode_token_ids
-from tqdm import tqdm
-
-from datasets import load_dataset
 import nltk
+import torch.distributed as dist
+from torch.utils.data import Dataset, DataLoader, DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
+from transformers import BertTokenizer
+from tqdm import tqdm
+from datasets import load_dataset
 
+# Import your custom model components
+# Ensure 'model.py' is in the same directory or python path
+from model import DiffusionLM, decode_token_ids
 
-# NLTK의 문장 분리기 데이터 다운로드 (최초 1회만 실행됨)
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('punkt_tab') # 최신 버전 호환용
+# --- DDP Helper Functions ---
+def setup_ddp():
+    """Sets up the distributed process group."""
+    if 'LOCAL_RANK' not in os.environ:
+        # Default for single-GPU debugging
+        os.environ['LOCAL_RANK'] = '0'
+        os.environ['RANK'] = '0'
+        os.environ['WORLD_SIZE'] = '1'
+        os.environ['MASTER_ADDR'] = 'localhost'
+        os.environ['MASTER_PORT'] = '12355'
+        
+    dist.init_process_group(backend='nccl')
+    local_rank = int(os.environ['LOCAL_RANK'])
+    torch.cuda.set_device(local_rank)
+    return local_rank
 
-class StreamTinyStoriesDataset(IterableDataset):
-    def __init__(self, tokenizer, split="train", max_samples=None, skip_samples=0, max_seq_len=128):
+def cleanup_ddp():
+    """Destroys the process group."""
+    dist.destroy_process_group()
+
+def print_ddp(msg):
+    """Prints only from Rank 0."""
+    if dist.is_initialized() and dist.get_rank() == 0:
+        print(msg, flush=True)
+    elif not dist.is_initialized():
+        print(msg, flush=True)
+
+def download_nltk_resources():
+    """Safe NLTK download for DDP (Rank 0 downloads, others wait)."""
+    if dist.get_rank() == 0:
+        try:
+            nltk.data.find('tokenizers/punkt')
+        except LookupError:
+            print("Downloading NLTK resources...")
+            nltk.download('punkt')
+            nltk.download('punkt_tab')
+    # Barrier ensures all processes wait until Rank 0 is done
+    dist.barrier()
+
+# --- Dataset Class ---
+class TinyStoriesDataset(Dataset):
+    def __init__(self, 
+                 tokenizer, 
+                 split="train",
+                 skip_samples=0, 
+                 max_seq_len=128,
+                 dataset_size=300000):
         self.tokenizer = tokenizer
         self.max_seq_len = max_seq_len
-        self.max_samples = max_samples
         
-        print(f"Loading streaming TinyStories dataset ({split})...")
-        # TinyStories 데이터셋 로드
-        self.dataset = load_dataset("roneneldan/TinyStories", split=split, streaming=True)
-        
-        # 셔플
-        self.dataset = self.dataset.shuffle(seed=42, buffer_size=10000)
-        
-        if skip_samples > 0:
-            self.dataset = self.dataset.skip(skip_samples)
-        
-        if max_samples is not None:
-            self.dataset = self.dataset.take(max_samples)
+        # We load the streaming dataset on all ranks.
+        # DistributedSampler will handle the splitting of indices later.
+        # It is safer to load identical data on all ranks than to manually shard here.
+        ds = load_dataset("roneneldan/TinyStories", split=split, streaming=True)
+        ds = ds.shuffle(seed=42) 
 
-    def __iter__(self):
-        for example in self.dataset:
+        self.data = []
+        
+        # Only print progress on Rank 0
+        iterator = ds
+        if dist.is_initialized() and dist.get_rank() == 0:
+            print(f"Loading {dataset_size} samples for {split}...")
+            # iterator = tqdm(ds, total=dataset_size, desc=f"Loading {split}") # Optional visual
+
+        # Collect valid sentences
+        count_needed = dataset_size + skip_samples
+        
+        for example in iterator:
             text = example['text']
-            
-            # 1. 텍스트를 문장 단위로 분리 (List[str] 반환)
             sentences = nltk.sent_tokenize(text)
             
-            # 2. 분리된 각 문장에 대해 반복
             for sentence in sentences:
-                # 너무 짧은 문장(예: 공백이나 특수문자만 있는 경우)은 건너뛰기
                 if len(sentence.strip()) < 5: 
                     continue
-
-                # 3. 문장 토큰화
-                enc = self.tokenizer(
-                    sentence,
-                    max_length=self.max_seq_len,
-                    padding="max_length",
-                    truncation=True,
-                    add_special_tokens=True,
-                    return_tensors="pt"
-                )
                 
-                # input_ids 길이를 체크할 필요가 거의 없음 (문장 하나는 128보다 짧을 확률이 높음)
-                # 만약 문장이 128보다 길면 truncation=True에 의해 자동으로 잘립니다.
+                self.data.append(sentence.strip())
 
-                yield {
+                if len(self.data) >= count_needed:
+                    break
+            
+            if len(self.data) >= count_needed:
+                break
+
+        # Apply skip
+        if skip_samples > 0:
+            self.data = self.data[skip_samples:]
+
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+
+        sentence = self.data[idx]
+        
+        enc = self.tokenizer(
+            sentence,
+            max_length=self.max_seq_len,
+            padding="max_length",
+            truncation=True,
+            add_special_tokens=True,
+            return_tensors="pt"
+        )
+
+        return {
+                    'text': sentence,
                     'input_ids': enc['input_ids'].squeeze(0),
                     'attention_mask': enc['attention_mask'].squeeze(0)
                 }
 
-
-class TextDataset(Dataset):
-    def __init__(self, file_path, tokenizer, max_seq_len=128):
-        self.tokenizer = tokenizer
-        self.max_seq_len = max_seq_len
-        self.lines = []
-        
-        if not os.path.exists(file_path):
-            print(f"Warning: {file_path} not found. Dataset will be empty.")
-        else:
-            print(f"Loading data from {file_path}...")
-            with open(file_path, 'r', encoding='utf-8') as f:
-                for line in f:
-                    line = line.strip()
-                    if line: # Skip empty lines
-                        self.lines.append(line)
-            print(f"Loaded {len(self.lines)} lines.")
-
-    def __len__(self):
-        return len(self.lines)
-
-    def __getitem__(self, idx):
-        text = self.lines[idx]
-        
-        # Tokenize
-        encoding = self.tokenizer(
-            text,
-            max_length=self.max_seq_len,
-            padding="max_length",
-            truncation=True,
-            return_tensors="pt"
-        )
-        
-        # Important: Remove the batch dimension (1, seq_len) -> (seq_len)
-        return {
-            'input_ids': encoding['input_ids'].squeeze(0),
-            'attention_mask': encoding['attention_mask'].squeeze(0)
-        }
-
-class StreamC4Dataset(IterableDataset):
-    def __init__(self, tokenizer, split="train", max_samples=None, skip_samples=0, max_seq_len=128):
-        self.tokenizer = tokenizer
-        self.max_seq_len = max_seq_len
-        self.max_samples = max_samples
-        
-        print(f"Loading streaming C4 dataset ({split})...")
-        self.dataset = load_dataset("allenai/c4", "en", split=split, streaming=True)
-        self.dataset = self.dataset.shuffle(seed=42, buffer_size=10000)
-        
-        if skip_samples > 0:
-            print(f"Skipping first {skip_samples} samples.")
-            self.dataset = self.dataset.skip(skip_samples)
-
-        if max_samples is not None:
-            print(f"Taking next {max_samples} examples.")
-            self.dataset = self.dataset.take(max_samples)
-
-    def __iter__(self):
-        # max_samples가 적용된 데이터셋이라도 필터링으로 인해 
-        # 실제 산출되는 배치의 수는 줄어들 수 있음을 유의해야 합니다.
-        for example in self.dataset:
-            text = example['text']
-            
-            # 1. 먼저 자르지 않고(Truncation=False), 패딩 없이 토큰화만 수행하여 길이를 확인합니다.
-            input_ids = self.tokenizer(
-                text,
-                truncation=False, # 중요: 여기서 자르지 않음
-                padding=False,    # 중요: 여기서 패딩하지 않음
-                add_special_tokens=True
-            )['input_ids']
-            
-            # 2. 토큰 길이가 설정한 max_seq_len보다 길면 건너뜁니다.
-            if len(input_ids) > self.max_seq_len:
-                continue 
-            
-            # 3. 길이가 조건에 맞으면 텐서로 변환하고 패딩을 적용합니다.
-            # (이미 input_ids를 가지고 있으므로 tokenizer.pad를 사용하면 효율적입니다)
-            
-            # tokenizer.pad는 딕셔너리 형태의 입력을 기대하므로 랩핑합니다.
-            batch_encoding = self.tokenizer.pad(
-                {'input_ids': input_ids},
-                padding="max_length",
-                max_length=self.max_seq_len,
-                return_tensors="pt"
-            )
-            
-            yield {
-                'input_ids': batch_encoding['input_ids'].squeeze(0),
-                'attention_mask': batch_encoding['attention_mask'].squeeze(0)
-            }
-
-class LM1BDataset(IterableDataset):
-    def __init__(self, tokenizer, split="train", max_samples=None, skip_samples=0, max_seq_len=128):
-        self.tokenizer = tokenizer
-        self.max_seq_len = max_seq_len
-        self.max_samples = max_samples
-        
-        print(f"Loading streaming C4 dataset ({split})...")
-        self.dataset = load_dataset("dvruette/lm1b", split=split, streaming=True)
-        self.dataset = self.dataset.shuffle(seed=42, buffer_size=10000)
-        
-        if skip_samples > 0:
-            print(f"Skipping first {skip_samples} samples.")
-            self.dataset = self.dataset.skip(skip_samples)
-
-        if max_samples is not None:
-            print(f"Taking next {max_samples} examples.")
-            self.dataset = self.dataset.take(max_samples)
-
-    def __iter__(self):
-        # max_samples가 적용된 데이터셋이라도 필터링으로 인해 
-        # 실제 산출되는 배치의 수는 줄어들 수 있음을 유의해야 합니다.
-        for example in self.dataset:
-            text = example['text']
-            
-            # 1. 먼저 자르지 않고(Truncation=False), 패딩 없이 토큰화만 수행하여 길이를 확인합니다.
-            input_ids = self.tokenizer(
-                text,
-                truncation=False, # 중요: 여기서 자르지 않음
-                padding=False,    # 중요: 여기서 패딩하지 않음
-                add_special_tokens=True
-            )['input_ids']
-            
-            # 2. 토큰 길이가 설정한 max_seq_len보다 길면 건너뜁니다.
-            if len(input_ids) > self.max_seq_len:
-                continue 
-            
-            # 3. 길이가 조건에 맞으면 텐서로 변환하고 패딩을 적용합니다.
-            # (이미 input_ids를 가지고 있으므로 tokenizer.pad를 사용하면 효율적입니다)
-            
-            # tokenizer.pad는 딕셔너리 형태의 입력을 기대하므로 랩핑합니다.
-            batch_encoding = self.tokenizer.pad(
-                {'input_ids': input_ids},
-                padding="max_length",
-                max_length=self.max_seq_len,
-                return_tensors="pt"
-            )
-            
-            yield {
-                'input_ids': batch_encoding['input_ids'].squeeze(0),
-                'attention_mask': batch_encoding['attention_mask'].squeeze(0)
-            }
-
-
+# --- Main Execution ---
 if __name__ == "__main__":
-    # --- Configuration ---
+    local_rank = setup_ddp()
+    device = torch.device("cuda", local_rank)
+    print_ddp(f"World size: {dist.get_world_size()}")
+
+    # 1. Setup Resources
+    download_nltk_resources()
+    
+    # 2. Configuration
     MODEL_NAME = 'bert-base-uncased' 
     MAX_LEN = 128
-    BATCH_SIZE = 256
+    BATCH_SIZE = 128    # Batch size per GPU
     EPOCHS = 10
-    LR = 5e-5
+    LR = 1e-4
+    RESUME_TRAINING = False
 
-    # --- Hyperparameters as Variables ---
-    
+    # Hyperparameters
     LATENT_CHANNELS = 1
     LATENT_WIDTH = 1024
     TIMESTEPS = 1000
     KERNEL_SIZE = 5
     NUM_DIFFU_LAYERS = 8
-    REG_WEIGHT = 0.0 # Disabled to prevent collapse
-    TIME_BIAS = 0.3 # < 1.0 favors larger t (more noise), > 1.0 favors smaller t
+    TIME_BIAS = 0.3
     
-    # --- Transformer Config ---
-    MODEL_TYPE = 'transformer' # 'conv' or 'transformer'
+    MODEL_TYPE = 'transformer' 
     TRANSFORMER_CONFIG = {
         'd_model': 1024,
         'nhead': 8,
@@ -241,60 +158,35 @@ if __name__ == "__main__":
         'dropout': 0.1
     }
 
-    # File Paths
-    TRAIN_FILE = "dataset/train.txt"
-    VAL_FILE = "dataset/valid.txt"
-    TEST_FILE = "dataset/test.txt"
-    SAVE_PATH = f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_k{KERNEL_SIZE}.pth" if \
-        MODEL_TYPE == 'conv' else f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_d{TRANSFORMER_CONFIG['d_model']}.pth"
-    
-    RESUME_TRAINING = False  # If True, load from SAVE_PATH if exists
+    # Paths
+    os.makedirs("model_outputs", exist_ok=True)
+    SAVE_PATH = f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_d{TRANSFORMER_CONFIG['d_model']}.pth"
 
-    # Sampling Limits
-    TRAIN_SAMPLES = 300000
-    VAL_SAMPLES = 10000
-    TEST_SAMPLES = 10000
+    # Data Limits
+    TRAIN_SAMPLES = 3000000
+    VAL_SAMPLES = 100000
+    TEST_SAMPLES = 100000
 
-
-    # --- 2. Setup Device & Tokenizer ---
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}", flush=True)
-    
+    # 3. Tokenizer & Data
+    print_ddp("\n--- Initializing Tokenizer & Data ---")
     tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
 
-    # --- 3. Data Loading (Separate Datasets) ---
-    print("\n--- Loading Datasets ---" ,flush=True)
-    # Train is separate, just take first N
-    train_dataset = StreamTinyStoriesDataset(tokenizer, split="train", max_samples=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
-    
-    # Val: Take first 1000 of validation split
-    val_dataset = StreamTinyStoriesDataset(
-        tokenizer, 
-        split="validation", 
-        max_samples=VAL_SAMPLES, 
-        skip_samples=0, 
-        max_seq_len=MAX_LEN
-    )
-    
-    # Test: Skip the samples used for Val
-    test_dataset = StreamTinyStoriesDataset(
-        tokenizer, 
-        split="validation", 
-        max_samples=TEST_SAMPLES, 
-        skip_samples=VAL_SAMPLES,
-        max_seq_len=MAX_LEN
-    )
+    # Load Data (Identical on all ranks)
+    train_dataset = TinyStoriesDataset(tokenizer, split="train", dataset_size=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
+    val_dataset = TinyStoriesDataset(tokenizer, split="validation", dataset_size=VAL_SAMPLES, skip_samples=0, max_seq_len=MAX_LEN)
+    test_dataset = TinyStoriesDataset(tokenizer, split="validation", dataset_size=TEST_SAMPLES, skip_samples=VAL_SAMPLES, max_seq_len=MAX_LEN)
 
+    # Samplers handles the splitting
+    dist_sampler_train = DistributedSampler(train_dataset, shuffle=True, drop_last=True)
+    dist_sampler_val = DistributedSampler(val_dataset, shuffle=False, drop_last=False)
+    dist_sampler_test = DistributedSampler(test_dataset, shuffle=False, drop_last=False)
 
-    # Check if data exists
-    # if len(train_dataset) == 0:
-    #     raise ValueError("Training dataset is empty!")
+    # DataLoaders (num_workers > 0 is important for speed)
+    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, sampler=dist_sampler_train, num_workers=1, pin_memory=True)
+    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, sampler=dist_sampler_val, num_workers=1, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, sampler=dist_sampler_test, num_workers=1, pin_memory=True)
 
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE)
-    val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE)
-
-    # --- 4. Model Initialization ---
+    # 4. Model Initialization
     model = DiffusionLM(
         bert_model_name=MODEL_NAME, 
         max_seq_len=MAX_LEN, 
@@ -307,34 +199,44 @@ if __name__ == "__main__":
         kernel_size=KERNEL_SIZE,
         time_bias=TIME_BIAS
     )
-    model.to(device)
-    
+    model = model.to(device)
+
     optimizer = torch.optim.AdamW(model.parameters(), lr=LR)
 
-    # Resume training if specified
+    # --- Resume Logic (Before DDP Wrap) ---
+    start_epoch = 0
+    min_val_loss = float('inf')
+
     if RESUME_TRAINING and os.path.exists(SAVE_PATH):
-        print(f"Resuming training from {SAVE_PATH}...", flush=True)
-        checkpoint = torch.load(SAVE_PATH, map_location=device)
+        print_ddp(f"Resuming training from {SAVE_PATH}...")
+        # Map location is critical for DDP resume
+        checkpoint = torch.load(SAVE_PATH, map_location=f"cuda:{local_rank}")
         model.load_state_dict(checkpoint['state_dict'])
         optimizer.load_state_dict(checkpoint['optimizer_state'])
-        start_epoch = checkpoint['epoch'] + 1
-        print(f"Resumed from epoch {start_epoch}", flush=True)
-    else:
-        start_epoch = 0
-
-    # --- 5. Training Loop ---
-
-    min_val_loss = 100
-
-    print("\n--- Starting Training ---", flush=True)
-    for epoch in tqdm(range(start_epoch, EPOCHS)):
-        # Training Phase
-        model.train()
-        total_train_loss = 0
-        batch_count = 0
         
-        for batch_idx, batch in enumerate(train_loader):
-            batch_count += 1
+        start_epoch = checkpoint.get('epoch', -1) + 1
+        min_val_loss = checkpoint.get('val_loss', float('inf'))
+        print_ddp(f"Resumed from epoch {start_epoch}, Min Val Loss: {min_val_loss:.4f}")
+
+    # Wrap Model in DDP
+    model = DDP(model, device_ids=[local_rank], output_device=local_rank)
+
+    # 5. Training Loop
+    print_ddp("\n--- Starting Training ---")
+    
+    for epoch in range(start_epoch, EPOCHS):
+        # Crucial: Set epoch for sampler so shuffling is different every epoch
+        dist_sampler_train.set_epoch(epoch)
+        
+        # ================= TRAIN =================
+        model.train()
+        total_train_loss = torch.tensor(0.0, device=device)
+        train_batch_count = torch.tensor(0.0, device=device)
+        
+        # Only show progress bar on rank 0
+        iterator = tqdm(train_loader, desc=f"Epoch {epoch+1} Train", disable=(dist.get_rank() != 0))
+        
+        for batch in iterator:
             input_ids = batch['input_ids'].to(device)
             attention_mask = batch['attention_mask'].to(device)
             
@@ -344,81 +246,90 @@ if __name__ == "__main__":
             optimizer.step()
             
             total_train_loss += loss.item()
+            train_batch_count += 1
             
-            if batch_idx % 10 == 0:
-                print(f"Epoch {epoch+1}/{EPOCHS} | Batch {batch_idx} | Train Loss: {loss.item():.4f} | Latent Std: {info['latent_std']:.4f}",flush=True)
-        
-        avg_train_loss = total_train_loss / batch_count
+            # Simple logging on progress bar
+            if dist.get_rank() == 0:
+                iterator.set_postfix({'loss': f"{loss.item():.4f}"})
 
-        # Validation Phase
+        # Aggregate Train Metrics
+        dist.all_reduce(total_train_loss, op=dist.ReduceOp.SUM)
+        dist.all_reduce(train_batch_count, op=dist.ReduceOp.SUM)
+        avg_train_loss = total_train_loss / train_batch_count
+
+        # ================= VALIDATION =================
         model.eval()
-        total_val_loss = 0
-        
-        # We capture one batch to do the visual check
+        total_val_loss = torch.tensor(0.0, device=device)
+        val_batch_count = torch.tensor(0.0, device=device)
         sample_val_batch = None
         
-        val_batch_count = 0
         with torch.no_grad():
             for batch in val_loader:
-                val_batch_count += 1
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
+                
                 loss, _ = model(input_ids, attention_mask)
                 total_val_loss += loss.item()
-                if sample_val_batch is None:
+                val_batch_count += 1
+                
+                # Save one batch for visualization (Rank 0 only)
+                if dist.get_rank() == 0 and sample_val_batch is None:
                     sample_val_batch = (input_ids, attention_mask)
         
-        # Handle case where val_loader might be empty
-        avg_val_loss = total_val_loss / val_batch_count if val_batch_count > 0 else 0.0
+        # Aggregate Val Metrics
+        dist.all_reduce(total_val_loss, op=dist.ReduceOp.SUM)
+        dist.all_reduce(val_batch_count, op=dist.ReduceOp.SUM)
+        avg_val_loss = total_val_loss / val_batch_count
         
-        print(f"Epoch {epoch+1} Complete. Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}",flush=True)
+        print_ddp(f"Epoch {epoch+1} Summary | Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f}")
 
-        # --- SAVE MODEL ---
-        if(avg_val_loss < min_val_loss):
-            print(f"\nSaving model w/ minimum val loss to {SAVE_PATH}...")
-            checkpoint = {
-                'config': {
-                    'bert_model_name': MODEL_NAME,
-                    'max_seq_len': MAX_LEN,
-                    'latent_channels': LATENT_CHANNELS,
-                    'latent_width': LATENT_WIDTH,
-                    'timesteps': TIMESTEPS,
-                    'model_type': MODEL_TYPE,
-                    'transformer_config': TRANSFORMER_CONFIG,
-                    'num_diffu_layers': NUM_DIFFU_LAYERS,
-                    'kernel_size': KERNEL_SIZE,
-                    # 'diversity_weight': DIVERSITY_WEIGHT
-                },
-                'state_dict': model.state_dict(),
-                'optimizer_state': optimizer.state_dict(),
-                'epoch': epoch,
-                'val_loss': avg_val_loss
-            }
-            
-            torch.save(checkpoint, SAVE_PATH)
-            
-            print("Model saved successfully.")
+        # ================= SAVE & VISUALIZE =================
+        if dist.get_rank() == 0:
+            # Save if better
+            if avg_val_loss < min_val_loss:
+                min_val_loss = avg_val_loss
+                print_ddp(f"Saving new best model ({min_val_loss:.4f})...")
+                checkpoint = {
+                    'config': {
+                        'bert_model_name': MODEL_NAME,
+                        'max_seq_len': MAX_LEN,
+                        'latent_channels': LATENT_CHANNELS,
+                        'latent_width': LATENT_WIDTH,
+                        'timesteps': TIMESTEPS,
+                        'model_type': MODEL_TYPE,
+                        'transformer_config': TRANSFORMER_CONFIG,
+                        'num_diffu_layers': NUM_DIFFU_LAYERS,
+                        'kernel_size': KERNEL_SIZE,
+                    },
+                    # Save module.state_dict() to unwrap DDP
+                    'state_dict': model.module.state_dict(),
+                    'optimizer_state': optimizer.state_dict(),
+                    'epoch': epoch,
+                    'val_loss': avg_val_loss
+                }
+                torch.save(checkpoint, SAVE_PATH)
 
-        # --- VISUALIZATION: Noisy Prediction Check ---
-        if sample_val_batch is not None:
-            print("\n--- Visualizing Predictions on Val Set (Noise -> Denoise) ---")
-            inp, mask = sample_val_batch
-            # Limit to 5 samples
-            num_show = min(5, inp.shape[0])
-            pred_ids, t_vals = model.check_prediction(inp, mask, num_samples=num_show)
-            
-            for i in range(num_show):
-                original = tokenizer.decode(inp[i], skip_special_tokens=True)
-                predicted = decode_token_ids(pred_ids[i], tokenizer)
-                timestep = t_vals[i].item()
-                print(f"Sample {i+1} | t={timestep:03d} | Orig: {original[:]} -> Pred: {predicted[:]}",flush=True)
-            print("-------------------------------------------------------------\n")
+            # Visualization
+            if sample_val_batch is not None:
+                print_ddp("\n--- Val Visualization ---")
+                inp, mask = sample_val_batch
+                num_show = min(3, inp.shape[0])
+                
+                # Use model.module for custom methods not in forward
+                pred_ids, t_vals = model.module.check_prediction(inp, mask, num_samples=num_show)
+                
+                for i in range(num_show):
+                    original = tokenizer.decode(inp[i], skip_special_tokens=True)
+                    predicted = decode_token_ids(pred_ids[i], tokenizer)
+                    print_ddp(f"Orig: {original[:60]}... -> Pred: {predicted[:60]}...")
+                print_ddp("-------------------------\n")
 
-    # --- 7. Final Test Set Evaluation ---
-    print("\n--- Final Test Set Evaluation ---")
+    # 6. Final Test
+    print_ddp("\n--- Final Test Set Evaluation ---")
     model.eval()
-    total_test_loss = 0
-    test_batch_count = 0
+    total_test_loss = torch.tensor(0.0, device=device)
+    test_batch_count = torch.tensor(0.0, device=device)
+    
     with torch.no_grad():
         for batch in test_loader:
             input_ids = batch['input_ids'].to(device)
@@ -426,12 +337,18 @@ if __name__ == "__main__":
             loss, _ = model(input_ids, attention_mask)
             total_test_loss += loss.item()
             test_batch_count += 1
-            
-    avg_test_loss = total_test_loss / test_batch_count if test_batch_count > 0 else 0.0
-    print(f"Final Test Loss: {avg_test_loss:.4f}")
 
-    # --- 8. Quick Inference Test ---
-    print("\n--- Inference Check (Pure Generation) ---")
-    generated_ids = model.sample(batch_size=1)
-    gen_text = decode_token_ids(generated_ids[0], tokenizer)
-    print(f"Generated from noise: '{gen_text}'")
+    dist.all_reduce(total_test_loss, op=dist.ReduceOp.SUM)
+    dist.all_reduce(test_batch_count, op=dist.ReduceOp.SUM)
+    avg_test_loss = total_test_loss / test_batch_count
+
+    print_ddp(f"Final Test Loss: {avg_test_loss:.4f}")
+
+    # 7. Inference Test (Rank 0 only)
+    if dist.get_rank() == 0:
+        print_ddp("\n--- Generation Check ---")
+        generated_ids = model.module.sample(batch_size=1)
+        gen_text = decode_token_ids(generated_ids[0], tokenizer)
+        print_ddp(f"Generated: '{gen_text}'")
+
+    cleanup_ddp()

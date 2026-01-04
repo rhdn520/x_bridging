@@ -680,7 +680,7 @@ class GaussianDiffusion:
         # x_start_log_var = 2 * th.log(std)
         # print("x_start_mean::::")
         # print(x_start_mean.shape, flush=True)
-        x_start = self._get_x_start(x_start_mean, std)  #Noise 없는 임베딩 구하기
+        x_start = self._get_x_start(x_start_mean, std)  #Noise 없는 임베딩 구하기 (근데 이거 자체에도 noise를 주네..?)
         # print(x_start_mean.shape, x_start.shape)
         if noise is None:
             noise = th.randn_like(x_start)

@@ -105,3 +105,20 @@ def slerp_channel_wise(v0, v1, t):
     
     # Reshape back to original dimensions
     return res_reshaped.view(b, c, w)
+
+
+def bezier_2nd_order(v0, v1, v2, t):
+    """
+    2nd Order Bezier Interpolation.
+    Formula: (1-t)^2 * v0 + 2(1-t)t * v1 + t^2 * v2
+    
+    Args:
+        v0 (torch.Tensor): Starting latent tensor (B, C, W)
+        v1 (torch.Tensor): Control point latent tensor (B, C, W)
+        v2 (torch.Tensor): Ending latent tensor (B, C, W)
+        t (float): Interpolation factor [0.0, 1.0]
+        
+    Returns:
+        torch.Tensor: Interpolated tensor
+    """
+    return ((1 - t) ** 2) * v0 + 2 * (1 - t) * t * v1 + (t ** 2) * v2

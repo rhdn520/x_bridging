@@ -302,6 +302,15 @@ class DiffusionLM(nn.Module):
         sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
         sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
         return sqrt_alpha_bar_t * x_0 + sqrt_one_minus_alpha_bar_t * noise, noise
+    
+    def q_sample_no_stochastic(self, x_0, t):
+        """
+        Deterministic version of q_sample (no noise added).
+        Useful for certain evaluation scenarios.
+        """
+        sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
+        return sqrt_alpha_bar_t * x_0
+
 
     def predict_x0_from_noise(self, x_t, t, predicted_noise):
         """
@@ -349,9 +358,9 @@ class DiffusionLM(nn.Module):
         flat_logits = logits.view(-1, logits.size(-1))
         flat_labels = input_ids.view(-1)
         flat_mask = attention_mask.view(-1)
-        print(f"flat_logits.shape: {flat_logits.shape}, flat_labels.shape: {flat_labels.shape}, flat_mask.shape: {flat_mask.shape}", flush=True)
-        print(flat_logits, flush=True)
-        print(flat_labels, flush=True)
+        # print(f"flat_logits.shape: {flat_logits.shape}, flat_labels.shape: {flat_labels.shape}, flat_mask.shape: {flat_mask.shape}", flush=True)
+        # print(flat_logits, flush=True)
+        # print(flat_labels, flush=True)
         ce_loss_raw = F.cross_entropy(flat_logits, flat_labels, reduction='none')
         ce_loss = (ce_loss_raw * flat_mask).sum() / (flat_mask.sum() + 1e-7)
 
@@ -389,9 +398,10 @@ class DiffusionLM(nn.Module):
         else:
             x = x.to(device)
         
-        print(f"Sampling started for {batch_size} sequences...")
+        print(f"Sampling started for {batch_size} sequences...", flush=True)
 
         for i in reversed(range(self.timesteps)):
+            # print(f" Denoising step {i+1}/{self.timesteps}", flush=True)
             t = torch.full((batch_size,), i, device=device, dtype=torch.long)
             
             predicted_noise = self.denoise_model(x, t)
