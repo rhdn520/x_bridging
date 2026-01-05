@@ -175,17 +175,47 @@ class DecoderTransformer(nn.Module):
     """
     Transformer-based Decoder to map predicted last hidden states to token logits.
     """
-    def __init__(self, hidden_size, vocab_size, d_model=512, nhead=8, num_layers=6, dim_feedforward=2048, dropout=0.1):
+    def __init__(
+        self,
+        hidden_size,
+        max_seq_len,
+        nhead=8,
+        num_layers=6,
+        dim_feedforward=2048,
+        dropout=0.1,
+    ):
         super().__init__()
-        encoder_layer = nn.TransformerEncoderLayer(d_model=d_model, nhead=nhead, 
-                                                   dim_feedforward=dim_feedforward, 
-                                                   dropout=dropout, batch_first=True)
+        # [수정 1] max_seq_len 인자 추가 (위치 임베딩 생성을 위해 필요)
+        self.max_seq_len = max_seq_len
+
+        # [수정 2] Positional Embedding 추가
+        # Transformer는 위치 정보를 모르므로, 이를 더해주어야 순서 정보를 학습할 수 있습니다.
+        self.pos_emb = nn.Parameter(torch.zeros(1, max_seq_len, hidden_size))
+        # 초기화 (선택 사항이나 학습 안정성을 위해 권장)
+        nn.init.normal_(self.pos_emb, mean=0, std=0.02)
+
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=hidden_size,
+            nhead=nhead,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
+            batch_first=True,
+        )
         self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
 
     def forward(self, hidden_states):
         # hidden_states: (Batch, Seq_Len, Hidden_Size)
+
+        # [수정 3] 위치 정보 더하기
+        # 입력 시퀀스 길이에 맞춰 슬라이싱 (보통 max_seq_len과 같겠지만 안전장치)
+        seq_len = hidden_states.size(1)
+        hidden_states = hidden_states + self.pos_emb[:, :seq_len, :]
+
+        # print(f"DecoderTransformer input shape: {hidden_states.shape}", flush=True) # 디버깅용
         x = self.transformer(hidden_states)
+        # print(f"DecoderTransformer output shape: {x.shape}", flush=True) # 디버깅용
         return x
+
 
 class DiffusionLM(nn.Module):
     def __init__(self, 
@@ -243,9 +273,10 @@ class DiffusionLM(nn.Module):
             nn.Linear(2048, input_flat_dim)
         )
 
-        # self.decoder_transformer = DecoderTransformer(
-        #     hidden_size=self.hidden_size,
-        #     vocab_size=config.vocab_size,
+        self.decoder_transformer = DecoderTransformer(
+            hidden_size=self.hidden_size,
+            max_seq_len=self.max_seq_len,
+        )
 
         # 3. Denoising Model
         if model_type == 'conv':
@@ -312,7 +343,10 @@ class DiffusionLM(nn.Module):
         batch_size = latents.shape[0]
         flat_latents = latents.view(batch_size, -1)
         reconstructed_flat = self.decoder_proj(flat_latents)
-        reconstructed_hidden = reconstructed_flat.view(batch_size, self.max_seq_len, self.hidden_size)
+        reconstructed_hidden = reconstructed_flat.view(
+            batch_size, self.max_seq_len, self.hidden_size
+        )
+        reconstructed_hidden = self.decoder_transformer(reconstructed_hidden)
         logits = self.cls_head(reconstructed_hidden)
         return logits
 
@@ -334,13 +368,23 @@ class DiffusionLM(nn.Module):
 
     def predict_x0_from_noise(self, x_t, t, predicted_noise):
         """
-        Calculates the estimated x_0 (clean data) given x_t and predicted noise.
+        x_t와 예측된 노이즈로 x_0를 추정합니다.
+        DecoderTransformer가 폭주하지 않도록 값을 자릅니다(Clamping).
         """
         sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
         sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
         
-        # Add epsilon and clamping for stability at high noise
-        x_0_pred = (x_t - sqrt_one_minus_alpha_bar_t * predicted_noise) / (sqrt_alpha_bar_t + 1e-7)
+        # [수정 1] 분모 0 방지용 epsilon 상향 (1e-7 -> 1e-5)
+        epsilon = 1e-5
+        
+        # 기본 수식
+        x_0_pred = (x_t - sqrt_one_minus_alpha_bar_t * predicted_noise) / (sqrt_alpha_bar_t + epsilon)
+        
+        # [수정 2] ★핵심★ Clamping 적용
+        # Latent는 정규분포를 따르도록 유도되므로 -5 ~ 5 범위를 벗어나는 것은 비정상적인 값입니다.
+        # 이 과정이 없으면 DecoderTransformer 내부 Attention 연산에서 NaN이 발생합니다.
+        x_0_pred = torch.clamp(x_0_pred, min=-5.0, max=5.0)
+        
         return x_0_pred
 
     def forward(self, input_ids, attention_mask):
