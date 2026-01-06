@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # 2. Configuration
     MODEL_NAME = 'bert-base-uncased' 
     MAX_LEN = 128
-    BATCH_SIZE = 16    # Batch size per GPU
+    BATCH_SIZE = 128    # Batch size per GPU
     EPOCHS = 10
     LR = 1e-4
     RESUME_TRAINING = False
@@ -163,9 +163,9 @@ if __name__ == "__main__":
     SAVE_PATH = f"model_outputs/{MODEL_TYPE}_{LATENT_WIDTH}_{LATENT_CHANNELS}_{NUM_DIFFU_LAYERS}_{TIMESTEPS}_d{TRANSFORMER_CONFIG['d_model']}_td.pth"
 
     # Data Limits
-    TRAIN_SAMPLES = 3000
-    VAL_SAMPLES = 10
-    TEST_SAMPLES = 10
+    TRAIN_SAMPLES = 3000000
+    VAL_SAMPLES = 10000
+    TEST_SAMPLES = 10000
 
     # 3. Tokenizer & Data
     print_ddp("\n--- Initializing Tokenizer & Data ---")

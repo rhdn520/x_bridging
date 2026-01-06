@@ -9,4 +9,4 @@
 
 
 # Pass all arguments to the python script
-torchrun --nproc_per_node=3 --master_port=12233 train.py 
+torchrun --nproc_per_node=1 --master_port=12235 train.py 
