@@ -139,7 +139,7 @@ if __name__ == "__main__":
     BATCH_SIZE = 128    # Batch size per GPU
     EPOCHS = 10
     LR = 1e-4
-    RESUME_TRAINING = False
+    RESUME_TRAINING = True
 
     # Hyperparameters
     LATENT_CHANNELS = 1

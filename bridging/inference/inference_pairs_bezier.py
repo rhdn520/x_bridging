@@ -227,18 +227,18 @@ def main():
         print(f">> Error loading DB: {e}")
         return
         
-    if hasattr(faiss, "get_num_gpus") and faiss.get_num_gpus() > 0:
-        print(">> Moving FAISS index to GPU...")
-        # GPU 리소스 생성
-        res = faiss.StandardGpuResources()
+    # if hasattr(faiss, "get_num_gpus") and faiss.get_num_gpus() > 0:
+    #     print(">> Moving FAISS index to GPU...")
+    #     # GPU 리소스 생성
+    #     res = faiss.StandardGpuResources()
         
-        # CPU 인덱스를 GPU 인덱스로 변환
-        # (주의: LangChain 래퍼 내부의 index를 교체해줍니다)
-        gpu_index = faiss.index_cpu_to_gpu(res, 0, vector_store.index)
-        vector_store.index = gpu_index
-        print(">> FAISS is now running on GPU.")
-    else:
-        print(">> GPU not found or faiss-cpu installed. Running on CPU.")
+    #     # CPU 인덱스를 GPU 인덱스로 변환
+    #     # (주의: LangChain 래퍼 내부의 index를 교체해줍니다)
+    #     gpu_index = faiss.index_cpu_to_gpu(res, 0, vector_store.index)
+    #     vector_store.index = gpu_index
+    #     print(">> FAISS is now running on GPU.")
+    # else:
+    #     print(">> GPU not found or faiss-cpu installed. Running on CPU.")
 
 
     # 3. Data Loading

@@ -20,12 +20,12 @@ TEXT1="she reached for the flower, but the creature realized something else."
 TEXT2="she extended her hand to take it, but the creature realized something else."
 
 # Model Hyperparameters (Must match the saved model filename)
-LATENT_WIDTH=512
-LATENT_CHANNELS=64
-NUM_DIFFU_LAYERS=10
+LATENT_WIDTH=1024
+LATENT_CHANNELS=1
+NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 KERNEL_SIZE=5
-TRANSFORMER_D_MODEL=512
+TRANSFORMER_D_MODEL=1024
 MODEL_TYPE="transformer" 
 
 echo "Running inference with timestep: $TIMESTEP"
@@ -44,5 +44,5 @@ srun python inference.py \
     --diffu_timesteps $DIFFU_TIMESTEPS \
     --kernel_size $KERNEL_SIZE \
     --transformer_d_model $TRANSFORMER_D_MODEL\
-    --interpolation_type "lerp" \
+    --interpolation_type "slerp" \
     --model_type $MODEL_TYPE

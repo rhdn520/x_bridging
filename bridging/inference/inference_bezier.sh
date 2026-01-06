@@ -2,7 +2,7 @@
 #SBATCH --job-name=x_bridging
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --nodelist=n01
+#SBATCH --nodelist=n03
 #SBATCH --time=1-23:59:59
 #SBATCH --mem=16000MB
 #SBATCH --cpus-per-task=1
@@ -16,8 +16,8 @@ if [ ! -z "$1" ]; then
 fi
 
 # Input Sentences
-TEXT1="It is easy to say."
-TEXT2="It is hard to do."
+TEXT1="The cat fell asleep on the keyboard and accidentally sent an email."
+TEXT2="She realized too late that the map was upside down the entire time."
 
 # Model Hyperparameters (Must match the saved model filename)
 LATENT_WIDTH=1024
@@ -25,7 +25,7 @@ LATENT_CHANNELS=1
 NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 KERNEL_SIZE=5
-TRANSFORMER_D_MODEL=512
+TRANSFORMER_D_MODEL=1024
 MODEL_TYPE="transformer" 
 VECTORDB_PATH="../vectorDB/saved_db/faiss_diffusion_embeddings.index"
 

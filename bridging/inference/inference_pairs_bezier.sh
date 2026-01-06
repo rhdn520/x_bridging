@@ -2,7 +2,7 @@
 #SBATCH --job-name=x_bridging
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --nodelist=n01
+#SBATCH --nodelist=n04
 #SBATCH --time=1-23:59:59
 #SBATCH --mem=16000MB
 #SBATCH --cpus-per-task=1
@@ -22,7 +22,7 @@ LATENT_CHANNELS=1
 NUM_DIFFU_LAYERS=8
 DIFFU_TIMESTEPS=1000
 KERNEL_SIZE=5
-TRANSFORMER_D_MODEL=512
+TRANSFORMER_D_MODEL=1024
 MODEL_TYPE="transformer" 
 VECTORDB_PATH="../vectorDB/saved_db/faiss_diffusion_embeddings.index"
 

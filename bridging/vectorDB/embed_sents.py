@@ -42,7 +42,7 @@ class DiffusionEmbeddings():
 
 
 # LOAD DiffusionLM for embedding
-MODEL_PATH = "../model_outputs/transformer_1024_1_8_1000_d512.pth"
+MODEL_PATH = "../model_outputs/transformer_1024_1_8_1000_d1024.pth"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 checkpoint = torch.load(MODEL_PATH, map_location=device)
 
