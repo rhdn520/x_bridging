@@ -15,7 +15,7 @@ from langchain_community.vectorstores import FAISS
 from train import TinyStoriesDataset
 from inference import DiffusionTracer
 from get_latent_path import get_latent_from_sent
-from interpolation import bezier_2nd_order  # Bezier 함수 임포트
+from interpolation import bezier_2nd_order, bezier_3rd_order  # Bezier 함수 임포트
 import faiss  # FAISS GPU 상태 확인용
 
 # --- Configuration (Copied from gpt.py) ---
@@ -95,81 +95,98 @@ def generate_sentence_pairs(sent_list):
 def interpolate_pair(tracer, vector_store, sent1, sent2, args):
     """
     Performs Bezier interpolation:
-    1. Get V0 (sent1), V2 (sent2)
-    2. Calc Mean(V0, V2) -> Search DB -> Get Control Point V1
-    3. Bezier Interpolate (V0, V1, V2)
+    1. Get V0 (sent1), V2/V3 (sent2)
+    2. Calc Control Points
+       - Order 2: Mean(V0, V2) -> Search DB -> V1
+       - Order 3: Search(V0) -> V1, Search(V3) -> V2
+    3. Bezier Interpolate
     """
     
-    # 1. Projection: Get V0 and V2
+    # 1. Projection: Get V0 and V_end
     proj_1 = tracer.trace_projection(sent1)
     latent_v0 = proj_1['latent_x0']
     
     proj_2 = tracer.trace_projection(sent2)
-    latent_v2 = proj_2['latent_x0']
+    latent_v_end = proj_2['latent_x0']
     
-    # 2. Find Control Point (V1)
-    # Calculate Average Latent (Clean Space)
-    avg_latent = (latent_v0 + latent_v2) / 2.0
-    
-    # Prepare for DB Search (Apply noise t=499 to match DB)
-    # t_search = 499
-    # t_tensor = torch.tensor([t_search]).to(tracer.device)
-    
-    # if hasattr(tracer.model, 'q_sample_no_stochastic'):
-    #     query_latent = tracer.model.q_sample_no_stochastic(avg_latent, t_tensor)
-    # else:
-    #     # Fallback
-    #     query_latent, _ = tracer.model.q_sample(avg_latent, t_tensor, torch.randn_like(avg_latent))
-        
-    query_vector = avg_latent.squeeze(0).cpu().numpy().flatten().tolist()
-    
-    # Search
-    results = vector_store.similarity_search_with_score_by_vector(query_vector, k=1)
-    control_text = results[0][0].page_content
-    
-    # Get V1 Latent
-    proj_control = tracer.trace_projection(control_text)
-    latent_v1 = proj_control['latent_x0']
-
-    # 3. Interpolation Loop
     alphas = [x/100 for x in list(range(5, 100, 5))]
     result_sequence = [sent1] # Start with V0 text
     
-    # [Branch A] Diffusion Mode (Noisy Space)
-    if args.noise_t >= 0:
-        # Noise all three vectors to target t
-        noise_v0 = tracer.trace_noising(latent_v0, t_val=args.noise_t)['noisy_latent']
-        noise_v1 = tracer.trace_noising(latent_v1, t_val=args.noise_t)['noisy_latent']
-        noise_v2 = tracer.trace_noising(latent_v2, t_val=args.noise_t)['noisy_latent']
+    if args.bezier_order == 2:
+        # 2nd Order Logic
+        # Calculate Average Latent (Clean Space)
+        avg_latent = (latent_v0 + latent_v_end) / 2.0
+        query_vector = avg_latent.squeeze(0).cpu().numpy().flatten().tolist()
         
-        for alpha in alphas:
-            # 2nd Order Bezier on Noisy Latents
-            intp_noisy = bezier_2nd_order(noise_v0, noise_v1, noise_v2, alpha)
-            
-            # Denoise
-            history = tracer.trace_generation(
-                starting_noise=intp_noisy,
-                start_step=args.noise_t
-            )
-            text_est = history[-1]['text_estimate']
-            result_sequence.append(text_est)
-            
-    # [Branch B] Autoencoder Mode (Clean Space)
-    else:
-        for alpha in alphas:
-            # 2nd Order Bezier on Clean Latents
-            intp_latent = bezier_2nd_order(latent_v0, latent_v1, latent_v2, alpha)
-            
-            # Decode Directly
-            logits = tracer.model.decode_latents(intp_latent)
-            pred_ids = torch.argmax(logits, dim=-1)
-            text_est = tracer.decode_token_ids(pred_ids[0])
-            result_sequence.append(text_est)
+        # Search
+        results = vector_store.similarity_search_with_score_by_vector(query_vector, k=1)
+        control_text = results[0][0].page_content
+        
+        # Get V1 Latent
+        proj_control = tracer.trace_projection(control_text)
+        latent_v1 = proj_control['latent_x0']
 
-    result_sequence.append(sent2) # End with V2 text
-    
-    # Optional: You might want to save the Control Text too, for analysis
-    # return result_sequence, control_text 
+        # Interpolation
+        if args.noise_t >= 0:
+            noise_v0 = tracer.trace_noising(latent_v0, t_val=args.noise_t)['noisy_latent']
+            noise_v1 = tracer.trace_noising(latent_v1, t_val=args.noise_t)['noisy_latent']
+            noise_v2 = tracer.trace_noising(latent_v_end, t_val=args.noise_t)['noisy_latent']
+            
+            for alpha in alphas:
+                intp_noisy = bezier_2nd_order(noise_v0, noise_v1, noise_v2, alpha)
+                history = tracer.trace_generation(starting_noise=intp_noisy, start_step=args.noise_t)
+                result_sequence.append(history[-1]['text_estimate'])
+        else:
+            for alpha in alphas:
+                intp_latent = bezier_2nd_order(latent_v0, latent_v1, latent_v_end, alpha)
+                logits = tracer.model.decode_latents(intp_latent)
+                pred_ids = torch.argmax(logits, dim=-1)
+                result_sequence.append(tracer.decode_token_ids(pred_ids[0]))
+
+    elif args.bezier_order == 3:
+        # 3rd Order Logic
+        # Calculate 1/3 and 2/3 points (Clean Space)
+        # L(t) = (1-t) * V0 + t * V_end
+        
+        # Point 1/3
+        t1 = 1.0 / 3.0
+        p1_latent = (1 - t1) * latent_v0 + t1 * latent_v_end
+        query_p1 = p1_latent.squeeze(0).cpu().numpy().flatten().tolist()
+        
+        results_p1 = vector_store.similarity_search_with_score_by_vector(query_p1, k=1)
+        cp1_text = results_p1[0][0].page_content
+        proj_cp1 = tracer.trace_projection(cp1_text)
+        latent_cp1 = proj_cp1['latent_x0']
+        
+        # Point 2/3
+        t2 = 2.0 / 3.0
+        p2_latent = (1 - t2) * latent_v0 + t2 * latent_v_end
+        query_p2 = p2_latent.squeeze(0).cpu().numpy().flatten().tolist()
+        
+        results_p2 = vector_store.similarity_search_with_score_by_vector(query_p2, k=1)
+        cp2_text = results_p2[0][0].page_content
+        proj_cp2 = tracer.trace_projection(cp2_text)
+        latent_cp2 = proj_cp2['latent_x0']
+        
+        # Interpolation
+        if args.noise_t >= 0:
+            noise_v0 = tracer.trace_noising(latent_v0, t_val=args.noise_t)['noisy_latent']
+            noise_cp1 = tracer.trace_noising(latent_cp1, t_val=args.noise_t)['noisy_latent']
+            noise_cp2 = tracer.trace_noising(latent_cp2, t_val=args.noise_t)['noisy_latent']
+            noise_vend = tracer.trace_noising(latent_v_end, t_val=args.noise_t)['noisy_latent']
+            
+            for alpha in alphas:
+                intp_noisy = bezier_3rd_order(noise_v0, noise_cp1, noise_cp2, noise_vend, alpha)
+                history = tracer.trace_generation(starting_noise=intp_noisy, start_step=args.noise_t)
+                result_sequence.append(history[-1]['text_estimate'])
+        else:
+            for alpha in alphas:
+                intp_latent = bezier_3rd_order(latent_v0, latent_cp1, latent_cp2, latent_v_end, alpha)
+                logits = tracer.model.decode_latents(intp_latent)
+                pred_ids = torch.argmax(logits, dim=-1)
+                result_sequence.append(tracer.decode_token_ids(pred_ids[0]))
+
+    result_sequence.append(sent2) # End text
     return result_sequence
 
 # ==========================================
@@ -193,6 +210,7 @@ def main():
     parser.add_argument("--noise_t", type=int, default=790, help="Timestep to start denoising (-1 for AE)")
     parser.add_argument("--output_file", type=str, default="./inference_result/diffusion_bezier_intps.json")
     parser.add_argument("--vectordb_path", type=str, default="./saved_db/faiss_diffusion_embeddings.index", help="Path to VectorDB")
+    parser.add_argument("--bezier_order", type=int, default=2, choices=[2, 3], help="Order of Bezier interpolation (2 or 3)")
     
     args = parser.parse_args()
     
@@ -267,7 +285,7 @@ def main():
             all_responses.append([sent1, "ERROR", sent2])
             
     # 5. Save
-    output_path = args.output_file
+    output_path = args.output_file + f"_o{args.bezier_order}_t{args.noise_t}.json"
     print(f"Saving results to {output_path}...")
     try:
         with open(output_path, 'w', encoding='utf-8') as f:

@@ -1,0 +1,1332 @@
+[
+    {
+        "sent1": "asked her mother.",
+        "sent2": "his face was angry.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "The teacher was angry."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "\" okay, i will, \" sam said, nodding.",
+        "cp_2nd_order": "\"Good girl.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "\"Yes, I promise."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "but she knew she had to go back.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "They were scared and wanted to go back to their mom and dad."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "tina was so tired that she collapsed on the ground.",
+        "cp_2nd_order": "Jenny was sad.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "Mimi was so afraid that she froze."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "now he could zoom around and be as adventurous as he wanted to be.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "All the members of this club were very special because they could all sing."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "the little girl saw a silly clown and started to laugh.",
+        "cp_2nd_order": "said Lucy excitedly.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "The little girl was overjoyed."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"Good girl.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "\"Tom, is that true?\""
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "said his friends."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "The witch smiled.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "The witch smiled."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "Ben is a big boy."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Jenny thought for a moment.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "Do you want to open it with me?\""
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "She liked cars.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "She wanted to play too, but her mom said no."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "The witch smiled.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "The fairy blinked and nodded."
+    },
+    {
+        "sent1": "asked her mother.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "said his friends.",
+        "cp_3rd_order_1": "said his friends.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "\" okay, i will, \" sam said, nodding.",
+        "cp_2nd_order": "His name is Ben.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "\"There, all done,\" Tom said, smiling."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "but she knew she had to go back.",
+        "cp_2nd_order": "But she was scared.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "tina was so tired that she collapsed on the ground.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "Mimi was so afraid that she froze."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "now he could zoom around and be as adventurous as he wanted to be.",
+        "cp_2nd_order": "The dog was afraid.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "the little girl saw a silly clown and started to laugh.",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "The teacher was angry."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"I was wrong.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "\"It felt good to win.\""
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "His mom came outside and saw him crying."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "The teacher was angry."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "He felt very happy.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "Ben is a big boy."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "They had done it!"
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "She wanted to hide."
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "The teacher was angry.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "The mixture looked delicious!"
+    },
+    {
+        "sent1": "his face was angry.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But she was scared.",
+        "cp_3rd_order_1": "The teacher was angry.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "but she knew she had to go back.",
+        "cp_2nd_order": "\"Yes, I promise.",
+        "cp_3rd_order_1": "\"Yes, I promise.",
+        "cp_3rd_order_2": "But first, we have to put it together."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "tina was so tired that she collapsed on the ground.",
+        "cp_2nd_order": "Please, Tom, please,\" Sam said.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "Mimi was so afraid that she froze."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "cp_2nd_order": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "now he could zoom around and be as adventurous as he wanted to be.",
+        "cp_2nd_order": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "But when he slept he always looked so relaxed and happy."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "the little girl saw a silly clown and started to laugh.",
+        "cp_2nd_order": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "\"There, all done,\" Tom said, smiling."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"Tom, is that true?\"",
+        "cp_3rd_order_1": "\"Yes, we can!\"",
+        "cp_3rd_order_2": "\"Tom, is that true?\""
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "Mom says, \"Please order your toys and books after you play."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "\"Sorry, Tom,\" she said."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "\"There, all done,\" Tom said, smiling."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "\"OK, Lily,\" Tom said.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "\"Yes, I promise.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "\"Yes, we can!\"",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "\"You're welcome, enjoy the show!\""
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "She wanted to play too, but her mom said no.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "I want to stay small!\""
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "\"Yes, I promise.",
+        "cp_3rd_order_1": "\"Yes, I promise.",
+        "cp_3rd_order_2": "The boy thanked the farmer and said goodbye."
+    },
+    {
+        "sent1": "\" okay, i will, \" sam said, nodding.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "\"Okay, then.",
+        "cp_3rd_order_1": "\"There, all done,\" Tom said, smiling.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "tina was so tired that she collapsed on the ground.",
+        "cp_2nd_order": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_1": "They were scared and wanted to go back to their mom and dad.",
+        "cp_3rd_order_2": "Mimi was so afraid that she froze."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "cp_2nd_order": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_1": "But first, we have to put it together.",
+        "cp_3rd_order_2": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "now he could zoom around and be as adventurous as he wanted to be.",
+        "cp_2nd_order": "But he could not play and have fun.",
+        "cp_3rd_order_1": "But he could not play and have fun.",
+        "cp_3rd_order_2": "But he could not play and have fun."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "the little girl saw a silly clown and started to laugh.",
+        "cp_2nd_order": "But the little girl loved the ball too much to sell it.",
+        "cp_3rd_order_1": "One day, she decided to go to a new park.",
+        "cp_3rd_order_2": "Mittens was a very silly cat who liked to play with toys and chase butterflies."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"I'm just playing.\"",
+        "cp_3rd_order_1": "But first, we have to put it together.",
+        "cp_3rd_order_2": "\"I'm just playing.\""
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "They were scared and wanted to go back to their mom and dad.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "She was glad she had left her hole and followed her dream.",
+        "cp_3rd_order_1": "But she tripped and fell on the ground.",
+        "cp_3rd_order_2": "One day, she found an old box and decided to make it into a house for her dolls."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "The bird asked her where she was going.",
+        "cp_3rd_order_1": "The bird asked her where she was going.",
+        "cp_3rd_order_2": "The bug ran away, but Jack followed."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "She told him it was time to go because it was getting dark.",
+        "cp_3rd_order_1": "She told him it was time to go because it was getting dark.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "One day, she went to the park with her mom.",
+        "cp_3rd_order_1": "They were scared and wanted to go back to their mom and dad.",
+        "cp_3rd_order_2": "One day, Tim went to the park with his mom."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "Now he knew that he should always listen to his mom and stay safe.",
+        "cp_3rd_order_1": "They were scared and wanted to go back to their mom and dad.",
+        "cp_3rd_order_2": "Now he knew that he should always listen to his mom and stay safe."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Jenny thought for a moment.",
+        "cp_3rd_order_1": "They were scared and wanted to go back to their mom and dad.",
+        "cp_3rd_order_2": "Jenny thought for a moment."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "But first, we have to put it together.",
+        "cp_3rd_order_1": "But first, we have to put it together.",
+        "cp_3rd_order_2": "But first, we have to put it together."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "Sam wants to try too.",
+        "cp_3rd_order_1": "She couldn't wait to come back and play again.",
+        "cp_3rd_order_2": "Sam wants to try too."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "\"No, we should not go in the hole.",
+        "cp_3rd_order_1": "\"No, we should not go in the hole.",
+        "cp_3rd_order_2": "\"No, we should not go in the hole."
+    },
+    {
+        "sent1": "but she knew she had to go back.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But he could not.",
+        "cp_3rd_order_1": "But he could not.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "cp_2nd_order": "Mimi was so happy that she smiled.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "now he could zoom around and be as adventurous as he wanted to be.",
+        "cp_2nd_order": "Spot was so excited that he followed the map.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "Once upon a time, there was a creative witch who loved to travel."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "the little girl saw a silly clown and started to laugh.",
+        "cp_2nd_order": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "Suddenly, she saw a little girl standing near a tree."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"Oh no, our wagon!\"",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "\"Oh no, our wagon!\""
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "Sarah began to sort the photos into piles.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "He smiled and threw another handful of seeds."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "Jane was so curious and so she approached the veil."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "They tried to pull the gum off, but it was very difficult.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "He was very lazy and always sat on his big chair.",
+        "cp_3rd_order_1": "He was very lazy and always sat on his big chair.",
+        "cp_3rd_order_2": "He picked up the car and threw it in the trash."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "They did not hear Mom coming up the stairs.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "\"You're welcome, enjoy the show!\""
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "Sam wants to try too.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "Sam wants to try too."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "She climbed up the steps and sat on the slide.",
+        "cp_3rd_order_1": "She climbed up the steps and sat on the slide.",
+        "cp_3rd_order_2": "She climbed up the steps and sat on the slide."
+    },
+    {
+        "sent1": "tina was so tired that she collapsed on the ground.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But she was scared.",
+        "cp_3rd_order_1": "Mimi was so afraid that she froze.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "now he could zoom around and be as adventurous as he wanted to be.",
+        "cp_2nd_order": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "Once upon a time, there was a creative witch who loved to travel."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "the little girl saw a silly clown and started to laugh.",
+        "cp_2nd_order": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "Mittens was a very silly cat who liked to play with toys and chase butterflies."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"That's a great idea, Steve!\"",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "\"That's a great idea, Steve!\""
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "So they stopped together to pick the flowers.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "So they stopped together to pick the flowers."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "The dog was surprised."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "Tom ran into the kitchen, where Mom was making cookies."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Jenny thought for a moment.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "\"You're welcome, enjoy the show!\""
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "She wanted to play too, but her mom said no.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "She wanted to play too, but her mom said no."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "The next day, Timmy went back to the hotel and saw the cheese again.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "The next day, Timmy went back to the hotel and saw the cheese again."
+    },
+    {
+        "sent1": "when it was time to go home, sarah said goodbye to the shop keeper, who had helped her find some goodies for her friends at home.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But she was scared.",
+        "cp_3rd_order_1": "When it was time to go home, Timmy said goodbye and thanked Rose for such a fun day.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "the little girl saw a silly clown and started to laugh.",
+        "cp_2nd_order": "Suddenly, she saw a little girl standing near a tree.",
+        "cp_3rd_order_1": "But when he slept he always looked so relaxed and happy.",
+        "cp_3rd_order_2": "Suddenly, she saw a little girl standing near a tree."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"I'm just playing.\"",
+        "cp_3rd_order_1": "Once upon a time, there was a creative witch who loved to travel.",
+        "cp_3rd_order_2": "\"I'm just playing.\""
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He wanted to be quiet and get some rest so he flew to the school to tell the children to be quiet.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "She liked to move the dolls and the furniture around and make up stories.",
+        "cp_3rd_order_1": "He wanted to be quiet and get some rest so he flew to the school to tell the children to be quiet.",
+        "cp_3rd_order_2": "She liked to move the dolls and the furniture around and make up stories."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "He then raced around the circle again, cheering as he went.",
+        "cp_3rd_order_1": "He then raced around the circle again, cheering as he went.",
+        "cp_3rd_order_2": "The cat ran away and Tim was all alone."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "He grabbed the cheese and ran away as fast as he could.",
+        "cp_3rd_order_1": "He wanted to be quiet and get some rest so he flew to the school to tell the children to be quiet.",
+        "cp_3rd_order_2": "They share the toy car and play together."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "Once upon a time, there was a creative witch who loved to travel.",
+        "cp_3rd_order_1": "Once upon a time, there was a creative witch who loved to travel.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "He wanted to be quiet and get some rest so he flew to the school to tell the children to be quiet.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "All the members of this club were very special because they could all sing.",
+        "cp_3rd_order_1": "All the members of this club were very special because they could all sing.",
+        "cp_3rd_order_2": "\"You're welcome, enjoy the show!\""
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "Sam wants to try too.",
+        "cp_3rd_order_1": "He wanted to be quiet and get some rest so he flew to the school to tell the children to be quiet.",
+        "cp_3rd_order_2": "We want to play!\""
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "The dog chased the ducks and tried to catch them.",
+        "cp_3rd_order_1": "He wanted to be quiet and get some rest so he flew to the school to tell the children to be quiet.",
+        "cp_3rd_order_2": "The dog chased the ducks and tried to catch them."
+    },
+    {
+        "sent1": "now he could zoom around and be as adventurous as he wanted to be.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But he could not.",
+        "cp_3rd_order_1": "But he could not.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "\" i'm a rocket! \"",
+        "cp_2nd_order": "\"Maybe it is a dinosaur tail,\" Ben says.",
+        "cp_3rd_order_1": "\"Maybe it is a dinosaur tail,\" Ben says.",
+        "cp_3rd_order_2": "\"I'm just playing.\""
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "She was very sad and scared.",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "She gave her friend a big hug and they continued playing together.",
+        "cp_3rd_order_1": "Mittens was a very silly cat who liked to play with toys and chase butterflies.",
+        "cp_3rd_order_2": "One day he saw a group of animals."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "The bus driver opened the door and smiled.",
+        "cp_3rd_order_1": "The little girl watched as the witch carefully examined the forest.",
+        "cp_3rd_order_2": "The bus driver opened the door and smiled."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "Mittens was a very silly cat who liked to play with toys and chase butterflies.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "Tom and Lily were playing with their dolls in the garden.",
+        "cp_3rd_order_1": "Suddenly, she saw a little girl standing near a tree.",
+        "cp_3rd_order_2": "Tom and Lily were playing with their dolls in the garden."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "The little girl watched as the witch carefully examined the forest.",
+        "cp_3rd_order_1": "The little girl watched as the witch carefully examined the forest.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "Jenny thought for a moment.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "Timmy loved going to the festival with his mom and dad.",
+        "cp_3rd_order_1": "Mittens was a very silly cat who liked to play with toys and chase butterflies.",
+        "cp_3rd_order_2": "\"You're welcome, enjoy the show!\""
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "She wanted to play too, but she did not want to take off her crown.",
+        "cp_3rd_order_1": "Mittens was a very silly cat who liked to play with toys and chase butterflies.",
+        "cp_3rd_order_2": "She wanted to play too, but her mom said no."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "The lady gave her a muffin and a napkin.",
+        "cp_3rd_order_1": "Mittens was a very silly cat who liked to play with toys and chase butterflies.",
+        "cp_3rd_order_2": "They gently poured the jellyfish back into the sea."
+    },
+    {
+        "sent1": "the little girl saw a silly clown and started to laugh.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "The cat ran away.",
+        "cp_3rd_order_1": "Mittens was a very silly cat who liked to play with toys and chase butterflies.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "he was very sad.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "\"I'm just playing.\"",
+        "cp_3rd_order_2": "He was so sad."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "\"This is a fun square!\"",
+        "cp_3rd_order_1": "\"This is a fun square!\"",
+        "cp_3rd_order_2": "And you are making a mess.\""
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "The bus driver opened the door and smiled.",
+        "cp_3rd_order_1": "\"I'm just playing.\"",
+        "cp_3rd_order_2": "The bus driver opened the door and smiled."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "I have to take a taxi, because our car is broken.",
+        "cp_3rd_order_1": "\"I'm just playing.\"",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "He's my favorite toy.\"",
+        "cp_3rd_order_1": "\"This is a fun square!\"",
+        "cp_3rd_order_2": "He picked up the car and threw it in the trash."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "\"You did it, Jake!\"",
+        "cp_3rd_order_1": "\"It's just thunder.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "\"I'm just playing.\"",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "\"You're the king of the zoo!\"",
+        "cp_3rd_order_1": "\"You're the king of the zoo!\"",
+        "cp_3rd_order_2": "\"We want to hear you!\""
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "I want to stay small!\"",
+        "cp_3rd_order_1": "\"I'm just playing.\"",
+        "cp_3rd_order_2": "I want to stay small!\""
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "\"This is a fun square!\"",
+        "cp_3rd_order_1": "\"This is a fun square!\"",
+        "cp_3rd_order_2": "They gently poured the jellyfish back into the sea."
+    },
+    {
+        "sent1": "\" i'm a rocket! \"",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But he could not.",
+        "cp_3rd_order_1": "\"I am making a surprise.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "she came back with a pile of toys and started to organize them.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "His mom came outside and saw him crying."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "The dog was surprised."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "He started to cry.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "He felt very happy.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "Ben is a big boy."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "He felt very happy.",
+        "cp_3rd_order_1": "He felt very happy.",
+        "cp_3rd_order_2": "They were very excited."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "We want to play!\""
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "He was so sad.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "He felt so very hungry."
+    },
+    {
+        "sent1": "he was very sad.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "He was not happy.",
+        "cp_3rd_order_1": "He was so sad.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "the person looked around and then they shrugged again.",
+        "cp_2nd_order": "His mom came outside and saw him crying.",
+        "cp_3rd_order_1": "His mom came outside and saw him crying.",
+        "cp_3rd_order_2": "His mom came outside and saw him crying."
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "She dragged a small chair from the porch and put it near the plant.",
+        "cp_3rd_order_1": "Mom says, \"Please order your toys and books after you play.",
+        "cp_3rd_order_2": "They pick some toys and books and balls from the square."
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_1": "They also liked to find stones and sticks and make shapes with them.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Jenny thought for a moment.",
+        "cp_3rd_order_1": "Jenny thought for a moment.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "They hop away with some eggs in their paws.",
+        "cp_3rd_order_1": "They hop away with some eggs in their paws.",
+        "cp_3rd_order_2": "Do you want to open it with me?\""
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "She wanted to play too, but her mom said no.",
+        "cp_3rd_order_1": "She liked to move the dolls and the furniture around and make up stories.",
+        "cp_3rd_order_2": "We want to play!\""
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "She climbed up the steps and sat on the slide.",
+        "cp_3rd_order_1": "He smiled and threw another handful of seeds.",
+        "cp_3rd_order_2": "She climbed up the steps and sat on the slide."
+    },
+    {
+        "sent1": "she came back with a pile of toys and started to organize them.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "So they stopped together to pick the flowers.",
+        "cp_3rd_order_1": "So they stopped together to pick the flowers.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "he decided to take an exam and see if he was fast enough.",
+        "cp_2nd_order": "The bus driver opened the door and smiled.",
+        "cp_3rd_order_1": "The bus driver opened the door and smiled.",
+        "cp_3rd_order_2": "He decided to take a look and see if he could find something to eat."
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "He looked at Anna and saw her grin.",
+        "cp_3rd_order_1": "He looked at Anna and saw her grin.",
+        "cp_3rd_order_2": "He sees many toys and books and balls inside the square."
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "The bug ran away, but Jack followed.",
+        "cp_3rd_order_1": "The bug ran away, but Jack followed.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "Tom thought for a moment.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "They also decided to agree more and disagree less.",
+        "cp_3rd_order_1": "They also decided to agree more and disagree less.",
+        "cp_3rd_order_2": "They also decided to agree more and disagree less."
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "We want to play!\"",
+        "cp_3rd_order_1": "The bug ran away, but Jack followed.",
+        "cp_3rd_order_2": "We want to play!\""
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "The boy thanked the farmer and said goodbye.",
+        "cp_3rd_order_1": "The bug ran away, but Jack followed.",
+        "cp_3rd_order_2": "The boy thanked the farmer and said goodbye."
+    },
+    {
+        "sent1": "the person looked around and then they shrugged again.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "The cat ran away.",
+        "cp_3rd_order_1": "The cat ran away.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "he decided to take an exam and see if he was fast enough.",
+        "sent2": "tom packed his toy car, his ball and his book.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "They pick some toys and books and balls from the square."
+    },
+    {
+        "sent1": "he decided to take an exam and see if he was fast enough.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "he decided to take an exam and see if he was fast enough.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "he decided to take an exam and see if he was fast enough.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "Do you want to open it with me?\""
+    },
+    {
+        "sent1": "he decided to take an exam and see if he was fast enough.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "Sam wants to try too.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "Sam wants to try too."
+    },
+    {
+        "sent1": "he decided to take an exam and see if he was fast enough.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "They gently poured the jellyfish back into the sea."
+    },
+    {
+        "sent1": "he decided to take an exam and see if he was fast enough.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_1": "He decided to take a look and see if he could find something to eat.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "tom packed his toy car, his ball and his book.",
+        "sent2": "from that day on, they always listened to timmy's wise advice.",
+        "cp_2nd_order": "Now he knew that he should always listen to his mom and stay safe.",
+        "cp_3rd_order_1": "They pick some toys and books and balls from the square.",
+        "cp_3rd_order_2": "From that day on, he always checked his fish before taking them home."
+    },
+    {
+        "sent1": "tom packed his toy car, his ball and his book.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "Tom thought for a moment.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "tom packed his toy car, his ball and his book.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "He also liked to play with his toy switch.",
+        "cp_3rd_order_1": "They share the toy car and play together.",
+        "cp_3rd_order_2": "He also liked to play with his toy switch."
+    },
+    {
+        "sent1": "tom packed his toy car, his ball and his book.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "I want my green dress!",
+        "cp_3rd_order_1": "I want my green dress!",
+        "cp_3rd_order_2": "We want to play!\""
+    },
+    {
+        "sent1": "tom packed his toy car, his ball and his book.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "He picked up the money and gave it to Mia.",
+        "cp_3rd_order_1": "He picked up the car and threw it in the trash.",
+        "cp_3rd_order_2": "It flew over the plant and landed on the strawberry."
+    },
+    {
+        "sent1": "tom packed his toy car, his ball and his book.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "and got to work.",
+        "cp_3rd_order_1": "They pick some toys and books and balls from the square.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "from that day on, they always listened to timmy's wise advice.",
+        "sent2": "tim thought for a moment.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "from that day on, they always listened to timmy's wise advice.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_1": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_2": "Do you want to open it with me?\""
+    },
+    {
+        "sent1": "from that day on, they always listened to timmy's wise advice.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "We want to play!\"",
+        "cp_3rd_order_1": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_2": "We want to play!\""
+    },
+    {
+        "sent1": "from that day on, they always listened to timmy's wise advice.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_1": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_2": "They gently poured the jellyfish back into the sea."
+    },
+    {
+        "sent1": "from that day on, they always listened to timmy's wise advice.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_1": "From that day on, he always checked his fish before taking them home.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "tim thought for a moment.",
+        "sent2": "they all wanted to join in on the celebration!",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "Tom thought for a moment.",
+        "cp_3rd_order_2": "They were ready to go."
+    },
+    {
+        "sent1": "tim thought for a moment.",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "Jenny thought for a moment.",
+        "cp_3rd_order_1": "Tom thought for a moment.",
+        "cp_3rd_order_2": "Sam wants to try too."
+    },
+    {
+        "sent1": "tim thought for a moment.",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "Tom thought for a moment.",
+        "cp_3rd_order_2": "Tom thought for a moment."
+    },
+    {
+        "sent1": "tim thought for a moment.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "Tom thought for a moment.",
+        "cp_3rd_order_1": "Tom thought for a moment.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "they all wanted to join in on the celebration!",
+        "sent2": "she wanted to play too!",
+        "cp_2nd_order": "We want to play!\"",
+        "cp_3rd_order_1": "\"You're welcome, enjoy the show!\"",
+        "cp_3rd_order_2": "We want to play!\""
+    },
+    {
+        "sent1": "they all wanted to join in on the celebration!",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "They each ate a piece and gave the last piece to the butterfly.",
+        "cp_3rd_order_1": "\"You're welcome, enjoy the show!\"",
+        "cp_3rd_order_2": "They gently poured the jellyfish back into the sea."
+    },
+    {
+        "sent1": "they all wanted to join in on the celebration!",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But he could not.",
+        "cp_3rd_order_1": "Then it swam away, back to the lake.",
+        "cp_3rd_order_2": "But he could not."
+    },
+    {
+        "sent1": "she wanted to play too!",
+        "sent2": "the mouse smelled the cheese and went inside the trap.",
+        "cp_2nd_order": "She wanted to touch it.",
+        "cp_3rd_order_1": "Sam wants to try too.",
+        "cp_3rd_order_2": "She ran to the well and leaned over the edge."
+    },
+    {
+        "sent1": "she wanted to play too!",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "She wanted to hide.",
+        "cp_3rd_order_1": "She wanted to hide.",
+        "cp_3rd_order_2": "But she was scared."
+    },
+    {
+        "sent1": "the mouse smelled the cheese and went inside the trap.",
+        "sent2": "so it kept searching.",
+        "cp_2nd_order": "But he could not.",
+        "cp_3rd_order_1": "They gently poured the jellyfish back into the sea.",
+        "cp_3rd_order_2": "But he could not."
+    }
+]

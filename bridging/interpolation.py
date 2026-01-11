@@ -122,3 +122,21 @@ def bezier_2nd_order(v0, v1, v2, t):
         torch.Tensor: Interpolated tensor
     """
     return ((1 - t) ** 2) * v0 + 2 * (1 - t) * t * v1 + (t ** 2) * v2
+
+
+def bezier_3rd_order(v0, v1, v2, v3, t):
+    """
+    3rd Order Bezier Interpolation.
+    Formula: (1-t)^3 * v0 + 3(1-t)^2 * t * v1 + 3(1-t) * t^2 * v2 + t^3 * v3
+    
+    Args:
+        v0 (torch.Tensor): Starting latent tensor (B, C, W)
+        v1 (torch.Tensor): First control point latent tensor (B, C, W)
+        v2 (torch.Tensor): Second control point latent tensor (B, C, W)
+        v3 (torch.Tensor): Ending latent tensor (B, C, W)
+        t (float): Interpolation factor [0.0, 1.0]
+        
+    Returns:
+        torch.Tensor: Interpolated tensor
+    """
+    return ((1 - t) ** 3) * v0 + 3 * ((1 - t) ** 2) * t * v1 + 3 * (1 - t) * (t ** 2) * v2 + (t ** 3) * v3

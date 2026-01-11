@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Visualize `analysis_result.json` by plotting histogram of CHRF scores and
-line charts for delta scores.
+Visualize interpolation quality analysis results.
+Plots progress lines (distance sequences) and standard deviation distributions.
 """
 
 from __future__ import annotations
-
+import os
 import argparse
 import json
 from pathlib import Path
-from typing import Dict, Iterable, List
-
+from typing import Dict, List, Optional
+import numpy as np
 import matplotlib.pyplot as plt
 
 
@@ -19,99 +19,126 @@ def load_analysis(path: Path) -> Dict:
         return json.load(fh)
 
 
-def plot_chrf_hist(chrf_scores: Iterable[Dict[str, float]]) -> None:
-    """Plot histogram of each CHRF score variant on the same axes."""
-    score_names = ["score_1", "score_2", "score_3"]
-    # score_names = ["First Intp","Second Intp", "Third Intp"]
-    # score_names = ['corpus_score']
-    series: Dict[str, List[float]] = {name: [] for name in score_names}
-    for entry in chrf_scores:
-        for name in score_names:
-            value = entry.get(name)
-            if isinstance(value, (int, float)):
-                series[name].append(float(value))
-
-    plt.figure(figsize=(10, 6))
-    for name, values in series.items():
-        if not values:
-            continue
-        print(f"Average score of {name}: {sum(values) / len(values)}")
-        plt.hist(values, bins=50, range=(0,100), alpha=0.3, label=name.replace("_", " ").title(), histtype='stepfilled')
-
-    plt.title("CHRF Score Between Intp Sents")
-    plt.xlabel("Score")
-    plt.ylabel("Frequency")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig('chrf.png')
-
-def plot_delta_lines(delta_scores: Iterable[Iterable[float]], file_suffix: str) -> None:
-    """Plot each delta score sequence as a line."""
-    sequences = [list(seq) for seq in delta_scores]
-    if not sequences:
+def plot_progress(
+    data: List[List[float]], 
+    metric_name: str, 
+    direction: str, 
+    output_dir: Path,
+    base_filename: str
+) -> None:
+    """Plot the sequence of distances (progress) for each interpolation path."""
+    if not data:
+        print(f"No data for {metric_name} ({direction})")
         return
 
     plt.figure(figsize=(12, 6))
-
-    score_0 = []
-    score_1 = []
-    score_2 = []
-    score_3 = []
-    score_4 = []
-
-    for idx, sequence in enumerate(sequences):
-        # label = f"Sample {idx}" if idx < 10 else None  # avoid overcrowding legend
-        plt.plot(list(range(len(sequence))), sequence, alpha=0.6)
-        score_0.append(sequence[0])
-        score_1.append(sequence[1])
-        score_2.append(sequence[2])
-        score_3.append(sequence[3])
-        score_4.append(sequence[4])
-
-    print(f"Average score of 0: {sum(score_0) / len(score_0)}")
-    print(f"Average score of 1: {sum(score_1) / len(score_1)}")
-    print(f"Average score of 2: {sum(score_2) / len(score_2)}")
-    print(f"Average score of 3: {sum(score_3) / len(score_3)}")
-    print(f"Average score of 4: {sum(score_4) / len(score_4)}")
     
-    plt.title("ChrF Score (Compared to Last Sent)")
-    plt.xlabel("Intp Index")
-    plt.ylabel("ChrF")
-    if len(sequences) <= 10:
-        plt.legend()
+    # Plot each path
+    # Use alpha to handle many overlapping lines
+    for seq in data:
+        plt.plot(range(len(seq)), seq, alpha=0.1, color='blue', linewidth=1)
+        
+    # Plot average trend
+    max_len = max(len(s) for s in data)
+    avg_seq = []
+    for i in range(max_len):
+        vals = [s[i] for s in data if i < len(s)]
+        if vals:
+            avg_seq.append(sum(vals) / len(vals))
+            
+    plt.plot(range(len(avg_seq)), avg_seq, color='red', linewidth=2, label='Average')
+
+    title = f"{metric_name.upper()} Progress (from {direction})"
+    plt.title(title)
+    plt.xlabel("Step Index")
+    plt.ylabel(metric_name)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig(f'delta_{file_suffix}.png')
+    
+    out_path = output_dir / f"{base_filename}_progress_{metric_name}_{direction}.png"
+    plt.savefig(out_path)
+    plt.close()
+    print(f"Saved progress plot to {out_path}")
+
+
+def plot_std_distribution(
+    data: List[float], 
+    metric_name: str, 
+    direction: str, 
+    output_dir: Path,
+    base_filename: str
+) -> None:
+    """Plot the distribution format standard deviations."""
+    if not data:
+        print(f"No std data for {metric_name} ({direction})")
+        return
+
+    plt.figure(figsize=(10, 6))
+    
+    plt.hist(data, bins=50, alpha=0.7, color='green', edgecolor='black')
+    
+    avg_std = sum(data) / len(data)
+    plt.axvline(avg_std, color='red', linestyle='dashed', linewidth=1, label=f'Mean: {avg_std:.4f}')
+
+    title = f"Distribution of STD: {metric_name.upper()} (from {direction})"
+    plt.title(title)
+    plt.xlabel("Standard Deviation")
+    plt.ylabel("Frequency")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    
+    out_path = output_dir / f"{base_filename}_std_dist_{metric_name}_{direction}.png"
+    plt.savefig(out_path)
+    plt.close()
+    print(f"Saved std distribution plot to {out_path}")
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Visualize CHRF and delta score distributions."
+        description="Visualize interpolation analysis results."
     )
     parser.add_argument(
-        "--analysis-file",
+        "analysis_file",
         type=Path,
-        default=Path("analysis_result.json"),
-        help="Path to analysis_result.json (default: %(default)s)",
+        help="Path to the analysis json file (e.g. *_analysis.json)",
     )
     args = parser.parse_args()
 
     data = load_analysis(args.analysis_file)
-    chrf_scores = data.get("chrf_scores", [])
-    delta_scores_diff = data.get("delta_scores_diff", [])
-    delta_scores_gpt = data.get("delta_scores_gpt", [])
+    output_dir = args.analysis_file.parent.joinpath("plots")
+    base_filename = args.analysis_file.stem
 
-    if not chrf_scores:
-        raise ValueError("analysis_result.json does not contain 'chrf_scores'.")
-    if not delta_scores_diff:
-        raise ValueError("analysis_result.json does not contain 'delta_scores_diff'.")
-    if not delta_scores_gpt:
-        raise ValueError("analysis_result.json does not contain 'delta_scores_gpt'.")
+    # Metrics to visualize
+    metrics = ['sbert', 'lev', 'chrf']
+    directions = ['start', 'end']
 
-    plot_chrf_hist(chrf_scores)
-    plot_delta_lines(delta_scores_diff, file_suffix="diff")
-    plot_delta_lines(delta_scores_gpt, file_suffix="gpt")
-    # plt.show()
+    for metric in metrics:
+        for direction in directions:
+            # Plot Progress
+            key_progress = f"{metric}_from_{direction}"
+            if key_progress in data:
+                plot_progress(
+                    data[key_progress], 
+                    metric, 
+                    direction, 
+                    output_dir,
+                    base_filename
+                )
 
+            # Plot STD Distribution
+            key_std = f"std_{metric}_from_{direction}"
+            if key_std in data:
+                plot_std_distribution(
+                    data[key_std], 
+                    metric, 
+                    direction, 
+                    output_dir,
+                    base_filename
+                )
+
+    print(type(output_dir))
 
 if __name__ == "__main__":
     main()

@@ -30,7 +30,6 @@ echo "Running batch inference pairs with timestep: $TIMESTEP"
 echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_DIFFU_LAYERS"
 
 # Pass relevant arguments to the python script
-# Note: text1/text2 are not needed as the script generates pairs internally
 srun python inference_pairs.py \
     --noise_t $TIMESTEP \
     --latent_width $LATENT_WIDTH \

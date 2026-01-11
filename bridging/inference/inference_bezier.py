@@ -253,7 +253,7 @@ if __name__ == "__main__":
     # [중요] 이전 코드의 `DiffusionEmbeddings`를 보면, DB 저장 시 t=499로 Noising을 해서 저장했습니다.
     # 따라서 검색할 때도 avg_latent를 t=499로 Noising한 뒤 검색해야 가장 정확합니다.
     
-    t_search = 499 # DB 생성시 사용한 t값과 맞춰야 함
+    t_search = 0 # DB 생성시 사용한 t값과 맞춰야 함
     t_tensor = torch.tensor([t_search]).to(tracer.device)
     
     # Deterministic noise for stable search (or random)

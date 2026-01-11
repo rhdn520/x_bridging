@@ -37,4 +37,5 @@ srun python inference_pairs_bezier.py \
     --kernel_size $KERNEL_SIZE \
     --transformer_d_model $TRANSFORMER_D_MODEL\
     --model_type $MODEL_TYPE \
-    --vectordb_path $VECTORDB_PATH
+    --vectordb_path $VECTORDB_PATH \
+    --bezier_order 3

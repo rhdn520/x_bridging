@@ -9,6 +9,4 @@
 
 
 # Pass all arguments to the python script
-srun python visualize_analysis.py \
-    --grammar-analysis-file "grammar_results/diffusion_intps_-1.json" \
-    --progress-analysis-file "analysis_result/progress_analysis_-1.json"
+srun python visualize_analysis.py ../inference/inference_result/diffusion_bezier_intps_o3_t699_analysis.json
