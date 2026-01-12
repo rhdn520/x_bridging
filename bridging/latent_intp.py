@@ -140,3 +140,4 @@ def bezier_3rd_order(v0, v1, v2, v3, t):
         torch.Tensor: Interpolated tensor
     """
     return ((1 - t) ** 3) * v0 + 3 * ((1 - t) ** 2) * t * v1 + 3 * (1 - t) * (t ** 2) * v2 + (t ** 3) * v3
+
