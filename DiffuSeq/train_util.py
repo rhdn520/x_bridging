@@ -107,7 +107,7 @@ class TrainLoop:
 
         if th.cuda.is_available(): # DEBUG **
             self.use_ddp = True
-            print(dist_util.dev())
+            # print(dist_util.dev())
             self.ddp_model = DDP(
                 self.model,
                 device_ids=[dist_util.dev()],
@@ -174,15 +174,27 @@ class TrainLoop:
             not self.learning_steps
             or self.step + self.resume_step < self.learning_steps
         ):
-            batch, cond = next(self.data)
-            # print("run_loop:::")
-            # print(cond)
-            self.run_step(batch, cond)
+            # print(next(self.data))
+            # batch, cond = next(self.data)
+            # print("batch:::::", flush=True)
+            # print(batch, flush=True)
+            # print("cond:::::", flush=True)
+            # print(cond, flush=True)
+            
+            batch = next(self.data)
+
+
+            # self.run_step(batch, cond)
+            self.run_step(batch)
             if self.step % self.log_interval == 0:
                 logger.dumpkvs()
             if self.eval_data is not None and self.step % self.eval_interval == 0:
-                batch_eval, cond_eval = next(self.eval_data)
-                self.forward_only(batch_eval, cond_eval)
+                # batch_eval, cond_eval = next(self.eval_data)
+                # self.forward_only(batch_eval, cond_eval)
+                
+                batch_eval = next(self.eval_data)
+                self.forward_only(batch_eval)
+                
                 print('eval on validation set')
                 logger.dumpkvs()
             if self.step > 0 and self.step % self.save_interval == 0:
@@ -195,7 +207,7 @@ class TrainLoop:
         if (self.step - 1) % self.save_interval != 0:
             self.save()
 
-    def run_step(self, batch, cond):
+    def run_step(self, batch, cond=None):
         self.forward_backward(batch, cond)
         if self.use_fp16:
             self.optimize_fp16()
@@ -203,24 +215,25 @@ class TrainLoop:
             self.optimize_normal()
         self.log_step()
 
-    def forward_only(self, batch, cond):
+    def forward_only(self, batch, cond=None):
         with th.no_grad():
-            zero_grad(self.model_params)
-            for i in range(0, batch.shape[0], self.microbatch):
-                micro = batch[i: i + self.microbatch].to(dist_util.dev())
-                micro_cond = {
-                    k: v[i: i + self.microbatch].to(dist_util.dev())
-                    for k, v in cond.items()
-                }
-                last_batch = (i + self.microbatch) >= batch.shape[0]
+            # batch = batch['input_ids']
+
+            for i in range(0, batch['input_ids'].shape[0], self.microbatch):
+                micro = batch['input_ids'][i : i + self.microbatch].to(dist_util.dev())
+            
+                # print("micro:::::", micro.shape)
+
+                last_batch = (i + self.microbatch) >= batch['input_ids'].shape[0]
                 t, weights = self.schedule_sampler.sample(micro.shape[0], dist_util.dev())
                 # print(micro_cond.keys())
                 compute_losses = functools.partial(
-                    self.diffusion.training_losses,
-                    self.ddp_model,
-                    micro,
-                    t,
-                    model_kwargs=micro_cond,
+                    self.diffusion.training_losses, #gaussian_diffusion.py -> GaussianDiffusion.training_losses_seq2seq
+                    self.ddp_model, #model
+                    micro, #x_start
+                    t, #t
+                    sent_token_length=batch['sent_token_length'][i : i + self.microbatch].to(dist_util.dev()),
+                    model_kwargs=None, #여기로 input ids 랑 mask를 넘김 
                 )
 
                 if last_batch or not self.use_ddp:
@@ -228,7 +241,6 @@ class TrainLoop:
                 else:
                     with self.ddp_model.no_sync():
                         losses = compute_losses()
-
                 log_loss_dict(
                     self.diffusion, t, {f"eval_{k}": v * weights for k, v in losses.items()}
                 )
@@ -237,21 +249,25 @@ class TrainLoop:
     def forward_backward(self, batch, cond):
         # print("forward_backward")
         zero_grad(self.model_params)
-        for i in range(0, batch.shape[0], self.microbatch):
-            micro = batch[i : i + self.microbatch].to(dist_util.dev())
-            micro_cond = {
-                k: v[i : i + self.microbatch].to(dist_util.dev())
-                for k, v in cond.items()
-            }
-            last_batch = (i + self.microbatch) >= batch.shape[0]
+        
+        # batch = batch['input_ids']
+        # print("forward_backward batch.shape::::", batch.shape, flush=True)
+        
+        for i in range(0, batch['input_ids'].shape[0], self.microbatch):
+            micro = batch['input_ids'][i : i + self.microbatch].to(dist_util.dev())
+
+            # print("micro:::::", micro.shape, flush=True)
+
+            last_batch = (i + self.microbatch) >= batch['input_ids'].shape[0]
             t, weights = self.schedule_sampler.sample(micro.shape[0], dist_util.dev())
             # print(micro_cond.keys())
             compute_losses = functools.partial(
-                self.diffusion.training_losses,
-                self.ddp_model,
-                micro,
-                t,
-                model_kwargs=micro_cond, #여기로 input ids 랑 mask를 넘김 
+                self.diffusion.training_losses, #gaussian_diffusion.py -> GaussianDiffusion.training_losses_seq2seq
+                self.ddp_model, #model
+                micro, #x_start
+                t, #t
+                sent_token_length=batch['sent_token_length'][i : i + self.microbatch].to(dist_util.dev()),
+                model_kwargs=None, #여기로 input ids 랑 mask를 넘김 
             )
 
             if last_batch or not self.use_ddp:

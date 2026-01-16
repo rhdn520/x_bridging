@@ -69,7 +69,8 @@ def load_data_text(
     if loop:
         return infinite_loader(data_loader)
     else:
-        # print(data_loader)
+        print("data loader:", flush=True)
+        print(data_loader, flush=True)
         return iter(data_loader)
 
 def infinite_loader(data_loader):
@@ -236,6 +237,7 @@ def _collate_batch_helper(examples, pad_token_id, max_length, return_mask=False)
     # print(mask_, flush=True)
     for i, example in tqdm(enumerate(examples)):
         curr_len = min(len(example), max_length)
+        # print("curr_len:", curr_len, flush=True)
         result[i][:curr_len] = example[:curr_len]
         mask_[i][:curr_len] = [1] * curr_len
     if return_mask:

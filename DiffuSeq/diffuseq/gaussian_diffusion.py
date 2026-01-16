@@ -609,27 +609,6 @@ class GaussianDiffusion:
              x_start_mean + std * noise
         )
 
-    def _token_discrete_loss(self, x_t, get_logits, input_ids, mask=None, truncate=False, t=None):
-        '''
-        the loss of -log p(w|z_0)
-        :param x_start_mean: word embedding
-        :return: x_0
-        '''
-        reshaped_x_t = x_t
-        logits = get_logits(reshaped_x_t)  # bsz, seqlen, vocab
-        # print(logits.shape)
-        loss_fct = th.nn.CrossEntropyLoss(reduction='none')
-        decoder_nll = loss_fct(logits.view(-1, logits.size(-1)), input_ids.view(-1)).view(input_ids.shape)
-        if mask != None:
-            decoder_nll *= mask
-        # print(decoder_nll.shape)
-        if mask != None:
-            decoder_nll = decoder_nll.sum(dim=-1)/mask.sum(dim=-1)
-        else:
-            decoder_nll = decoder_nll.mean(dim=-1)
-
-        return decoder_nll
-
     def _x0_helper(self, model_output, x, t):
 
         if self.predict_xstart:
@@ -647,7 +626,7 @@ class GaussianDiffusion:
 
         return {'pred_xprev':pred_prev, 'pred_xstart':pred_xstart}
 
-    def training_losses_seq2seq(self, model, x_start, t, model_kwargs=None, noise=None):
+    def training_losses_seq2seq(self, model, x_start, t, sent_token_length, model_kwargs=None, noise=None):
         """
         Compute training losses for a single timestep.
 
@@ -661,16 +640,28 @@ class GaussianDiffusion:
                  Some mean or variance settings may also have other keys.
         """
         x_start_fix = x_start # save the orignal x_0
-        assert 'input_ids' in model_kwargs
-        model_kwargs.pop('input_ids')
-        model_kwargs.pop('input_mask')
-        input_id_x = model_kwargs.pop('input_id_x').to(t.device)
-        input_mask_x = model_kwargs.pop('input_mask_x').to(t.device)
+        # assert 'input_ids' in model_kwargs
+        # print("model_kwargs::::", model_kwargs, flush=True)
+        # model_kwargs.pop('input_ids')
+        # model_kwargs.pop('input_mask')
+        # input_id_x = model_kwargs.pop('input_id_x').to(t.device)
+        # input_mask_x = model_kwargs.pop('input_mask_x').to(t.device)
+
+        # input_id_x = model_kwargs['input_ids'].to(t.device)
+        # input_mask_x = model_kwargs['attention_mask'].to(t.device)
+        
+
+        # print("input_mask_x:::::", input_mask_x, flush=True)
 
         # print("input_ids_mask.shape::::")
         # print(input_ids_mask.shape)
 
-        x_start_mean = model.model.module.get_cls_conditioned_embeds(input_id_x)
+        # print("x_start_fix::::", x_start_fix, flush=True)
+        # # Get the index of first pad token of x_start_fix
+        # print("sent_token_length::::", sent_token_length, flush=True)
+
+
+        x_start_mean = model.model.module.get_cls_conditioned_embeds(x_start)
 
         
         std = _extract_into_tensor(self.sqrt_one_minus_alphas_cumprod,
@@ -686,14 +677,19 @@ class GaussianDiffusion:
             noise = th.randn_like(x_start)
 
         #Noise 구하기
+        input_mask_x = th.ones(x_start.shape[:-1], device=x_start.device)
+        input_mask_x[:,0] = 0  # not adding noise to [CLS] token
         x_t = self.q_sample(x_start, t, noise=noise, mask=input_mask_x) # reparametrization trick.
+
+        # print("x_t.shape::::", x_t.shape, flush=True)
 
         get_logits = model.model.module.get_logits
 
         terms = {}
 
         target = x_start
-        model_output = model(x_t, self._scale_timesteps(t), **model_kwargs)
+        # print("right before model output x_t.shape::::", x_t.shape, flush=True)
+        model_output = model(x_t, self._scale_timesteps(t))
         assert model_output.shape == target.shape == x_start.shape
         terms["mse"] = mean_flat((target - model_output) ** 2)
 
@@ -706,15 +702,61 @@ class GaussianDiffusion:
         out_mean, _, _ = self.q_mean_variance(x_start, th.LongTensor([self.num_timesteps - 1]).to(x_start.device))
         tT_loss =  mean_flat(out_mean ** 2)
 
-        decoder_nll = self._token_discrete_loss(x_start, get_logits, input_id_x) # embedding regularization
-        terms["nll"] = self._token_discrete_loss(model_out_x_start, get_logits, input_id_x, mask=input_mask_x, truncate=True, t=t) # x_0->model_out_x_start
+        # decoder_nll = self._token_discrete_loss(x_start, get_logits, input_id_x) # embedding regularization
+        
+        # only calculate the loss at non-masked positions, and before the first pad token
+        terms["nll"] = self._token_discrete_loss(
+            model_out_x_start,
+            get_logits,
+            x_start_fix,
+            sent_token_length=sent_token_length,
+            mask=input_mask_x,
+            truncate=True,
+            t=t,
+        ) # x_0->model_out_x_start
         #Negative log likelihood 인듯
 
         # assert (model.lm_head.weight == model.word_embedding.weight).all()
 
-        terms["loss"] = terms["mse"] + decoder_nll + tT_loss
+        terms["loss"] = terms["mse"] + terms["nll"] + tT_loss
 
         return terms
+
+
+    def _token_discrete_loss(self, x_t, get_logits, input_ids, mask=None, truncate=False, t=None, sent_token_length=None):
+        '''
+        the loss of -log p(w|z_0)
+        :param x_start_mean: word embedding
+        :return: x_0
+        '''
+        reshaped_x_t = x_t
+        # print("x_t shape in token discrete loss::::", x_t.shape, flush=True)
+        logits = get_logits(reshaped_x_t)  # bsz, seqlen, vocab
+        # print("logits.shape::::", logits.shape, flush=True)
+
+        if(sent_token_length is not None): #first pad index 이전까지만 loss 계산함
+            bsz, seqlen = logits.shape[0], logits.shape[1]
+            new_mask = th.zeros((bsz, seqlen), device=logits.device)
+            for i in range(bsz):
+                new_mask[i, 1:sent_token_length[i]] = 1
+            if mask is not None:
+                mask = mask * new_mask
+            else:
+                mask = new_mask
+
+
+        loss_fn = th.nn.CrossEntropyLoss(reduction='none')
+        decoder_nll = loss_fn(logits.view(-1, logits.size(-1)), input_ids.view(-1)).view(input_ids.shape)
+        if mask != None:
+            decoder_nll *= mask
+        # print(decoder_nll.shape)
+        if mask != None:
+            decoder_nll = decoder_nll.sum(dim=-1)/mask.sum(dim=-1)
+        else:
+            decoder_nll = decoder_nll.mean(dim=-1)
+
+        return decoder_nll
+
 
     def ddim_sample(
         self,

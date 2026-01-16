@@ -6,6 +6,8 @@ import os
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertForMaskedLM, BertConfig, BertTokenizer
 from datasets import load_dataset
+
+
 class SinusoidalPositionEmbeddings(nn.Module):
     """
     Standard sinusoidal time embeddings.
@@ -316,12 +318,32 @@ class DiffusionLM(nn.Module):
         logits = self.cls_head(reconstructed_hidden)
         return logits
 
-    def q_sample(self, x_0, t, noise=None):
+    def q_sample(self, x_start, t, noise=None, start_t=None):
         if noise is None:
-            noise = torch.randn_like(x_0)
-        sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
-        sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
-        return sqrt_alpha_bar_t * x_0 + sqrt_one_minus_alpha_bar_t * noise, noise
+            noise = torch.randn_like(x_start)
+        
+        # If start_t is None, we assume standard diffusion from x_0 (start_t=0 effectively, but formula uses alpha_bar_t directly)
+        if start_t is None:
+             sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
+             sqrt_one_minus_alpha_bar_t = torch.sqrt(1 - self.alpha_bar[t])[:, None, None]
+             return sqrt_alpha_bar_t * x_start + sqrt_one_minus_alpha_bar_t * noise, noise
+        
+        # If start_t is provided, we transition from x_{start_t} to x_t
+        # q(x_t | x_s) = N(x_t; sqrt(alpha_bar_t / alpha_bar_s) * x_s, (1 - alpha_bar_t / alpha_bar_s) * I)
+        # where s = start_t
+        
+        alpha_bar_t = self.alpha_bar[t][:, None, None]
+        alpha_bar_s = self.alpha_bar[start_t][:, None, None]
+        
+        # Calculate coefficients
+        # coeff_mean = sqrt(alpha_bar_t / alpha_bar_s)
+        coeff_mean = torch.sqrt(alpha_bar_t / alpha_bar_s)
+        
+        # coeff_var = 1 - (alpha_bar_t / alpha_bar_s)
+        coeff_var = 1 - (alpha_bar_t / alpha_bar_s)
+        coeff_noise = torch.sqrt(coeff_var)
+        
+        return coeff_mean * x_start + coeff_noise * noise, noise
     
     def q_sample_no_stochastic(self, x_0, t):
         """

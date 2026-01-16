@@ -110,16 +110,18 @@ class DiffusionTracer:
         }
 
     @torch.no_grad()
-    def trace_noising(self, latent_x0, t_val):
+    def trace_noising(self, latent_xs, t, start_t=None):
         """Step 2: Tractable Noising."""
-        batch_size = latent_x0.shape[0]
-        t = torch.full((batch_size,), t_val, device=self.device, dtype=torch.long)
-        
-        noise = torch.randn_like(latent_x0)
-        noisy_latent, used_noise = self.model.q_sample(latent_x0, t, noise)
+        batch_size = latent_xs.shape[0]
+        t = torch.full((batch_size,), t, device=self.device, dtype=torch.long)
+        if start_t is not None:
+            start_t = torch.full((batch_size,), start_t, device=self.device, dtype=torch.long)
+
+        noise = torch.randn_like(latent_xs)
+        noisy_latent, used_noise = self.model.q_sample(latent_xs, t, noise=noise, start_t=start_t)
         
         return {
-            "t": t_val,
+            "t": t,
             "noise": used_noise,
             "noisy_latent": noisy_latent
         }

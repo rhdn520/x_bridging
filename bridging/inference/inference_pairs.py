@@ -12,14 +12,13 @@ from tqdm import tqdm
 # Import functionality from existing project files
 # We assume this script is run from the same directory where 'bridging' package is reachable or inside bridging dir
 # Adjusting python path might be needed if run from root, but assuming standard behavior relative to these files.
-from train import StreamTinyStoriesDataset
+from train import TinyStoriesDataset
 from inference import DiffusionTracer
 from interpolation import linear_interpolate, slerp_channel_wise
 
 # --- Configuration (Copied from gpt.py to ensure identical data setup) ---
 BERT_MODEL_NAME = "bert-base-uncased"
 DATA_SPLIT = "validation"
-MAX_SAMPLES = 1000
 MAX_SEQ_LEN = 128
 SKIP_SAMPLES = 10000
 BATCH_SIZE = 1
@@ -31,10 +30,9 @@ def load_data(tokenizer):
     Logic copied from gpt.py to ensure identical data retrieval.
     """
     print("Loading dataset...", flush=True)
-    test_dataset = StreamTinyStoriesDataset(
+    test_dataset = TinyStoriesDataset(
         tokenizer,
         split=DATA_SPLIT,
-        max_samples=MAX_SAMPLES,
         max_seq_len=MAX_SEQ_LEN,
         skip_samples=SKIP_SAMPLES
     )
@@ -87,21 +85,24 @@ def interpolate_pair(tracer, sent1, sent2, args):
     result_sequence = [sent1]
     
     # 2. Interpolation Logic
+    interpolater = linear_interpolate if args.interpolation_type == "lerp" else slerp_channel_wise
     if args.noise_t >= 0:
         # Standard Diffusion Interpolation (Noisy Space)
-        # Noise the latents to timestep t
-        noise_1 = tracer.trace_noising(latent_1, t_val=args.noise_t)['noisy_latent']
-        noise_2 = tracer.trace_noising(latent_2, t_val=args.noise_t)['noisy_latent']
+        # Noise the latents to intp noise timestep
+        noise_1 = tracer.trace_noising(latent_1, t=args.intp_noise_t)['noisy_latent']
+        noise_2 = tracer.trace_noising(latent_2, t=args.intp_noise_t)['noisy_latent']
         
         for alpha in alphas:
             # Spherical Linear Interpolation in noisy space
-            intp_noisy = slerp_channel_wise(noise_1, noise_2, alpha)
+            intp_noisy = interpolater(noise_1, noise_2, alpha)
+
+            intp_noisy = tracer.trace_noising(intp_noisy, t=args.intp_noise_t, start_t=args.intp_noise_t)['noisy_latent']
             
             # Denoise (Generate) from the interpolated noisy state
             # We use the tracer's generation function but only need the final text
             history = tracer.trace_generation(
                 starting_noise=intp_noisy,
-                start_step=args.noise_t
+                start_step=args.intp_noise_t
             )
             # failure handling could be added here, but trace_generation is robust
             text_est = history[-1]['text_estimate']
@@ -109,8 +110,7 @@ def interpolate_pair(tracer, sent1, sent2, args):
             
     else:
         # Zero-Noise / Autoencoder Interpolation (Clean Latent Space)
-        interpolater = linear_interpolate if args.interpolation_type == "lerp" else slerp_channel_wise
-        
+
         for alpha in alphas:
             intp_latent = interpolater(latent_1, latent_2, alpha)
             
@@ -138,6 +138,7 @@ def main():
     parser.add_argument("--transformer_d_model", type=int, default=512, help="D model size for transformer model")
     
     # Inference Args
+    parser.add_argument("--intp_noise_t", type=int, default=1000, help="Noise timestep when interpolation happens")
     parser.add_argument("--noise_t", type=int, default=790, help="Timestep to start denoising from (-1 for autoencoder mode)")
     parser.add_argument("--interpolation_type", type=str, default="lerp", choices=["lerp", "slerp"])
     parser.add_argument("--output_file", type=str, default="bridging/diffusion_intps.json", help="Path to save JSON results")

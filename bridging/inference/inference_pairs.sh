@@ -2,12 +2,13 @@
 #SBATCH --job-name=x_bridging_pairs
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --nodelist=n03
+#SBATCH --nodelist=n04
 #SBATCH --time=1-23:59:59
 #SBATCH --mem=16000MB
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
+INTP_TIMESTEPS=599
 TIMESTEP=799
 
 # Usage: sbatch inference_pairs.sh [TIMESTEP]
@@ -31,6 +32,7 @@ echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_
 
 # Pass relevant arguments to the python script
 srun python inference_pairs.py \
+    --intp_noise_t $INTP_TIMESTEPS \
     --noise_t $TIMESTEP \
     --latent_width $LATENT_WIDTH \
     --latent_channels $LATENT_CHANNELS \

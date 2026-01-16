@@ -88,8 +88,8 @@ class TransformerNetModel(nn.Module):
             del temp_bert.pooler
 
         elif init_pretrained == 'no':
-            print("config:::")
-            print(config)
+            # print("config:::")
+            # print(config)
             self.input_transformers = BertEncoder(config)
 
             self.register_buffer("position_ids", torch.arange(config.max_position_embeddings).expand((1, -1)))
@@ -144,6 +144,7 @@ class TransformerNetModel(nn.Module):
         :param timesteps: a 1-D batch of timesteps.
         :return: an [N x C x ...] Tensor of outputs.
         """
+        # print("Hello from TransformerNetModel forward", flush=True)
         emb_t = self.time_embed(timestep_embedding(timesteps, self.hidden_t_dim))
 
         if self.input_dims != self.hidden_size:

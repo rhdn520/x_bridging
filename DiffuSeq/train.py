@@ -5,8 +5,9 @@ Train a diffusion model on images.
 import argparse
 import json, torch, os
 import numpy as np
+# from compression.zstd import train_dict
 from diffuseq.utils import dist_util, logger
-from diffuseq.text_datasets import load_data_text
+from diffuseq.text_datasets import load_data_text, infinite_loader
 from diffuseq.step_sample import create_named_schedule_sampler
 from basic_utils import (
     load_defaults_config,
@@ -14,11 +15,17 @@ from basic_utils import (
     args_to_dict,
     add_dict_to_argparser,
     load_model_emb,
-    load_tokenizer
+    load_tokenizer 
 )
 from train_util import TrainLoop
 from transformers import set_seed
 import wandb
+import sys
+
+from hf_dataset import TinyStoriesDataset
+from torch.utils.data import Dataset, DataLoader, DistributedSampler
+from torch.nn.parallel import DistributedDataParallel as DDP
+from transformers import AutoTokenizer
 
 ### custom your wandb setting here ###
 # os.environ["WANDB_API_KEY"] = ""
@@ -38,27 +45,48 @@ def main():
     logger.configure()
     logger.log("### Creating data loader...")
 
-    tokenizer = load_tokenizer(args)
-    model_weight, tokenizer = load_model_emb(args, tokenizer)
+    tokenizer = AutoTokenizer.from_pretrained(args.config_name)
+    # Ensure vocab_size is populated when skipping load_tokenizer().
+    args.vocab_size = tokenizer.vocab_size
+    # tokenizer = load_tokenizer(args)
+    # model_weight, tokenizer = load_model_emb(args, tokenizer)
 
-    data = load_data_text(
-        batch_size=args.batch_size,
-        seq_len=args.seq_len,
-        data_args = args,
-        loaded_vocab=tokenizer,
-        model_emb=model_weight # use model's weights as init
-    )
-    next(data)
-    
-    data_valid = load_data_text(
-        batch_size=args.batch_size,
-        seq_len=args.seq_len,
-        data_args=args,
-        split='valid',
-        deterministic=True,
-        loaded_vocab=tokenizer,
-        model_emb=model_weight # using the same embedding wight with tranining data
-    )
+    # train_loader = load_data_text(
+    #     batch_size=args.batch_size,
+    #     seq_len=args.seq_len,
+    #     data_args = args,
+    #     loaded_vocab=tokenizer,
+    #     model_emb=model_weight # use model's weights as init
+    # )
+    # print(next(train_loader))
+        
+    # val_loader = load_data_text(
+    #     batch_size=args.batch_size,
+    #     seq_len=args.seq_len,
+    #     data_args=args,
+    #     split='valid',
+    #     deterministic=True,
+    #     loaded_vocab=tokenizer,
+    #     model_emb=model_weight # using the same embedding wight with tranining data
+    # )
+    # Data Limits
+    TRAIN_SAMPLES = 300
+    VAL_SAMPLES = 10
+    TEST_SAMPLES = 10
+    MAX_LEN = args.seq_len
+
+    # Load Data (Identical on all ranks)
+    train_dataset = TinyStoriesDataset(tokenizer, split="train", dataset_size=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
+    val_dataset = TinyStoriesDataset(tokenizer, split="validation", dataset_size=VAL_SAMPLES, skip_samples=0, max_seq_len=MAX_LEN)
+
+    # Samplers handles the splitting
+    dist_sampler_train = DistributedSampler(train_dataset, shuffle=True, drop_last=True)
+    dist_sampler_val = DistributedSampler(val_dataset, shuffle=False, drop_last=False)
+
+    # DataLoaders (num_workers > 0 is important for speed)
+    train_loader = infinite_loader(DataLoader(train_dataset, batch_size=args.batch_size, sampler=dist_sampler_train, num_workers=1, pin_memory=True))
+    val_loader = infinite_loader(DataLoader(val_dataset, batch_size=args.batch_size, sampler=dist_sampler_val, num_workers=1, pin_memory=True))
+
 
     print('#'*30, 'size of vocab', args.vocab_size)
 
@@ -93,7 +121,7 @@ def main():
     TrainLoop(
         model=model,
         diffusion=diffusion,
-        data=data,
+        data=train_loader,
         batch_size=args.batch_size,
         microbatch=args.microbatch,
         lr=args.lr,
@@ -108,7 +136,7 @@ def main():
         learning_steps=args.learning_steps,
         checkpoint_path=args.checkpoint_path,
         gradient_clipping=args.gradient_clipping,
-        eval_data=data_valid,
+        eval_data=val_loader,
         eval_interval=args.eval_interval
     ).run_loop()
 
