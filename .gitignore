@@ -18,6 +18,6 @@ Diffusion-LM/datasets
 *.out
 *.env
 .env
-**/inference/plots
+**/plots
 **/vllm_interpolation_outputs.json
 /home/seungwoochoi/data/x_bridging/bridging/vllm_interpolation_outputs.json
