@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=x_bridging
+#SBATCH --job-name=intp_vis
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
 #SBATCH --time=1-23:59:59
@@ -8,7 +8,7 @@
 
 
 PROJ_METHOD="umap"
-INTP_METHOD="slerp"
+INTP_METHOD="lerp"
 
 python visualize_interpolation.py \
     --model_path ../train/model_outputs/transformer_1024_1_8_1000_td1024_dtypetinystories.pth \

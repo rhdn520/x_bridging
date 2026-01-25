@@ -146,14 +146,17 @@ def interpolate_path(model, tokenizer, sent1, sent2, device, method='lerp', step
     if not isinstance(z2, torch.Tensor):
         z2 = torch.tensor(z2).to(device)
     
-    # Reshape if necessary (should be B,C,W or similar, get_latent_from_sent usually returns Squeezed)
-    if len(z1.shape) == 1:
-        # If flattened, reshape back to (1, C, W)? 
-        # Actually get_latent_from_sent usually returns tensor from model.get_latents which is (B, C, W).
-        # Let's check get_latent_from_sent in original file. It does `return latent_vector.squeeze()`.
-        # If batch=1, and channels=1, shape might be (1, W) or just (W) or (C,W).
-        # Linear interpolate works on any shape.
-        pass
+    # Reshape to (B, C, W) for slerp_channel_wise (requires 3 dims: b, c, w)
+    # get_latent_from_sent returns .squeeze(), so it could be (W,) or (C, W)
+    if z1.ndim == 1:
+        z1 = z1.unsqueeze(0).unsqueeze(0) # (W) -> (1, 1, W)
+    elif z1.ndim == 2:
+        z1 = z1.unsqueeze(0) # (C, W) -> (1, C, W)
+        
+    if z2.ndim == 1:
+        z2 = z2.unsqueeze(0).unsqueeze(0)
+    elif z2.ndim == 2:
+        z2 = z2.unsqueeze(0)
 
     path_latents = []
     alphas = np.linspace(0, 1, steps)
@@ -171,6 +174,11 @@ def interpolate_path(model, tokenizer, sent1, sent2, device, method='lerp', step
         print(f"Bezier 2nd Control Point: {control_text}")
         
         z_v1 = get_latent_from_sent(control_text, model, tokenizer, device)
+        # Ensure z_v1 shape
+        if z_v1.ndim == 1:
+            z_v1 = z_v1.unsqueeze(0).unsqueeze(0)
+        elif z_v1.ndim == 2:
+            z_v1 = z_v1.unsqueeze(0)
         
         for alpha in alphas:
             z_intp = bezier_2nd_order(z1, z_v1, z2, alpha)
@@ -191,6 +199,8 @@ def interpolate_path(model, tokenizer, sent1, sent2, device, method='lerp', step
         cp1_text = results_p1[0][0].page_content
         print(f"Bezier 3rd Control Point 1: {cp1_text}")
         z_cp1 = get_latent_from_sent(cp1_text, model, tokenizer, device)
+        if z_cp1.ndim == 1: z_cp1 = z_cp1.unsqueeze(0).unsqueeze(0)
+        elif z_cp1.ndim == 2: z_cp1 = z_cp1.unsqueeze(0)
         
         t2 = 2.0 / 3.0
         p2_latent = (1 - t2) * z1 + t2 * z2
@@ -200,6 +210,8 @@ def interpolate_path(model, tokenizer, sent1, sent2, device, method='lerp', step
         cp2_text = results_p2[0][0].page_content
         print(f"Bezier 3rd Control Point 2: {cp2_text}")
         z_cp2 = get_latent_from_sent(cp2_text, model, tokenizer, device)
+        if z_cp2.ndim == 1: z_cp2 = z_cp2.unsqueeze(0).unsqueeze(0)
+        elif z_cp2.ndim == 2: z_cp2 = z_cp2.unsqueeze(0)
         
         for alpha in alphas:
             z_intp = bezier_3rd_order(z1, z_cp1, z_cp2, z2, alpha)

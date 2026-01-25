@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-INTP_TIMESTEPS=0
-TIMESTEP=0
+INTP_TIMESTEPS=699
+TIMESTEP=699
 
 # Usage: sbatch inference_pairs.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -24,7 +24,9 @@ KERNEL_SIZE=5
 TRANSFORMER_D_MODEL=1024
 MODEL_TYPE="transformer"
 
-OUTPUT_FILE="inference_result/diffusion_intps_${MODEL_TYPE}_${TIMESTEP}_original.json"
+INTERPOLATION_TYPE="bezier_3rd"
+
+OUTPUT_FILE="inference_result/diffusion_intps_${MODEL_TYPE}_${TIMESTEP}_${INTERPOLATION_TYPE}.json"
 
 echo "Running batch inference pairs with timestep: $TIMESTEP"
 echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_DIFFU_LAYERS"
@@ -39,6 +41,6 @@ srun python inference_pairs.py \
     --diffu_timesteps $DIFFU_TIMESTEPS \
     --kernel_size $KERNEL_SIZE \
     --transformer_d_model $TRANSFORMER_D_MODEL\
-    --interpolation_type "lerp" \
+    --interpolation_type "$INTERPOLATION_TYPE" \
     --output_file "$OUTPUT_FILE" \
     --model_type "$MODEL_TYPE"
