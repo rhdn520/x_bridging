@@ -29,8 +29,8 @@ torchrun --nproc_per_node=1 --master_port=12233 train.py \
     --train_samples 300 \
     --val_samples 10 \
     --test_samples 10 \
-    --dataset_type tinystories \
+    --dataset_type c4 \
     --interpolation_data_path ../dataset/vllm_interpolation_outputs.json \
-    --resume \
-    --resume_path /home/seungwoochoi2/data/x_bridging/bridging/train/model_outputs/transformer_1024_1_8_1000_d1024.pth \
-    --save_every_epoch \
+    # --resume \
+    # --resume_path /home/seungwoochoi2/data/x_bridging/bridging/train/model_outputs/transformer_1024_1_8_1000_d1024.pth \
+    # --save_every_epoch \

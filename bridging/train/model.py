@@ -230,7 +230,7 @@ class DiffusionLM(nn.Module):
         
         # Freeze BERT
         for param in self.bert.parameters():
-            param.requires_grad = False
+            param.requires_grad = True
         for param in self.cls_head.parameters():
             param.requires_grad = True
 

@@ -18,7 +18,7 @@ from datasets import load_dataset
 # Import your custom model components
 # Ensure 'model.py' is in the same directory or python path
 from model import DiffusionLM, decode_token_ids
-from custom_dataset import TinyStoriesDataset, InterpolationDataset
+from custom_dataset import C4Dataset, TinyStoriesDataset, InterpolationDataset
 
 # --- DDP Helper Functions ---
 def setup_ddp():
@@ -166,6 +166,17 @@ if __name__ == "__main__":
         train_dataset = InterpolationDataset(tokenizer, data_path=args.interpolation_data_path, dataset_size=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
         val_dataset = InterpolationDataset(tokenizer, data_path=args.interpolation_data_path, dataset_size=VAL_SAMPLES, skip_samples=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
         test_dataset = InterpolationDataset(tokenizer, data_path=args.interpolation_data_path, dataset_size=TEST_SAMPLES, skip_samples=TRAIN_SAMPLES + VAL_SAMPLES, max_seq_len=MAX_LEN)
+    elif args.dataset_type == 'c4':
+        # For interpolation, we might have a single file that we need to split
+        # We use the same generic logic of skip_samples/dataset_size to partition it if needed
+        # Or if the user wants to use the SAME file for all, they should adjust args.
+        # Here assuming we partition the single file similar to above if it's large enough, 
+        # or simple if the user provides distinct paths (but we only have one path arg now).
+        # We will use the same partitioning logic (skip/size) on the single loaded list.
+        
+        train_dataset = C4Dataset(tokenizer, split="train", dataset_size=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
+        val_dataset = C4Dataset(tokenizer, split="validation", dataset_size=VAL_SAMPLES, skip_samples=TRAIN_SAMPLES, max_seq_len=MAX_LEN)
+        test_dataset = C4Dataset(tokenizer, split="validation", dataset_size=TEST_SAMPLES, skip_samples=TRAIN_SAMPLES + VAL_SAMPLES, max_seq_len=MAX_LEN)
 
     # Samplers handles the splitting
     dist_sampler_train = DistributedSampler(train_dataset, shuffle=True, drop_last=True)
