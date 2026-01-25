@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import math
 import os
 import nltk
+nltk.download('punkt_tab')
 import torch.distributed as dist
 from torch.utils.data import Dataset, DataLoader, DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP

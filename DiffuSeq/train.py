@@ -1,7 +1,8 @@
 """
 Train a diffusion model on images.
 """
-
+from dotenv import load_dotenv
+load_dotenv()
 import argparse
 import json, torch, os
 import numpy as np
@@ -70,9 +71,9 @@ def main():
     #     model_emb=model_weight # using the same embedding wight with tranining data
     # )
     # Data Limits
-    TRAIN_SAMPLES = 300
-    VAL_SAMPLES = 10
-    TEST_SAMPLES = 10
+    TRAIN_SAMPLES = 3000000
+    VAL_SAMPLES = 10000
+    TEST_SAMPLES = 10000
     MAX_LEN = args.seq_len
 
     # Load Data (Identical on all ranks)

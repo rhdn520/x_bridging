@@ -2,14 +2,13 @@
 #SBATCH --job-name=x_bridging_pairs
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --nodelist=n04
 #SBATCH --time=1-23:59:59
 #SBATCH --mem=16000MB
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
 INTP_TIMESTEPS=599
-TIMESTEP=799
+TIMESTEP=599
 
 # Usage: sbatch inference_pairs.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -25,7 +24,7 @@ KERNEL_SIZE=5
 TRANSFORMER_D_MODEL=1024
 MODEL_TYPE="transformer"
 
-OUTPUT_FILE="inference_result/diffusion_intps_${MODEL_TYPE}_${TIMESTEP}.json"
+OUTPUT_FILE="inference_result/diffusion_intps_${MODEL_TYPE}_${TIMESTEP}_original.json"
 
 echo "Running batch inference pairs with timestep: $TIMESTEP"
 echo "Model config: Width=$LATENT_WIDTH, Channels=$LATENT_CHANNELS, Layers=$NUM_DIFFU_LAYERS"

@@ -1,33 +1,35 @@
-import torch
-import torch.nn.functional as F
-from transformers import BertTokenizer
-import matplotlib.pyplot as plt
-import os
-import argparse  # Added for command line arguments
-
-# Import the model class from your training script
-# Ensure diffusion_lm.py is in the same directory
 import sys
-sys.path.append("../")
-from model import DiffusionLM
-from interpolation import linear_interpolate, slerp_channel_wise
+# sys.path.append("../")
+sys.path.append("../train/")
+sys.path.append("../utils/")
+import argparse
+import json
+import os
+import random
+import torch
+from torch.utils.data import DataLoader
+from transformers import BertTokenizer
+from tqdm import tqdm
+
+from custom_dataset import TinyStoriesDataset
+from latent_intp import linear_interpolate, slerp_channel_wise
+from model import DiffusionLM, Putter
 
 class DiffusionTracer:
-    def __init__(self, model_path, args, device=None):
+    def __init__(self, model_path, putter_path, args, device=None):
         self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device: {self.device}")
         
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file {model_path} not found.")
-            
-        print(f"Loading checkpoint from {model_path}...")
-        checkpoint = torch.load(model_path, map_location=self.device)
         
-        # Logic to handle both New (Config+Weights) and Old (Weights Only) checkpoints
-        if isinstance(checkpoint, dict) and 'config' in checkpoint:
+        try:
+            print(f"Loading checkpoint from {model_path}...")
+            checkpoint = torch.load(model_path, map_location=self.device)
+            
             print(">> Found configuration in checkpoint. Using saved architecture parameters.")
             config = checkpoint['config']
-            
+            print("config:", config)
             # Initialize model using the SAVED config
             self.model = DiffusionLM(
                 bert_model_name=config.get('bert_model_name', args.model_name),
@@ -45,31 +47,31 @@ class DiffusionTracer:
             
             # Use the tokenizer from the config
             self.tokenizer = BertTokenizer.from_pretrained(config.get('bert_model_name', args.model_name))
-            
-        else:
-            print(">> No config found in checkpoint. Using command-line arguments for architecture.")
-            # Fallback: Initialize using CLI args
-            self.model = DiffusionLM(
-                bert_model_name=args.model_name,
-                max_seq_len=args.max_len,
-                latent_channels=args.latent_channels,
-                latent_width=args.latent_width,
-                timesteps=args.diffu_timesteps,
-                num_diffu_layers=args.num_diffu_layers,
-                kernel_size=3,
-                model_type=args.model_type, # Use CLI arg if no config
-            )
-            
-            # Handle standard state_dict or nested state_dict
-            if isinstance(checkpoint, dict) and 'state_dict' in checkpoint:
-                self.model.load_state_dict(checkpoint['state_dict'])
-            else:
-                self.model.load_state_dict(checkpoint)
                 
-            self.tokenizer = BertTokenizer.from_pretrained(args.model_name)
+            self.model.to(self.device)
+            self.model.eval()
+        except KeyError:
+            raise KeyError("Checkpoint is missing required keys. Ensure it contains 'state_dict' and 'config'.")
+        
+        self.putter = None        
+        if( putter_path is not None and putter_path != ""):
+            try:
+                print(f"Loading Putter from {putter_path}...")
+                checkpoint_putter = torch.load(putter_path, map_location=self.device)
+                config = checkpoint_putter['args']
+                print("Putter config:", config)
+                self.putter = Putter(
+                    input_dim = self.model.latent_channels * self.model.latent_width,
+                    hidden_dim = config['putter_hidden_dim'],
+                    output_dim = self.model.latent_channels * self.model.latent_width,
+                    layer_num = config['putter_layers']
+                )
+                self.putter.load_state_dict(checkpoint_putter['model_state_dict'])
+                self.putter.to(self.device)
+                self.putter.eval()
+            except:
+                raise FileNotFoundError(f"Putter file {putter_path} not found.")
             
-        self.model.to(self.device)
-        self.model.eval()
 
     def decode_token_ids(self, token_ids):
         """Helper to decode IDs to text, stripping special tokens."""
@@ -112,6 +114,7 @@ class DiffusionTracer:
     @torch.no_grad()
     def trace_noising(self, latent_xs, t, start_t=None):
         """Step 2: Tractable Noising."""
+        # print("latent_xs.shape:", latent_xs.shape)
         batch_size = latent_xs.shape[0]
         t = torch.full((batch_size,), t, device=self.device, dtype=torch.long)
         if start_t is not None:
@@ -129,7 +132,8 @@ class DiffusionTracer:
     @torch.no_grad()
     def trace_generation(self, starting_noise=None, start_step=None, callback=None):
         """Step 3: Tractable Generation (Reverse Diffusion)."""
-        batch_size = 1
+        batch_size = starting_noise.shape[0] if starting_noise is not None else 1
+        # print(f"starting_noise.shape: {starting_noise.shape if starting_noise is not None else 'None'}")
         history = []
         
         if start_step is None:
@@ -149,6 +153,7 @@ class DiffusionTracer:
             
             predicted_noise = self.model.denoise_model(x, t)
             x_0_pred = self.model.predict_x0_from_noise(x, t, predicted_noise)
+            x_0_pred = self.putter(x_0_pred.view(batch_size, -1)).view_as(x_0_pred) if self.putter is not None else x_0_pred
             
             alpha_t = self.model.alpha[t][:, None, None]
             alpha_bar_t = self.model.alpha_bar[t][:, None, None]
@@ -165,14 +170,17 @@ class DiffusionTracer:
             
             logits = self.model.decode_latents(x_0_pred)
             pred_ids = torch.argmax(logits, dim=-1)
-            text_estimate = self.decode_token_ids(pred_ids[0])
+            # print(f"Step {i}: pred_ids shape: {pred_ids.shape}")
+            text_estimate = [self.decode_token_ids(pred_ids[i]) for i in range(pred_ids.size(0))]
             
             step_data = {
                 "step": i,
                 "x_t": x.clone(),
                 "pred_noise": predicted_noise.clone(),
                 "x_0_pred": x_0_pred.clone(),
-                "text_estimate": text_estimate
+                "x_0_pred_putt": x_0_pred.clone() if self.putter is not None else None,
+                "text_estimate": text_estimate,
+                "putter_used": self.putter is not None
             }
             
             history.append(step_data)
@@ -206,6 +214,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_type", type=str, default="conv", help="Model type: conv or transformer")
     parser.add_argument("--kernel_size", type=int, default=3, help="Kernel size for conv model")
     parser.add_argument("--transformer_d_model", type=int, default=512, help="D model size for transformer model")
+    parser.add_argument("--putter_path", type=str, default="", help="Path to pre-trained Putter model (if any)")
     
     # Inference specific args
     parser.add_argument("--noise_t", type=int, default=800, help="Timestep to start denoising/interpolation from. Set to -1 for direct Autoencoder reconstruction.")
@@ -217,13 +226,17 @@ if __name__ == "__main__":
     if args.model_type == "conv":
         model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_k{args.kernel_size}.pth"
     elif args.model_type == "transformer":
-        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_{args.transformer_d_model}.pth"
-    model_path = os.path.join("../model_outputs", model_filename)
+        # model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_{args.transformer_d_model}.pth"
+        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_td{args.transformer_d_model}_dtypeinterpolation.pth"
+        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_td{args.transformer_d_model}_dtypetinystories.pth"
+        
+    model_path = os.path.join("../train/model_outputs", model_filename)
     MODEL_PATH = model_path
     print(f"Loading model from: {MODEL_PATH}")
 
     # Initialize Tracer with args
-    tracer = DiffusionTracer(MODEL_PATH, args)
+    tracer = DiffusionTracer(MODEL_PATH, args.putter_path, args)
+    putter = Putter(args.latent_width, args.latent_width*2, args.latent_width)
 
     # --- Projection ---
     proj_data_1 = tracer.trace_projection(args.text1)    
@@ -259,7 +272,7 @@ if __name__ == "__main__":
         # In this mode, we interpolate the CLEAN latents directly
         for i in range(1, 10):
             intp_latent = interpolater(latent_vector_1, latent_vector_2, i / 10)
-            
+
             logits_intp = tracer.model.decode_latents(intp_latent)
             pred_ids_intp = torch.argmax(logits_intp, dim=-1)
             text_intp = tracer.decode_token_ids(pred_ids_intp[0])
@@ -276,8 +289,8 @@ if __name__ == "__main__":
         print(f"    2: '{args.text2}'")
 
         # 1. Noise the original latents individually
-        noise_data_1 = tracer.trace_noising(latent_vector_1, t_val=args.noise_t)
-        noise_data_2 = tracer.trace_noising(latent_vector_2, t_val=args.noise_t)
+        noise_data_1 = tracer.trace_noising(latent_vector_1, t=args.noise_t)
+        noise_data_2 = tracer.trace_noising(latent_vector_2, t=args.noise_t)
         noisy_input_1 = noise_data_1['noisy_latent']
         noisy_input_2 = noise_data_2['noisy_latent']
 
@@ -301,10 +314,10 @@ if __name__ == "__main__":
 
         print("\n--- Interpolation Results ---")
         # 3. Interpolation Loop
-        alphas = [0.25, 0.5, 0.75]
+        alphas = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
         for alpha in alphas:
             # Interpolate between the NOISY vectors (Channel-wise SLERP)
-            intp_noised_latent = slerp_channel_wise(noisy_input_1, noisy_input_2, alpha)
+            intp_noised_latent = interpolater(noisy_input_1, noisy_input_2, alpha)
 
             history_repair = tracer.trace_generation(
                 starting_noise=intp_noised_latent, 
@@ -312,4 +325,4 @@ if __name__ == "__main__":
                 callback=progress_callback
             )
 
-            print(f"Alpha {alpha:.2f}: {history_repair[-1]['text_estimate']}")
+            print(f"{history_repair[-1]['text_estimate']}")

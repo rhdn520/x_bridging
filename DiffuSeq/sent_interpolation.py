@@ -17,8 +17,8 @@ from bridging.make_startpool import process_jsonl_file
 import sys
 # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # sys.path.append("../")
-sys.path.append("/home/seungwoochoi/data/x_bridging/bridging")
-from latent_intp import linear_interpolate, slerp_channel_wise
+sys.path.append("/home/seungwoochoi2/data/x_bridging/bridging")
+from utils.latent_intp import linear_interpolate, slerp_channel_wise
 
 import time
 from diffuseq.utils import dist_util, logger
@@ -105,8 +105,8 @@ def main():
     model_kwargs = {}
 
 
-    text_0 = ["What is your name?"]
-    text_1 = ["I don't like hot coffee."]
+    text_0 = ["Sally was sad."]
+    text_1 = ["He was very happy."]
     
     intp_paths = []
 

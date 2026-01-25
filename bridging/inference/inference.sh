@@ -2,13 +2,12 @@
 #SBATCH --job-name=x_bridging
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --nodelist=n01
 #SBATCH --time=1-23:59:59
 #SBATCH --mem=16000MB
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-TIMESTEP=799
+TIMESTEP=599
 
 # Usage: sbatch run_inference.sh [TIMESTEP]
 if [ ! -z "$1" ]; then
@@ -16,8 +15,8 @@ if [ ! -z "$1" ]; then
 fi
 
 # Input Sentences
-TEXT1="she reached for the flower, but the creature realized something else."
-TEXT2="she extended her hand to take it, but the creature realized something else."
+TEXT1="I was very happy."
+TEXT2="I was so sad."
 
 # Model Hyperparameters (Must match the saved model filename)
 LATENT_WIDTH=1024
@@ -44,5 +43,6 @@ srun python inference.py \
     --diffu_timesteps $DIFFU_TIMESTEPS \
     --kernel_size $KERNEL_SIZE \
     --transformer_d_model $TRANSFORMER_D_MODEL\
-    --interpolation_type "slerp" \
-    --model_type $MODEL_TYPE
+    --interpolation_type "lerp" \
+    --model_type $MODEL_TYPE \
+    # --putter_path "/home/seungwoochoi2/data/x_bridging/bridging/train/checkpoints_v2/best_putter.pth" \

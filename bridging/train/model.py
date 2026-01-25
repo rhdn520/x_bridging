@@ -1,11 +1,16 @@
+import os
+import sys
+sys.path.append("../")
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import math
-import os
 from torch.utils.data import Dataset, DataLoader
 from transformers import BertForMaskedLM, BertConfig, BertTokenizer
 from datasets import load_dataset
+from levenshtein_distance import Levenshtein
+from utils.latent_intp import linear_interpolate, slerp
+
 
 
 class SinusoidalPositionEmbeddings(nn.Module):
@@ -211,6 +216,7 @@ class DiffusionLM(nn.Module):
         self.reg_weight = reg_weight
         self.time_bias = time_bias
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.tokenizer = BertTokenizer.from_pretrained(bert_model_name)
     
         # 1. BERT Setup
         print(f"Loading {bert_model_name}...")
@@ -322,6 +328,8 @@ class DiffusionLM(nn.Module):
         if noise is None:
             noise = torch.randn_like(x_start)
         
+        # print(f"x_start.shape: {x_start.shape}, t.shape: {t.shape}", flush=True)
+        
         # If start_t is None, we assume standard diffusion from x_0 (start_t=0 effectively, but formula uses alpha_bar_t directly)
         if start_t is None:
              sqrt_alpha_bar_t = torch.sqrt(self.alpha_bar[t])[:, None, None]
@@ -422,6 +430,87 @@ class DiffusionLM(nn.Module):
             "latent_std": x_0.std().item()
         }
 
+    def _calc_alpha_g(self, text_start, text_intp, text_end):
+        """
+        Calculate alpha_g for interpolation point based on Edit Distances.(Levenshtein)
+        alpha_g = ED(x_start, x_intp) / (ED(x_start, x_end) + ED(x_start, x_intp))
+        """
+        ed_start_intp = []
+        ed_start_end = []
+        
+        batch_size = len(text_start)
+        for i in range(batch_size):
+            ed_si = Levenshtein(text_start[i], text_intp[i]).distance()
+            ed_se = Levenshtein(text_start[i], text_end[i]).distance()
+            ed_start_intp.append(ed_si)
+            ed_start_end.append(ed_se)
+        
+        ed_start_intp = torch.tensor(ed_start_intp, device=self.device, dtype=torch.float)
+        ed_start_end = torch.tensor(ed_start_end, device=self.device, dtype=torch.float)
+        alpha_g = ed_start_intp / (ed_start_end + ed_start_intp + 1e-7)
+        return alpha_g
+
+    def forward_interpolation(self, intp_data, device,intp_type="lerp"):
+        """
+        Forward pass for interpolation training.
+        If input_ids_intp is provided, computes loss on that as well.
+        """
+
+        text_start = intp_data['text_start']
+        text_end = intp_data['text_end']
+        text_intp = intp_data['text_intp']
+        input_ids_start = intp_data['input_ids_start'].to(device)
+        attention_mask_start = intp_data['attention_mask_start'].to(device)
+        input_ids_end = intp_data['input_ids_end'].to(device)
+        attention_mask_end = intp_data['attention_mask_end'].to(device)
+        input_ids_intp = intp_data['input_ids_intp'].to(device)
+        attention_mask_intp = intp_data['attention_mask_intp'].to(device)
+        # 1. Get Latents for Start and End
+        x_start = self.get_latents(input_ids_start, attention_mask_start)
+        x_end = self.get_latents(input_ids_end, attention_mask_end)
+        batch_size = x_start.shape[0]
+
+        # 2. Sample Timesteps t
+        r = torch.rand((batch_size,), device=x_start.device)
+        r_biased = r ** self.time_bias 
+        t = (r_biased * self.timesteps).long().clamp(0, self.timesteps - 1)
+
+        # 3. Calculate alpha_g value of interpolated sentence using Edit Distance. 
+        # alpha_g = ED(x_start, x_intp) / (ED(x_start, x_end) + ED(x_start, x_intp))
+        alpha_g = self._calc_alpha_g(text_start, text_intp, text_end)
+        alpha_g = alpha_g.view(batch_size, 1, 1)
+
+        # 4. Get Interpolated point from noised x_start and x_end using the calculated alpha
+        x_start_noised, _ = self.q_sample(x_start, t)
+        x_end_noised, _ = self.q_sample(x_end, t)
+
+        if intp_type == "lerp":
+            x_intp = linear_interpolate(x_start_noised, x_end_noised, alpha_g)
+        elif intp_type == "slerp":
+            x_intp = slerp_channel_wise(x_start_noised, x_end_noised, alpha_g)
+        else:
+            raise ValueError(f"Unknown intp_type: {intp_type}")
+
+        # 5. Denoise x_intp and predict text_intp
+        predicted_noise = self.denoise_model(x_intp, t)
+        x_0_pred = self.predict_x0_from_noise(x_intp, t, predicted_noise)
+        logits = self.decode_latents(x_0_pred)
+        flat_logits = logits.view(-1, logits.size(-1))
+        flat_labels = input_ids_intp.view(-1)
+        flat_mask = attention_mask_intp.view(-1)
+        ce_loss_raw = F.cross_entropy(flat_logits, flat_labels, reduction='none')
+        ce_loss = (ce_loss_raw * flat_mask).sum() / (flat_mask.sum() + 1e-7)
+
+        info = {
+            "text_start": text_start,
+            "text_end": text_end,
+            "text_intp": text_intp,
+            "text_intp_hat": [decode_token_ids(torch.argmax(logits[i], dim=-1), self.tokenizer) for i in range(logits.size(0))],
+            "alpha_g": alpha_g.squeeze().tolist()
+        }
+        return ce_loss, info
+
+
     @torch.no_grad()
     def reconstruct_text(self, input_ids, attention_mask):
         self.eval()
@@ -494,3 +583,22 @@ def decode_token_ids(token_ids, tokenizer):
         sep_idx = token_ids.index(tokenizer.sep_token_id)
         token_ids = token_ids[:sep_idx]
     return tokenizer.decode(token_ids, skip_special_tokens=True)
+
+
+
+
+class Putter(torch.nn.Module):
+    def __init__(self, input_dim, hidden_dim, output_dim, layer_num=3):
+        super(Putter, self).__init__()
+        layers = []
+        for i in range(layer_num):
+            in_dim = input_dim if i == 0 else hidden_dim
+            out_dim = output_dim if i == layer_num - 1 else hidden_dim
+            layers.append(torch.nn.Linear(in_dim, out_dim))
+            if i < layer_num - 1:
+                layers.append(torch.nn.ReLU())
+        self.network = torch.nn.Sequential(*layers)
+        
+    def forward(self, x):
+        output= self.network(x)
+        return output

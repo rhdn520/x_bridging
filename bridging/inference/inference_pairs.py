@@ -1,5 +1,7 @@
 import sys
-sys.path.append("../")
+# sys.path.append("../")
+sys.path.append("../train/")
+sys.path.append("../utils/")
 import argparse
 import json
 import os
@@ -9,12 +11,9 @@ from torch.utils.data import DataLoader
 from transformers import BertTokenizer
 from tqdm import tqdm
 
-# Import functionality from existing project files
-# We assume this script is run from the same directory where 'bridging' package is reachable or inside bridging dir
-# Adjusting python path might be needed if run from root, but assuming standard behavior relative to these files.
-from train import TinyStoriesDataset
+from custom_dataset import TinyStoriesDataset
 from inference import DiffusionTracer
-from interpolation import linear_interpolate, slerp_channel_wise
+from latent_intp import linear_interpolate, slerp_channel_wise
 
 # --- Configuration (Copied from gpt.py to ensure identical data setup) ---
 BERT_MODEL_NAME = "bert-base-uncased"
@@ -153,8 +152,10 @@ def main():
     if args.model_type == "conv":
         model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_k{args.kernel_size}.pth"
     elif args.model_type == "transformer":
-        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_{args.transformer_d_model}.pth"
-    model_path = os.path.join("../model_outputs", model_filename)
+        # model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_td{args.transformer_d_model}_intp.pth"
+        # model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_td{args.transformer_d_model}_dtypeinterpolation.pth"
+        model_filename = f"{args.model_type}_{args.latent_width}_{args.latent_channels}_{args.num_diffu_layers}_{args.diffu_timesteps}_td{args.transformer_d_model}_dtypetinystories.pth"
+    model_path = os.path.join("../train/model_outputs", model_filename)
     
     print(f"Loading model from: {model_path}")
     if not os.path.exists(model_path):
