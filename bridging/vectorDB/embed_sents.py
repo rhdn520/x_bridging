@@ -2,7 +2,9 @@ from random import sample
 import sys
 
 from numpy import diff
-sys.path.append("..")
+sys.path.append("../utils")
+sys.path.append("../train")
+sys.path.append("../inference")
 import os
 
 from model import DiffusionLM
@@ -15,7 +17,7 @@ from train import TinyStoriesDataset
 
 from transformers import BertTokenizer
 from torch.utils.data import DataLoader
-from inference.get_latent_path import get_latent_from_sent
+from get_latent_path import get_latent_from_sent
 from tqdm import tqdm
 
 class DiffusionEmbeddings():
@@ -42,7 +44,7 @@ class DiffusionEmbeddings():
 
 
 # LOAD DiffusionLM for embedding
-MODEL_PATH = "../model_outputs/transformer_1024_1_8_1000_d1024.pth"
+MODEL_PATH = "../train/model_outputs/transformer_1024_1_8_1000_td1024_dtypetinystories.pth"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 checkpoint = torch.load(MODEL_PATH, map_location=device)
 

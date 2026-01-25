@@ -8,9 +8,11 @@ from sacrebleu import CHRF
 # Add current directory to path to allow imports from analysis.py
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
+sys.path.append(os.path.join(current_dir, "../utils"))
 
 from analysis import SentenceSimilarity
 from levenshtein_distance import Levenshtein
+from gpt_models import GptSentenceRefiner
 
 def main():
     parser = argparse.ArgumentParser(description="Measure interpolation quality.")
@@ -21,6 +23,7 @@ def main():
     # Note: SentenceSimilarity loads 'all-MiniLM-L6-v2' by default which matches analysis.py
     sbert_sim = SentenceSimilarity() 
     chrf = CHRF()
+    refiner = GptSentenceRefiner()
 
     # Load data
     with open(args.input_file, 'r') as f:
@@ -41,7 +44,11 @@ def main():
         'std_lev_from_start': [],
         'std_lev_from_end': [],
         'std_chrf_from_start': [],
-        'std_chrf_from_end': []
+        'std_chrf_from_end': [],
+
+        'refined_sentences': [],
+        'lev_refined': [],
+        'std_lev_refined': []
     }
 
     # Process each interpolation path
@@ -77,6 +84,16 @@ def main():
             path_chrf_start.append(chrf.sentence_score(sent, [start_sent]).score)
             path_chrf_end.append(chrf.sentence_score(sent, [end_sent]).score)
 
+        # Refine and measure quality with GPT
+        print(f"Refining batch of {len(intp_path)} sentences...", flush=True)
+        refined_sents = refiner.refine_batch(intp_path)
+        path_refined_sents = refined_sents
+        path_lev_refined = []
+        
+        for sent, refined_sent in zip(intp_path, refined_sents):
+            path_lev_refined.append(Levenshtein(sent, refined_sent).distance())
+
+
         # Append progress lists
         results['sbert_from_start'].append(path_sbert_start)
         results['sbert_from_end'].append(path_sbert_end)
@@ -84,6 +101,8 @@ def main():
         results['lev_from_end'].append(path_lev_end)
         results['chrf_from_start'].append(path_chrf_start)
         results['chrf_from_end'].append(path_chrf_end)
+        results['refined_sentences'].append(path_refined_sents)
+        results['lev_refined'].append(path_lev_refined)
 
         # Calculate and append standard deviations
         results['std_sbert_from_start'].append(float(np.std(path_sbert_start)))
@@ -92,6 +111,7 @@ def main():
         results['std_lev_from_end'].append(float(np.std(path_lev_end)))
         results['std_chrf_from_start'].append(float(np.std(path_chrf_start)))
         results['std_chrf_from_end'].append(float(np.std(path_chrf_end)))
+        results['std_lev_refined'].append(float(np.std(path_lev_refined)))
 
     # Generate output filename
     base_name = os.path.basename(args.input_file)

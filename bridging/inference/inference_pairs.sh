@@ -7,8 +7,8 @@
 #SBATCH --cpus-per-task=1
 
 # Default timestep value (can be overridden by command line arg)
-INTP_TIMESTEPS=599
-TIMESTEP=599
+INTP_TIMESTEPS=0
+TIMESTEP=0
 
 # Usage: sbatch inference_pairs.sh [TIMESTEP]
 if [ ! -z "$1" ]; then

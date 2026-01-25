@@ -111,7 +111,7 @@ def main() -> None:
     base_filename = args.analysis_file.stem
 
     # Metrics to visualize
-    metrics = ['sbert', 'lev', 'chrf']
+    metrics = ['sbert', 'lev', 'chrf', 'lev_refined']
     directions = ['start', 'end']
 
     for metric in metrics:
@@ -138,7 +138,7 @@ def main() -> None:
                     base_filename
                 )
 
-    print(type(output_dir))
+    # print(type(output_dir))
 
 if __name__ == "__main__":
     main()
