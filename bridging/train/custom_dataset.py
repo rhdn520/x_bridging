@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import math
 import os
 import nltk
+nltk.download('punkt_tab')
 import json
 import torch.distributed as dist
 from torch.utils.data import Dataset, DataLoader, DistributedSampler
@@ -28,7 +29,7 @@ class C4Dataset(Dataset):
         # We load the streaming dataset on all ranks.
         # DistributedSampler will handle the splitting of indices later.
         # It is safer to load identical data on all ranks than to manually shard here.
-        ds = load_dataset("allenai/c4", split=split, streaming=True)
+        ds = load_dataset("allenai/c4", "en", split=split, streaming=True)
         ds = ds.shuffle(seed=42) 
 
         self.data = []

@@ -23,6 +23,7 @@ from custom_dataset import C4Dataset, TinyStoriesDataset, InterpolationDataset
 # --- DDP Helper Functions ---
 def setup_ddp():
     """Sets up the distributed process group."""
+    print_ddp(os.environ)
     if 'LOCAL_RANK' not in os.environ:
         # Default for single-GPU debugging
         os.environ['LOCAL_RANK'] = '0'
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     parser.add_argument('--test_samples', type=int, default=100000, help='Number of test samples')
 
     # Dataset Config
-    parser.add_argument('--dataset_type', type=str, default='tinystories', choices=['tinystories', 'interpolation'], help='Type of dataset to use')
+    parser.add_argument('--dataset_type', type=str, default='tinystories', choices=['tinystories', 'interpolation','c4'], help='Type of dataset to use')
     parser.add_argument('--interpolation_data_path', type=str, default='bridging/dataset/vllm_interpolation_outputs.json', help='Path to interpolation dataset JSON')
 
     # Save Policy
