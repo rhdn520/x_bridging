@@ -2,7 +2,7 @@
 #SBATCH --job-name=x_bridging_pairs
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --time=1-23:59:59
+#SBATCH --time=11:59:59
 #SBATCH --mem=16000MB
 #SBATCH --cpus-per-task=1
 
@@ -24,7 +24,7 @@ KERNEL_SIZE=5
 TRANSFORMER_D_MODEL=1024
 MODEL_TYPE="transformer"
 
-INTERPOLATION_TYPE="bezier_3rd"
+INTERPOLATION_TYPE="bezier_2nd"
 
 OUTPUT_FILE="inference_result/diffusion_intps_${MODEL_TYPE}_${TIMESTEP}_${INTERPOLATION_TYPE}.json"
 

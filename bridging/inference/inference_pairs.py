@@ -127,9 +127,9 @@ def interpolate_pair(tracer, sent1, sent2, args, vector_store=None):
             latent_v1 = proj_control['latent_x0']
 
             if args.noise_t >= 0:
-                noise_1 = tracer.trace_noising(latent_1, t_val=args.noise_t)['noisy_latent']
-                noise_v1 = tracer.trace_noising(latent_v1, t_val=args.noise_t)['noisy_latent']
-                noise_2 = tracer.trace_noising(latent_2, t_val=args.noise_t)['noisy_latent']
+                noise_1 = tracer.trace_noising(latent_1, t=args.noise_t)['noisy_latent']
+                noise_v1 = tracer.trace_noising(latent_v1, t=args.noise_t)['noisy_latent']
+                noise_2 = tracer.trace_noising(latent_2, t=args.noise_t)['noisy_latent']
                 
                 for alpha in alphas:
                     intp_noisy = bezier_2nd_order(noise_1, noise_v1, noise_2, alpha)
@@ -163,10 +163,10 @@ def interpolate_pair(tracer, sent1, sent2, args, vector_store=None):
             latent_cp2 = proj_cp2['latent_x0']
 
             if args.noise_t >= 0:
-                noise_1 = tracer.trace_noising(latent_1, t_val=args.noise_t)['noisy_latent']
-                noise_cp1 = tracer.trace_noising(latent_cp1, t_val=args.noise_t)['noisy_latent']
-                noise_cp2 = tracer.trace_noising(latent_cp2, t_val=args.noise_t)['noisy_latent']
-                noise_2 = tracer.trace_noising(latent_2, t_val=args.noise_t)['noisy_latent']
+                noise_1 = tracer.trace_noising(latent_1, t=args.noise_t)['noisy_latent']
+                noise_cp1 = tracer.trace_noising(latent_cp1, t=args.noise_t)['noisy_latent']
+                noise_cp2 = tracer.trace_noising(latent_cp2, t=args.noise_t)['noisy_latent']
+                noise_2 = tracer.trace_noising(latent_2, t=args.noise_t)['noisy_latent']
                 
                 for alpha in alphas:
                     intp_noisy = bezier_3rd_order(noise_1, noise_cp1, noise_cp2, noise_2, alpha)
@@ -230,7 +230,7 @@ def main():
     parser.add_argument("--output_file", type=str, default="bridging/diffusion_intps.json", help="Path to save JSON results")
     
     # Bezier Specific Args
-    parser.add_argument("--vectordb_path", type=str, default="./saved_db/faiss_diffusion_embeddings.index", help="Path to VectorDB for Bezier")
+    parser.add_argument("--vectordb_path", type=str, default="../vectorDB/saved_db/faiss_diffusion_embeddings.index", help="Path to VectorDB for Bezier")
     # parser.add_argument("--bezier_order", type=int, default=2, choices=[2, 3], help="Order of Bezier interpolation (2 or 3)")
 
     args = parser.parse_args()

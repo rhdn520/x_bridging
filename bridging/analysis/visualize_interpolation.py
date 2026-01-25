@@ -167,8 +167,9 @@ def interpolate_path(model, tokenizer, sent1, sent2, device, method='lerp', step
             
         # 2nd Order: Mean(V0, V2) -> Search DB -> V1
         avg_latent = (z1 + z2) / 2.0
+        # print("Searching for Bezier 2nd control point...",flush=True)
         query_vector = avg_latent.squeeze().cpu().numpy().flatten().tolist()
-        
+        # print("here", flush=True)
         results = vector_store.similarity_search_with_score_by_vector(query_vector, k=1)
         control_text = results[0][0].page_content
         print(f"Bezier 2nd Control Point: {control_text}")
@@ -244,138 +245,138 @@ def main():
     parser.add_argument("--steps", type=int, default=10, help="Number of interpolation steps")
     parser.add_argument("--intp_method", type=str, default="lerp", choices=["lerp", "slerp", "bezier_2nd", "bezier_3rd"], help="Interpolation method")
     parser.add_argument("--output_plot", type=str, default="plots/interpolation_viz.png", help="Output path for the plot")
-    parser.add_argument("--vectordb_path", type=str, default="../inference/saved_db/faiss_diffusion_embeddings.index", help="Path to VectorDB for Bezier")
+    parser.add_argument("--vectordb_path", type=str, default="../vectorDB/saved_db/faiss_diffusion_embeddings.index", help="Path to VectorDB for Bezier")
     
     args = parser.parse_args()
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    # 1. Load Model
-    model, tokenizer = load_model(args.model_path, device)
-    
-    # 2. Load VectorDB if needed
-    vector_store = None
-    if "bezier" in args.intp_method:
-        if FAISS is None:
-            raise ImportError("FAISS is required for bezier interpolation but not installed/imported.")
+    with torch.no_grad():
+        # 1. Load Model
+        model, tokenizer = load_model(args.model_path, device)
+        
+        # 2. Load VectorDB if needed
+        vector_store = None
+        if "bezier" in args.intp_method:
+            if FAISS is None:
+                raise ImportError("FAISS is required for bezier interpolation but not installed/imported.")
+                
+            print(f"Loading VectorDB from {args.vectordb_path}...")
+            try:
+                # We need a dummy wrapper for embeddings if FAISS.load_local expects one.
+                # In inference_pairs.py, they pass embedder_wrapper which implements embed_documents and embed_query
+                embedder_wrapper = DiffusionEmbeddings(model, tokenizer, device, t=499)
+                vector_store = FAISS.load_local(
+                    folder_path=args.vectordb_path,
+                    embeddings=embedder_wrapper,
+                    allow_dangerous_deserialization=True
+                )
+                print(">> VectorDB loaded successfully.")
+            except Exception as e:
+                print(f">> Error loading DB: {e}")
+                sys.exit(1)
+        
+        # 3. Load Data
+        # Training Data
+        train_sentences = get_data_loader(tokenizer, split="train", limit=args.n_samples)
+        # Validation Data
+        val_sentences = get_data_loader(tokenizer, split="validation", limit=args.n_samples)
+        
+        # 4. Extract Latents
+        print("Processing Training Data...")
+        train_latents = extract_latents(model, tokenizer, train_sentences, device)
+        
+        print("Processing Validation Data...")
+        val_latents = extract_latents(model, tokenizer, val_sentences, device)
+        
+        # 5. Generate Interpolation Paths
+        import random
+        random.seed(42)
+        
+        # Logic from inference_pairs.py to generate pairs
+        # Use a subset of validation sentences to make pairs
+        NUM_SENTENCES_TO_PROCESS = 20
+        # Ensure we have enough sentences
+        if len(val_sentences) < NUM_SENTENCES_TO_PROCESS:
+            subset = val_sentences
+        else:
+            # Shuffle and take subset
+            shuffled_sent = val_sentences[:]
+            random.shuffle(shuffled_sent)
+            subset = shuffled_sent[:NUM_SENTENCES_TO_PROCESS]
+        
+        print(f"Selected {len(subset)} sentences for pairing.")
+        
+        sentence_pairs = []
+        for i in range(len(subset)):
+            for j in range(i+1, len(subset)):
+                sentence_pairs.append((subset[i], subset[j]))
+                
+        print(f"Generated {len(sentence_pairs)} pairs to visualize.")
+        
+        # 6. Dimensionality Reduction
+        print(f"Fitting {args.method.upper()} on Training Latents...")
+        if args.method == "pca":
+            reducer = PCA(n_components=2)
+        elif args.method == "umap":
+            if umap is None:
+                raise ImportError("UMAP is not installed.")
+            reducer = umap.UMAP(n_components=2, random_state=42)
             
-        print(f"Loading VectorDB from {args.vectordb_path}...")
-        try:
-            # We need a dummy wrapper for embeddings if FAISS.load_local expects one.
-            # In inference_pairs.py, they pass embedder_wrapper which implements embed_documents and embed_query
-            embedder_wrapper = DiffusionEmbeddings(model, tokenizer, device, t=499)
-            vector_store = FAISS.load_local(
-                folder_path=args.vectordb_path,
-                embeddings=embedder_wrapper,
-                allow_dangerous_deserialization=True
-            )
-            print(">> VectorDB loaded successfully.")
-        except Exception as e:
-            print(f">> Error loading DB: {e}")
-            sys.exit(1)
-    
-    # 3. Load Data
-    # Training Data
-    train_sentences = get_data_loader(tokenizer, split="train", limit=args.n_samples)
-    # Validation Data
-    val_sentences = get_data_loader(tokenizer, split="validation", limit=args.n_samples)
-    
-    # 4. Extract Latents
-    print("Processing Training Data...")
-    train_latents = extract_latents(model, tokenizer, train_sentences, device)
-    
-    print("Processing Validation Data...")
-    val_latents = extract_latents(model, tokenizer, val_sentences, device)
-    
-    # 5. Generate Interpolation Paths
-    import random
-    random.seed(42)
-    
-    # Logic from inference_pairs.py to generate pairs
-    # Use a subset of validation sentences to make pairs
-    NUM_SENTENCES_TO_PROCESS = 20
-    # Ensure we have enough sentences
-    if len(val_sentences) < NUM_SENTENCES_TO_PROCESS:
-         subset = val_sentences
-    else:
-         # Shuffle and take subset
-         shuffled_sent = val_sentences[:]
-         random.shuffle(shuffled_sent)
-         subset = shuffled_sent[:NUM_SENTENCES_TO_PROCESS]
-    
-    print(f"Selected {len(subset)} sentences for pairing.")
-    
-    sentence_pairs = []
-    for i in range(len(subset)):
-        for j in range(i+1, len(subset)):
-             sentence_pairs.append((subset[i], subset[j]))
-             
-    print(f"Generated {len(sentence_pairs)} pairs to visualize.")
-    
-    # 6. Dimensionality Reduction
-    print(f"Fitting {args.method.upper()} on Training Latents...")
-    if args.method == "pca":
-        reducer = PCA(n_components=2)
-    elif args.method == "umap":
-        if umap is None:
-            raise ImportError("UMAP is not installed.")
-        reducer = umap.UMAP(n_components=2, random_state=42)
+        # Fit on training data
+        reducer.fit(train_latents)
         
-    # Fit on training data
-    reducer.fit(train_latents)
-    
-    # Transform background data once
-    train_proj = reducer.transform(train_latents)
-    val_proj = reducer.transform(val_latents)
-    
-    # 7. Loop and Plot
-    print(f"Plotting {len(sentence_pairs)} pairs...")
-    
-    base_output_path = args.output_plot
-    # Remove extension if present to append index
-    if base_output_path.endswith(".png"):
-        base_output_path = base_output_path[:-4]
+        # Transform background data once
+        train_proj = reducer.transform(train_latents)
+        val_proj = reducer.transform(val_latents)
         
-    os.makedirs(os.path.dirname(base_output_path) if os.path.dirname(base_output_path) else ".", exist_ok=True)
+        # 7. Loop and Plot
+        print(f"Plotting {len(sentence_pairs)} pairs...")
+        
+        base_output_path = args.output_plot
+        # Remove extension if present to append index
+        if base_output_path.endswith(".png"):
+            base_output_path = base_output_path[:-4]
+            
+        os.makedirs(os.path.dirname(base_output_path) if os.path.dirname(base_output_path) else ".", exist_ok=True)
 
-    for i, (s1, s2) in enumerate(tqdm(sentence_pairs)):
-        # Calculate path
-        try:
-            intp_latents = interpolate_path(model, tokenizer, s1, s2, device, method=args.intp_method, steps=args.steps, vector_store=vector_store)
-        except Exception as e:
-            print(f"Skipping pair {i} due to error: {e}")
-            continue
+        for i, (s1, s2) in enumerate(tqdm(sentence_pairs)):
+            # Calculate path
+            try:
+                intp_latents = interpolate_path(model, tokenizer, s1, s2, device, method=args.intp_method, steps=args.steps, vector_store=vector_store)
+            except Exception as e:
+                print(f"Skipping pair {i} due to error: {e}")
+                continue
 
-        # Transform path
-        intp_proj = reducer.transform(intp_latents)
-        
-        plt.figure(figsize=(12, 10))
-        
-        # Plot Training Data
-        plt.scatter(train_proj[:, 0], train_proj[:, 1], c='lightgray', alpha=0.3, label='Training Data', s=10)
-        
-        # Plot Validation Data
-        plt.scatter(val_proj[:, 0], val_proj[:, 1], c='lightblue', alpha=0.5, label='Validation Data', s=10)
-        
-        # Plot Interpolation Path
-        plt.plot(intp_proj[:, 0], intp_proj[:, 1], c='red', linestyle='-', linewidth=2, label=f'Interpolation Path ({args.intp_method})', alpha=0.9)
-        plt.scatter(intp_proj[:, 0], intp_proj[:, 1], c='red', s=30, marker='o')
-        
-        # Mark Start and End
-        plt.scatter(intp_proj[0, 0], intp_proj[0, 1], c='green', s=150, marker='*', label='Start', edgecolors='k', zorder=10)
-        plt.scatter(intp_proj[-1, 0], intp_proj[-1, 1], c='orange', s=150, marker='*', label='End', edgecolors='k', zorder=10)
-        
-        plt.title(f"Latent Manifold Projection ({args.method.upper()}) - {args.intp_method} - Pair {i}")
-        plt.xlabel("Dim 1")
-        plt.ylabel("Dim 2")
-        plt.legend()
-        plt.grid(True, alpha=0.3)
-        
-        save_path = f"{base_output_path}_{i}.png"
-        plt.savefig(save_path, dpi=300)
-        plt.close()
-        
-    print(f"All plots saved to {base_output_path}_*.png")
+            # Transform path
+            intp_proj = reducer.transform(intp_latents)
+            
+            plt.figure(figsize=(12, 10))
+            
+            # Plot Training Data
+            plt.scatter(train_proj[:, 0], train_proj[:, 1], c='lightgray', alpha=0.3, label='Training Data', s=10)
+            
+            # Plot Validation Data
+            plt.scatter(val_proj[:, 0], val_proj[:, 1], c='lightblue', alpha=0.5, label='Validation Data', s=10)
+            
+            # Plot Interpolation Path
+            plt.plot(intp_proj[:, 0], intp_proj[:, 1], c='red', linestyle='-', linewidth=2, label=f'Interpolation Path ({args.intp_method})', alpha=0.9)
+            plt.scatter(intp_proj[:, 0], intp_proj[:, 1], c='red', s=30, marker='o')
+            
+            # Mark Start and End
+            plt.scatter(intp_proj[0, 0], intp_proj[0, 1], c='green', s=150, marker='*', label='Start', edgecolors='k', zorder=10)
+            plt.scatter(intp_proj[-1, 0], intp_proj[-1, 1], c='orange', s=150, marker='*', label='End', edgecolors='k', zorder=10)
+            
+            plt.title(f"Latent Manifold Projection ({args.method.upper()}) - {args.intp_method} - Pair {i}")
+            plt.xlabel("Dim 1")
+            plt.ylabel("Dim 2")
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            
+            save_path = f"{base_output_path}_{i}.png"
+            plt.savefig(save_path, dpi=300)
+            plt.close()
+            
+        print(f"All plots saved to {base_output_path}_*.png")
 
 if __name__ == "__main__":
     main()
