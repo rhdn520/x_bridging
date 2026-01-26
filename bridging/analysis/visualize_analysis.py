@@ -49,6 +49,8 @@ def plot_progress(
     plt.plot(range(len(avg_seq)), avg_seq, color='red', linewidth=2, label='Average')
 
     title = f"{metric_name.upper()} Progress (from {direction})"
+    if direction == '':
+        title = f"{metric_name.upper()}"
     plt.title(title)
     plt.xlabel("Step Index")
     plt.ylabel(metric_name)
@@ -56,7 +58,7 @@ def plot_progress(
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     
-    out_path = output_dir / f"{base_filename}_progress_{metric_name}_{direction}.png"
+    out_path = output_dir / f"{base_filename}_progress_{metric_name}_{direction}.png" if direction else output_dir / f"{base_filename}_progress_{metric_name}.png"
     plt.savefig(out_path)
     plt.close()
     print(f"Saved progress plot to {out_path}")
@@ -150,7 +152,7 @@ def main() -> None:
             plot_progress(
                 data[key_progress], 
                 metric, 
-                'directness', 
+                '', 
                 output_dir,
                 base_filename
             )
