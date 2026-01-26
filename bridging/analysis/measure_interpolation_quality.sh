@@ -9,4 +9,5 @@
 
 # Pass all arguments to the python script
 srun python measure_interpolation_quality.py \
-    --input_file ../inference/inference_result/diffusion_intps_transformer_699_slerp.json
+    --input_file ../inference/inference_result/gpt_intps_new.json \
+    --n_sents_in_path 12

@@ -8,4 +8,4 @@
 
 
 # Pass all arguments to the python script
-srun python visualize_analysis.py ../inference/inference_result/test_analysis.json
+srun python visualize_analysis.py ../inference/inference_result/diffusion_intps_transformer_699_slerp_analysis.json
