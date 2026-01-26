@@ -9,4 +9,4 @@
 
 # Pass all arguments to the python script
 srun python measure_interpolation_quality.py \
-    --input_file ../inference/inference_result/diffusion_bezier_intps_o3_t699.json
+    --input_file ../inference/inference_result/diffusion_intps_transformer_699_slerp.json

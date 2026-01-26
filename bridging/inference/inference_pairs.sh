@@ -24,7 +24,7 @@ KERNEL_SIZE=5
 TRANSFORMER_D_MODEL=1024
 MODEL_TYPE="transformer"
 
-INTERPOLATION_TYPE="bezier_2nd"
+INTERPOLATION_TYPE="bezier_3rd"
 
 OUTPUT_FILE="inference_result/diffusion_intps_${MODEL_TYPE}_${TIMESTEP}_${INTERPOLATION_TYPE}.json"
 

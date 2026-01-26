@@ -1,0 +1,296 @@
+{
+   "sbert_from_start": [
+      [
+         1.0,
+         0.61,
+         0.6,
+         0.6,
+         0.6,
+         0.61,
+         0.5,
+         0.5,
+         0.48,
+         0.23,
+         0.28,
+         0.21,
+         0.08,
+         0.19,
+         0.24,
+         0.23,
+         0.16,
+         0.19,
+         0.18,
+         0.18,
+         0.2
+      ]
+   ],
+   "sbert_from_end": [
+      [
+         0.2,
+         0.2,
+         0.19,
+         0.19,
+         0.17,
+         0.12,
+         0.17,
+         0.17,
+         0.18,
+         0.13,
+         0.16,
+         0.12,
+         0.21,
+         0.36,
+         0.4,
+         0.37,
+         0.37,
+         0.39,
+         0.39,
+         0.39,
+         1.0
+      ]
+   ],
+   "lev_from_start": [
+      [
+         0,
+         19,
+         23,
+         23,
+         29,
+         32,
+         33,
+         33,
+         40,
+         43,
+         51,
+         50,
+         57,
+         57,
+         57,
+         59,
+         59,
+         60,
+         58,
+         58,
+         56
+      ]
+   ],
+   "lev_from_end": [
+      [
+         56,
+         56,
+         54,
+         54,
+         55,
+         53,
+         57,
+         57,
+         56,
+         56,
+         61,
+         58,
+         55,
+         50,
+         45,
+         45,
+         41,
+         43,
+         37,
+         37,
+         0
+      ]
+   ],
+   "chrf_from_start": [
+      [
+         100.0,
+         50.46013281261153,
+         39.0835407985588,
+         39.0835407985588,
+         34.52327614973868,
+         25.46523985135472,
+         24.216789961795516,
+         24.216789961795516,
+         19.42781413025888,
+         18.914152758492378,
+         19.75654105128255,
+         18.395841825301222,
+         15.205538656501519,
+         15.320587757980105,
+         14.06425364758698,
+         15.513041746471965,
+         15.347996339379153,
+         16.181459285784314,
+         14.919723678506333,
+         14.919723678506333,
+         13.002998603887514
+      ]
+   ],
+   "chrf_from_end": [
+      [
+         13.442043829021092,
+         12.820153272380145,
+         13.549667629444759,
+         13.549667629444759,
+         13.065301427974044,
+         12.189196314796197,
+         13.42407997419262,
+         13.42407997419262,
+         12.43264483865048,
+         11.851618971274783,
+         13.287049060617967,
+         13.884102685390953,
+         13.677896252637739,
+         15.389379718593721,
+         16.599247327214357,
+         16.537087794566027,
+         18.86261835048607,
+         22.61072508104391,
+         25.596592803652374,
+         25.596592803652374,
+         100.0
+      ]
+   ],
+   "std_sbert_from_start": [
+      0.22888173381150875
+   ],
+   "std_sbert_from_end": [
+      0.19023794624226836
+   ],
+   "std_lev_from_start": [
+      16.719372445339758
+   ],
+   "std_lev_from_end": [
+      12.925742916056034
+   ],
+   "std_chrf_from_start": [
+      19.264209844443194
+   ],
+   "std_chrf_from_end": [
+      18.428511295203595
+   ],
+   "sbert_directness": [
+      [
+         0.0,
+         -1.0,
+         0.0,
+         -0.0,
+         0.20000000000000012,
+         2.199999999999999,
+         0.0,
+         2.0000000000000058,
+         -5.000000000000001,
+         -1.6666666666666672,
+         -1.7500000000000004,
+         1.4444444444444446,
+         -0.7333333333333334,
+         -1.2499999999999987,
+         -0.3333333333333324,
+         0.0,
+         -1.4999999999999987,
+         0.0,
+         0.0,
+         -0.03278688524590167
+      ]
+   ],
+   "lev_directness": [
+      [
+         0.0,
+         2.0,
+         0.0,
+         -6.0,
+         1.5,
+         -0.25,
+         0.0,
+         7.0,
+         0.0,
+         -1.6,
+         -0.3333333333333333,
+         2.3333333333333335,
+         0.0,
+         0.0,
+         0.0,
+         0.0,
+         -0.5,
+         -0.3333333333333333,
+         0.0,
+         -0.05405405405405406
+      ]
+   ],
+   "chrf_directness": [
+      [
+         -79.66010523615437,
+         15.594747250526131,
+         0.0,
+         -9.41491093923042,
+         -10.338983487413119,
+         1.010985836649107,
+         0.0,
+         -4.830347099730242,
+         -0.8840593863514934,
+         -0.5868542808487648,
+         2.2790234738105783,
+         -15.471404680269222,
+         -0.06722185972992935,
+         1.0384062697781167,
+         23.307577086873472,
+         0.07097107654537593,
+         -0.22236905358378495,
+         0.42256915727523386,
+         0.0,
+         0.025761254045270507
+      ]
+   ],
+   "std_sbert_directness": [],
+   "std_lev_directness": [],
+   "std_chrf_directness": [],
+   "refined_sentences": [
+      [
+         "but when he got to the top, he slipped and fell, hurting his eye.",
+         "but when max got up from the ground, he noticed and fell down, hurting his leg.",
+         "but when max got up from the ground, he noticed it and fell, hurting his leg.",
+         "but when max got up from the ground, he noticed it and fell, hurting his leg.",
+         "but when he got home from the club, he noticed it and fell over his leg.",
+         "but when he got up from the ground, he noticed it fall by his leg.",
+         "but when he got the box, he noticed it fall down the stairs by his shoes.",
+         "but when he got the box, he noticed it fall down the stairs by his shoes.",
+         "But when he got home, he noticed it fall to the ground like his shoes.",
+         "but at home, he should drop the box with his shoes like Lily did.",
+         "but when he got home from the box, he should drop the little snowy shoes like Lily.",
+         "but the day after comes from the inbox, he should drop the little snowy things.",
+         "Mommy's day comes from the box, I should drop the little snowflakes.",
+         "Mommy, should I drop the little snowy thing in the box after him?",
+         "Mommy comes after him from the box, should I lay the little snowy one?",
+         "Mommy lives after her owner in a box; should I lay the little snowy one?",
+         "Mommy lives after her owner in oxygen, can I roll the little animals?",
+         "Mommy lives behind her owner in the ocean, \"Can I hold the animals, little?\"",
+         "Mommy lives at her home in Oregon, \"Can I hold the animals, little?\"",
+         "Mommy lives at her home in Oregon, \"Can I hold the animals, little?\"",
+         "Sara looks at her parents and says, \"Can I play with him, please?\""
+      ]
+   ],
+   "lev_refined": [
+      [
+         5,
+         12,
+         18,
+         18,
+         17,
+         14,
+         14,
+         14,
+         21,
+         41,
+         39,
+         28,
+         28,
+         50,
+         22,
+         24,
+         17,
+         14,
+         15,
+         15,
+         6
+      ]
+   ],
+   "std_lev_refined": []
+}

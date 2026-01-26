@@ -1,7 +1,7 @@
 
 import os
 import sys
-sys.path.append("../")
+sys.path.append("../train")
 import json
 import random
 from dotenv import load_dotenv
@@ -9,21 +9,21 @@ from openai import OpenAI
 from torch.utils.data import DataLoader
 from transformers import BertTokenizer
 
-from train import StreamTinyStoriesDataset
+from custom_dataset import TinyStoriesDataset #type: ignore
 from tqdm import tqdm
 
 # --- Configuration ---
 BERT_MODEL_NAME = "bert-base-uncased"
 GPT_MODEL_NAME = "gpt-4.1-nano-2025-04-14"
 
+# --- Configuration (Copied from gpt.py to ensure identical data setup) ---
 DATA_SPLIT = "validation"
-MAX_SAMPLES = 1000
 MAX_SEQ_LEN = 128
 SKIP_SAMPLES = 10000
 BATCH_SIZE = 1
-
 NUM_SENTENCES_TO_PROCESS = 20
-OUTPUT_FILE = "/home/seungwoochoi/data/x_bridging/bridging/gpt_intps_new.json"
+
+OUTPUT_FILE = "./inference_result/gpt_intps_new.json"
 
 
 def load_data(tokenizer):
@@ -37,10 +37,9 @@ def load_data(tokenizer):
         list: A list of decoded sentences.
     """
     print("Loading dataset...", flush=True)
-    test_dataset = StreamTinyStoriesDataset(
+    test_dataset = TinyStoriesDataset(
         tokenizer,
         split=DATA_SPLIT,
-        max_samples=MAX_SAMPLES,
         max_seq_len=MAX_SEQ_LEN,
         skip_samples=SKIP_SAMPLES
     )
@@ -78,6 +77,7 @@ def generate_sentence_pairs(sent_list):
             products.append([sent1, sent2])
             
     print(f"Generated {len(products)} pairs.")
+    print(products)
     return products
 
 def get_gpt_responses(products, client):

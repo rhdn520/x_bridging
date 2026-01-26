@@ -108,7 +108,9 @@ def main() -> None:
 
     data = load_analysis(args.analysis_file)
     output_dir = args.analysis_file.parent.joinpath("plots")
+    print(f"Creating output directory at {output_dir}...")
     base_filename = args.analysis_file.stem
+    print(f"Base filename for plots: {base_filename}")
 
     # Metrics to visualize
     metrics = ['sbert', 'lev', 'chrf', 'lev_refined']
@@ -138,7 +140,20 @@ def main() -> None:
                     base_filename
                 )
 
-    # print(type(output_dir))
-
+    # Visualize directness metrics (no direction, just metric-based)
+    directness_metrics = ['sbert_directness', 'lev_directness', 'chrf_directness']
+    
+    for metric in directness_metrics:
+        # Plot Progress
+        key_progress = metric
+        if key_progress in data:
+            plot_progress(
+                data[key_progress], 
+                metric, 
+                'directness', 
+                output_dir,
+                base_filename
+            )
+            
 if __name__ == "__main__":
     main()
