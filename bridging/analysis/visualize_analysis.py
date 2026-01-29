@@ -31,7 +31,7 @@ def plot_progress(
         print(f"No data for {metric_name} ({direction})")
         return
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 10))
     
     # Plot each path
     # Use alpha to handle many overlapping lines
@@ -115,7 +115,7 @@ def main() -> None:
     print(f"Base filename for plots: {base_filename}")
 
     # Metrics to visualize
-    metrics = ['sbert', 'lev', 'chrf', 'lev_refined']
+    metrics = ['sbert', 'lev', 'chrf']
     directions = ['start', 'end']
 
     for metric in metrics:
@@ -143,7 +143,7 @@ def main() -> None:
                 )
 
     # Visualize directness metrics (no direction, just metric-based)
-    directness_metrics = ['sbert_directness', 'lev_directness', 'chrf_directness']
+    directness_metrics = ['sbert_directness', 'lev_directness', 'chrf_directness', 'lev_refined']
     
     for metric in directness_metrics:
         # Plot Progress
